@@ -1,0 +1,50 @@
+/config/*
+!/config/config-example.js
+/node_modules
+/eslint-cache
+.eslintcache
+npm-debug.log
+package-lock.json
+.vs
+
+# boilerplate #
+###############
+
+.DS_Store
+
+# editor temp files
+*~
+.idea/
+
+tmp/**/*
+*.lock
+*.DS_Store
+*.swp
+*.out
+*.pyc
+*.pyo
+.installed.cfg
+
+downloads
+build
+dist
+
+# egg related
+develop-eggs
+*.egg-info
+*.egg
+*.EGG
+*.EGG-INFO
+src/*.egg-info
+eggs
+fake-eggs
+
+# django
+local_settings.py
+
+# SCM
+.hg
+.bzr
+.svn
+
+pip-log.txt
