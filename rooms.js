@@ -3,6 +3,7 @@
 let Rooms = Object.assign(getRoom, {
 	rooms: new Map(),
 	createRoom,
+	deinitRoom,
 	setTitle,
 	updateUserlist,
 });
@@ -14,6 +15,7 @@ class Room {
 		this.roomid = '';
 		this.userCount = 0;
 		this.users = new Map(); // userid => object
+		this.roomauth = new Map(); // userid => string with symbol
 	}
 	destroy() {
 		for (const user of this.users.entries()) {
@@ -30,19 +32,32 @@ class Room {
 		const thisRoomIndex = user.rooms.indexOf(this.roomid);
 		user.rooms.splice(thisRoomIndex, 1);
 		this.users.delete(userid);
+		this.roomauth.delete(userid);
 	}
 
-	userJoin(name) {
-		const user = Users.addUser(name);
+	userJoin(name, group) {
+		let user = Users(name);
+		if (!user) user = Users.addUser(name);
 		this.users.set(user.userid, user);
+		this.roomauth.set(user.userid, group);
 	}
 
-	userRename(from, to) {
+	userRename(from, to, newGroup) {
 		// this should ALWAYS be dealt with in the user/global scope before the room scope
 		const oldId = toId(from);
 		const newId = toId(to);
 		this.users.set(newId, this.users.get(oldId));
 		this.users.delete(oldId);
+		this.roomauth.set(newId, newGroup);
+		this.roomauth.delete(oldId);
+	}
+
+	/**
+     * @param {string} userid
+     * @return {string}
+     */
+	getAuth(userid) {
+		return this.roomauth.get(userid);
 	}
 }
 
@@ -51,7 +66,7 @@ class Room {
  */
 function getRoom(roomid) {
 	if (typeof roomid === 'object') return roomid;
-	return this.rooms.get(toId(roomid));
+	return Rooms.rooms.get(roomid.startsWith('groupchat') ? roomid : toId(roomid));
 }
 
 /**
@@ -71,6 +86,7 @@ function createRoom(roomid, roomtype) {
 	room.roomid = roomid;
 	room.title = roomid;
 	Rooms.rooms.set(roomid, room);
+	debug(`INIT ROOM: ${roomid}`);
 	return room;
 }
 /**
@@ -97,15 +113,16 @@ function updateUserlist(roomid, users) {
 		debug(`Updating the userlist of a non-existent room - ${roomid}`);
 		room = createRoom(roomid, '');
 	}
-	room.userList = users.split(',').map(x => x.trim());
+	let list = users.slice(users.indexOf(',') + 1).split(',');
+	room.userList = list.slice().map(u => u.substring(1));
 	room.userCount = room.userList.length;
-	for (const user of room.userList) {
-		room.userJoin(user);
+	for (let i = 0; i < room.userList.length; i++) {
+		room.userJoin(room.userList[i], list[i].substring(0, 1));
 	}
 	return room;
 }
 
-/*function deinitRoom(roomid) {
+function deinitRoom(roomid) {
 	// this exists to deal with pages
 	// todo support pages
 	let room = Rooms(roomid);
@@ -115,7 +132,8 @@ function updateUserlist(roomid, users) {
 	}
 	room.destroy();
 	Rooms.rooms.delete(roomid);
+	debug(`DEINIT ROOM: ${roomid}`);
 	return true;
-}*/
+}
 
 module.exports = Rooms;

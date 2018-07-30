@@ -46,9 +46,8 @@ if (!toId(Config.nick)) {
 	process.exit(1);
 }
 
-let runDebug = true; // Not const so it can be toggled with an eval command
 global.debug = function (msg) {
-	if (!runDebug) return;
+	if (!Config.debugMode) return;
 	console.log(`[DEBUG] ${msg}\n`);
 };
 

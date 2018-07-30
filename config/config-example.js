@@ -22,10 +22,16 @@ exports.serverid = 'localhost';
 exports.nick = '';
 exports.pass = '';
 
+// Avatar number for the bot
+exports.avatar = 52;
+
 // List of rooms to try and join after the bot starts
 exports.autojoin = ['lobby'];
 // Command characters for the bot
-exports.commandChars = ['@'];
+exports.commandTokens = ['@'];
+
+// Debug mode - Prints more info to the console, useful for fixing issues
+exports.debugMode = false;
 
 /**
  * Permissions by rank

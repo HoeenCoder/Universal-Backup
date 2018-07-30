@@ -94,11 +94,11 @@ class Client {
 	}
 
 	onMessage(message) {
-		debug(`new message: ${message}`);
+		//debug(`new message: ${message}`);
 		let roomid = 'lobby';
 		if (message.charAt(0) === '>') {
 			roomid = message.slice(1, message.indexOf('\n'));
-			message = message.slice(0, roomid.length + 2); // Slice the roomid out
+			message = message.slice(message.indexOf('\n') + 1); // Slice the roomid out
 		}
 
 		if (message.substr(0, 10) === '|challstr|') {
@@ -177,7 +177,15 @@ class Client {
 		if (message.substring(0, 12) === '|updateuser|') {
 			message = message.split('|');
 			console.log(`NAME UPDATE: ${message[2]}`);
-			if (message[2] === Config.nick) console.log(`Sucessfully logged in as ${Config.nick}`);
+			if (message[2] === Config.nick) {
+				console.log(`Sucessfully logged in as ${Config.nick}`);
+				if (Config.avatar) this.send(`|/avatar ${Config.avatar}`);
+				if (Rooms.rooms.size === 0 && Config.autojoin.length) {
+					this.send(Config.autojoin.slice().map(roomid => {
+						return `|/join ${roomid}`;
+					}));
+				}
+			}
 			return;
 		}
 		this.messageCallback(roomid, message);

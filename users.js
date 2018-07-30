@@ -7,25 +7,28 @@ let Users = Object.assign(getUser, {
 });
 
 class User {
-	constructor(name, group) {
+	constructor(name) {
 		this.userid = toId(name);
 		this.name = name;
-		if (!(group.slice(0, 1) in Config.groups)) {
-			debug(`Unhandled group: ${group} for ${name}`);
-			group = ' ';
-		}
-		this.group = group;
-		this.isDev = false; // TODO dev perms like eval, basically its bot admin
+		this.group = ' ';
+		this.isDev = this.hasDevAccess();
 		this.rooms = [];
+
+		// Get global rank
+		Client.send(`|/cmd userdetails ${this.userid}`);
 	}
 
 	/**
 	 * @param {string} permission
 	 * @param {User?} targetUser
 	 * @param {Room?} room
+	 * @return {boolean}
 	 */
 	can(permission, targetUser, room) {
-		let permissions = Config.groups[this.group]; // TODO support roomauth, make sure the higher auth overrides the lower
+		let groupsIndex = Object.keys(Config.groups);
+		let group = this.group;
+		if (room && groupsIndex.indexOf(room.getAuth(this.userid)) > groupsIndex.indexOf(this.group)) group = room.getAuth(this.userid);
+		let permissions = Config.groups[group];
 		if (!permissions) return false; // ??!
 		if (permission.root || this.isDev) return true;
 		let auth = permissions[permission];
@@ -40,7 +43,6 @@ class User {
 		}
 		switch (auth) {
 		case 'u':
-			let groupsIndex = Object.keys(Config.groups);
 			return (targetUser && groupsIndex.indexOf(this.group) > groupsIndex.indexOf(targetUser.group));
 		case 's':
 			return (targetUser && targetUser.userid === this.userid);
@@ -48,18 +50,35 @@ class User {
 			return !!auth;
 		}
 	}
+
+	/**
+	 * @return {boolean}
+	 */
+	hasDevAccess() {
+		if (['hoeenhero', 'jumbowhales'].indexOf(this.userid) > -1) return true;
+		return false;
+	}
+
+	/**
+	 * @param {string} group
+	 */
+	updateGlobalRank(group) {
+		this.group = group;
+	}
 }
 
 function getUser(name) {
 	if (typeof name === 'object') return name;
-	return this.users.get(toId(name));
+	return Users.users.get(toId(name));
 }
 
 // adds a user, or if the user already exists, return them
 function addUser(name) {
 	let user = Users(toId(name));
 	if (user) return user;
-	user = new User(name.substring(1), name.substring(0, 1));
+	user = new User(name);
+	Users.users.set(toId(name), user);
+	debug(`INIT USER: ${user.name}`);
 	return user;
 }
 
@@ -68,7 +87,7 @@ function renameUser(from, to) {
 	const newId = toId(to);
 	// this can fire multiple times, since the rename message gets sent to each room theyre in
 	if (!Users(oldId) && Users(newId)) return true;
-	const user = User(oldId);
+	const user = Users(oldId);
 	if (!user) return debug(`Renaming non-existent user ${from} to ${to}`);
 	user.name = to.substring(1);
 	let group = to.substring(0, 1);
@@ -80,6 +99,7 @@ function renameUser(from, to) {
 	user.userid = newId;
 	Users.users.set(newId, user);
 	Users.users.delete(oldId);
+	debug(`RENAME USER: ${oldId} => ${user.name}`);
 	return true;
 }
 
