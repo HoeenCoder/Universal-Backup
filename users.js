@@ -18,6 +18,36 @@ class User {
 		this.isDev = false; // TODO dev perms like eval, basically its bot admin
 		this.rooms = [];
 	}
+
+	/**
+	 * @param {string} permission
+	 * @param {User?} targetUser
+	 * @param {Room?} room
+	 */
+	can(permission, targetUser, room) {
+		let permissions = Config.groups[this.group]; // TODO support roomauth, make sure the higher auth overrides the lower
+		if (!permissions) return false; // ??!
+		if (permission.root || this.isDev) return true;
+		let auth = permissions[permission];
+		if (auth === undefined && permissions.inherit) {
+			let depth = 0;
+			while (auth === undefined && permission.inherit && depth < 10) {
+				permissions = Config.groups[permissions.inherit];
+				if (!permissions) break;
+				auth = permissions[permission];
+				depth++;
+			}
+		}
+		switch (auth) {
+		case 'u':
+			let groupsIndex = Object.keys(Config.groups);
+			return (targetUser && groupsIndex.indexOf(this.group) > groupsIndex.indexOf(targetUser.group));
+		case 's':
+			return (targetUser && targetUser.userid === this.userid);
+		default:
+			return !!auth;
+		}
+	}
 }
 
 function getUser(name) {

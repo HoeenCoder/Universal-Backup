@@ -143,13 +143,24 @@ class Client {
 						console.log(`LOGIN FAILED - The login server is experiencing heavy load and cannot accomidate the bot's connection right now.`);
 						return process.exit(1);
 					}
+					try {
+						data = JSON.parse(data.substring(1));
+						if (data.actionsuccess) {
+							data = data.assertion;
+						} else {
+							console.log(`Unable to login - request was not sucessful\n`);
+							console.log(JSON.stringify(data));
+							console.log(`\n`);
+							process.exit(1);
+						}
+					} catch (e) {}
 					this.send(`|/trn ${Config.nick},0,${data}`);
-				});//.bind(this);
-			});//.bind(this);
+				});
+			});
 			req.on('error', e => {
 				console.error(`Error while logging in: ${e}`);
 				return;
-			});//.bind(this);
+			});
 			if (data) req.write(data);
 			req.end();
 		}
