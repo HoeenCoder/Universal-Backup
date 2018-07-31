@@ -31,15 +31,8 @@ try {
 }
 
 // Setup globals
-global.toId = function (text) {
-	if (text && text.id) {
-		text = text.id;
-	} else if (text && text.userid) {
-		text = text.userid;
-	}
-	if (typeof text !== 'string' && typeof text !== 'number') return '';
-	return ('' + text).toLowerCase().replace(/[^a-z0-9]+/g, '');
-};
+global.Tools = require('./tools.js');
+global.toId = Tools.toId;
 
 if (!toId(Config.nick)) {
 	console.log((Config.nick ? 'An invalid' : 'No') + ' nickname was provided, please edit the bot\'s username in config.js');
@@ -54,20 +47,21 @@ global.debug = function (msg) {
 global.Rooms = require('./rooms.js');
 global.Users = require('./users.js');
 
-global.Client = require('./client.js').Client; // Handles the connection to PS
+global.Client = require('./client.js'); // Handles the connection to PS
 
 global.sendMessage = function (roomid, message) {
 	const room = Rooms(roomid);
-	if (!room && roomid) return debug(`Sending to invalid room ${roomid}`);
+	if (!room && roomid) return debug(`Sending to invalid room '${roomid}'`);
 	Client.send(`${room.roomid}|${message}`);
 };
 global.sendPM = function (userid, message) {
 	const target = Users(userid);
-	if (!target) debug(`Sending PM to unknown user ${userid}`);
+	if (!target) debug(`Sending PM to unknown user '${userid}'`);
 	Client.send(`|/pm ${target ? target.userid : userid}, ${message}`);
 };
 
 global.Commands = require('./commands.js');
+
 Client.messageCallback = require('./parser.js');
 
 Client.connect();

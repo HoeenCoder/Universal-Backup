@@ -3,6 +3,14 @@
 const WebSocketClient = require('websocket').client;
 const https = require('https');
 
+/**
+ * @param {string} roomid
+ * @return {string}
+ */
+function quickToRoomid(roomid) {
+	return roomid.toLowerCase().replace(/[^a-z0-9-]+/g, '');
+}
+
 class Client {
 	constructor() {
 		this.connected = false;
@@ -11,13 +19,19 @@ class Client {
 		this.socket = null;
 		/** @type {any?} */ // not sure what this would be called
 		this.connection = null;
-		/** @type {{[id: string]: string, [str: string]: string}} */
-		this.chalstr = {id: '', str: ''};
+		this.challstr = '';
 		/** @type {string[][]} */
 		this.sendQueue = [];
 		/** @type {NodeJS.Timer?} */
-		this.sendTimer = null;
-		this.messageCallback = (roomid, message) => {};
+		this.sendTimeout = null;
+		/** @type {string[]?} */
+		this.extraJoin = null;
+		/**
+		 * @param {string} roomid
+		 * @param {string} messageType
+		 * @param {string[]} parts
+		 */
+		this.messageCallback = (roomid, messageType, parts) => {};
 	}
 
 	connect() {
@@ -30,23 +44,13 @@ class Client {
 			this.connected = true;
 			this.connection = connection;
 
-			connection.on('message', (message) => {
-				if (message.type === 'utf8') { // ??!
-					this.receive(message.utf8Data);
-				}
-			});
+			connection.on('message', (message) => this.onMessage(message));
 		});
 		this.socket.on('error', (e) => {
 			console.log(`Error with connection: ${e}`);
 		});
 		this.closed = false;
-		const id = ~~(Math.random() * 900) + 100;
-		const chars = 'abcdefghijklmnopqrstuvwxyz0123456789_';
-		let str = '';
-		for (let i = 0, l = chars.length; i < 8; i++) {
-			str += chars.charAt(~~(Math.random() * l));
-		}
-		const conStr = 'ws://' + Config.server + ':' + Config.port + '/showdown/' + id + '/' + str + '/websocket';
+		const conStr = `ws://${Config.server}:${Config.port}/showdown/websocket`;
 		console.log(`Connecting to ${Config.server}:${Config.port}...`);
 		this.socket.connect(conStr);
 	}
@@ -57,139 +61,162 @@ class Client {
 	}
 
 	send(data) {
-		if (this.connection && this.connection.connected) {
-			if (!Array.isArray(data)) data = [data];
-			if (data.length > 3) {
-				while (data.length > 3) {
-					debug(`Queueing: ${data}`);
-					this.sendQueue.push(data.splice(0, 3));
-				}
-			}
-			debug(`Queueing: ${data}`);
+		if (!(data && this.connection && this.connection.connected)) {
+			return debug(`Failed to send data: ${data ? 'disconnected from the server' : 'no data to send'}`);
+		}
+		if (Array.isArray(data)) {
+			for (const toSend of data) this.send(toSend);
+			return;
+		}
+		if (this.sendTimeout) {
 			this.sendQueue.push(data);
-			if (!this.sendTimer) {
-				this.sendTimer = setInterval(() => {
-					if (!this.sendQueue.length) return;
-					let toSend = JSON.stringify(this.sendQueue.shift());
-					this.connection.send(toSend);
-				}, 1000);
-			}
-		} else {
-			debug(`Can't send: ${data}; disconnected`);
+			return;
 		}
+		this.connection.send(data);
+		this.sendTimeout = setTimeout(() => {
+			this.sendTimeout = null;
+			const toSend = this.sendQueue.shift();
+			if (toSend) this.send(toSend);
+		}, 600);
 	}
 
-	receive(message) {
-		let flag = message.substring(0, 1);
-		switch (flag) {
-		case 'a':
-			message = JSON.parse(message.slice(1));
-			if (Array.isArray(message)) {
-				for (let i = 0; i < message.length; i++) this.onMessage(message[i]);
-			} else {
-				this.onMessage(message);
-			}
-			break;
-		}
-	}
-
+	// Borrowed from sirDonovan's Cassius because it's actually the right way
+	// to parse all incoming messages.
 	onMessage(message) {
-		//debug(`new message: ${message}`);
+		if (!(message.type === 'utf8' && message.utf8Data)) return;
 		let roomid = 'lobby';
-		if (message.charAt(0) === '>') {
-			roomid = message.slice(1, message.indexOf('\n'));
-			message = message.slice(message.indexOf('\n') + 1); // Slice the roomid out
-		}
+		if (!message.utf8Data.includes('\n')) return this.parseMessage(roomid, message.utf8Data);
 
-		if (message.substr(0, 10) === '|challstr|') {
-			this.chalstr.id = message.split('|')[2];
-			this.chalstr.str = message.split('|')[3];
-			let reqOptions = {
+		let lines = message.utf8Data.split('\n');
+		if (lines[0].charAt(0) === '>') roomid = quickToRoomid(lines.shift());
+
+		for (let i = 0; i < lines.length; i++) {
+			if (lines[i].startsWith('|init|')) {
+				this.parseMessage(roomid, lines[i]);
+				lines = lines.slice(i + 1);
+				for (let i = 0; i < lines.length; i++) {
+					if (lines[i].startsWith('|users|')) {
+						this.parseMessage(roomid, lines[i]);
+						break;
+					}
+				}
+				return;
+			}
+			this.parseMessage(roomid, lines[i]);
+		}
+	}
+
+	/**
+	 * @param {string} roomid
+	 * @param {string} message
+	 */
+	parseMessage(roomid, message) {
+		const [messageType, ...parts] = message.split('|').slice(1);
+		if (!messageType) return;
+		debug(`roomid = ${roomid} | messageType = ${messageType} | parts = ${JSON.stringify(parts)}`);
+
+		switch (messageType) {
+		case 'challstr': {
+			this.challstr = parts.join('|');
+			const reqOptions = {
 				hostname: "play.pokemonshowdown.com",
 				path: "/~~showdown/action.php",
 				agent: false,
 			};
 
-			let data = null;
+			let loginQuerystring;
 			if (!Config.pass) {
 				reqOptions.method = 'GET';
-				reqOptions.path += `?act=getassertion&userid=${toId(Config.nick)}&challengekeyid=${this.chalstr.id}&challenge=${this.chalstr.str}`;
+				reqOptions.path += `?act=getassertion&userid=${toId(Config.nick)}&challstr=${this.challstr}`;
 			} else {
 				reqOptions.method = 'POST';
-				data = `act=login&name=${toId(Config.nick)}&pass=${Config.pass}&challengekeyid=${this.chalstr.id}&challenge=${this.chalstr.str}`;
+				loginQuerystring = `act=login&name=${toId(Config.nick)}&pass=${Config.pass}&challstr=${this.challstr}`;
 				reqOptions.headers = {
 					'Content-Type': 'application/x-www-form-urlencoded',
-					'Content-Length': data.length,
+					'Content-Length': loginQuerystring.length,
 				};
 			}
-			debug(`Sending login to ${reqOptions.path} ${data ? '| Data: ' + data : ''}`);
+			debug(`Sending login to ${reqOptions.path}${loginQuerystring ? ` | Data: ${loginQuerystring}` : ''}`);
 
 			const req = https.request(reqOptions, res => {
 				res.setEncoding('utf8');
 				let data = '';
-				res.on('data', chunck => {
-					data += chunck;
+				res.on('data', chunk => {
+					data += chunk;
 				});
 				res.on('end', () => {
 					if (data === ';') {
 						console.log(`LOGIN FAILED - The name ${Config.nick} is registered and ${Config.pass ? 'an invalid' : 'no'} password was provided.`);
-						return process.exit(1);
+						process.exit(1);
 					}
 					if (data.length < 50) {
 						console.log(`LOGIN FAILED - ${data}`);
-						return process.exit(1);
+						process.exit(1);
 					}
 					if (data.indexOf('heavy load') > -1) {
-						console.log(`LOGIN FAILED - The login server is experiencing heavy load and cannot accomidate the bot's connection right now.`);
-						return process.exit(1);
+						console.log(`LOGIN FAILED - The login server is experiencing heavy load and cannot accommodate the bot's connection right now.`);
+						process.exit(1);
 					}
 					try {
-						data = JSON.parse(data.substring(1));
+						data = JSON.parse(data.slice(1));
 						if (data.actionsuccess) {
 							data = data.assertion;
 						} else {
-							console.log(`Unable to login - request was not sucessful\n`);
-							console.log(JSON.stringify(data));
-							console.log(`\n`);
+							console.log(`Unable to login; the request was unsuccessful\n${JSON.stringify(data)}\n`);
 							process.exit(1);
 						}
 					} catch (e) {}
+					// Autojoining should be handled before sending /trn; since only
+					// eleven rooms can be autojoined at a time, leave any extras to
+					// be joined manually. (This allows the server to remember the first
+					// eleven if you happen to cut back on rooms)
+					if (Config.autojoin.length) {
+						const [autojoin, extra] = [Config.autojoin.slice(0, 11), Config.autojoin.slice(11)];
+						this.send(`|/autojoin ${autojoin.join(',')}`);
+						if (extra.length) this.extraJoin = extra;
+					}
 					this.send(`|/trn ${Config.nick},0,${data}`);
 				});
 			});
 			req.on('error', e => {
-				console.error(`Error while logging in: ${e}`);
+				console.error(`Error while logging in: ${e.stack}`);
 				return;
 			});
-			if (data) req.write(data);
+			if (loginQuerystring) req.write(loginQuerystring);
 			req.end();
+			break;
 		}
-		if (message.substring(0, 11) === '|nametaken|') {
-			message = message.split('|');
-			if (message[3].indexOf('inappropriate') > -1) {
-				console.log(`FORCE-RENAMED - A global staff member consider's this bot's username (${Config.nick}) inappropriate.`);
-				console.log(`Please rename the bot to something more appropriate and restart the bot.`);
+		case 'updateuser': {
+			// |updateuser| is sent twice by the server; the first time is sent to tell the client
+			// that the websocket has connected to the server as a guest, since they haven't logged
+			// in yet.
+			// The formatting is `|updateuser|USERNAME|LOGINSTATUS|AVATAR`, where REGISTERED is either
+			// '0' (guest user) or '1' (actually logged in). We only want the latter so we can actually
+			// do stuff.
+			const [serverName, loginStatus] = parts;
+			if (serverName !== Config.nick) return;
+			if (loginStatus !== '1') {
+				console.log("UPDATEUSER - failed to log in, still a guest");
 				process.exit(1);
 			}
-			console.log(`NAMETAKEN - The username ${Config.nick}, is already being used.`);
-			process.exit(1);
+			if (Config.avatar) this.send(`|/avatar ${Config.avatar}`);
+
+			// Since autojoining happened before sending /trn, now we can join any extra rooms.
+			if (this.extraJoin) this.send(this.extraJoin.map(roomid => `|/join ${roomid}`));
+			break;
 		}
-		if (message.substring(0, 12) === '|updateuser|') {
-			message = message.split('|');
-			console.log(`NAME UPDATE: ${message[2]}`);
-			if (message[2] === Config.nick) {
-				console.log(`Sucessfully logged in as ${Config.nick}`);
-				if (Config.avatar) this.send(`|/avatar ${Config.avatar}`);
-				if (Rooms.rooms.size === 0 && Config.autojoin.length) {
-					this.send(Config.autojoin.slice().map(roomid => {
-						return `|/join ${roomid}`;
-					}));
-				}
+		case 'nametaken': {
+			if (parts[1].includes('inappropriate')) {
+				console.log(`FORCE-RENAMED - A global staff member considered this bot's username (${Config.nick}) inappropriate\nPlease rename the bot to something more appropriate`);
+				process.exit(1);
 			}
-			return;
+			debug(`NAMETAKEN: ${JSON.stringify(parts)}`);
+			break;
 		}
-		this.messageCallback(roomid, message);
+		default:
+			this.messageCallback(roomid, messageType, parts);
+		}
 	}
 }
 
-exports.Client = new Client();
+module.exports = new Client();

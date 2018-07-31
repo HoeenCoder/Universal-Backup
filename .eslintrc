@@ -12,7 +12,7 @@
 		"node": true
 	},
 	"globals": {
-		"Config": false, "debug": false, "toId": false, "stringify": false, "Rooms": false, "Users": false,
+		"Config": false, "debug": false, "toId": false, "Tools": false, "Rooms": false, "Users": false,
 		"fs": false, "Client": false, "sendMessage": false, "sendPM": false, "Commands": false
 	},
 	"extends": "eslint:recommended",
