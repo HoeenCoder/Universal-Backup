@@ -61,7 +61,7 @@ class Client {
 			return debug(`Failed to send data: ${data ? 'disconnected from the server' : 'no data to send'}`);
 		}
 		if (Array.isArray(data)) {
-			for (const toSend of data) this.send(data);
+			for (const toSend of data) this.send(toSend);
 			return;
 		}
 		if (this.sendTimeout) {

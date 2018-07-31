@@ -1,14 +1,7 @@
 'use strict';
 
-/**
- * This is a set of all rooms that have successfully initialised and are
- * safe to parse chat messages for.
- * @type {Set<string>}
- */
-const initializedRooms = new Set();
-
 module.exports = function parse(roomid, messageType, parts) {
-	if (roomid.startsWith('view-')) return parseChatPage(roomid, message);
+	if (roomid.startsWith('view-')) return parseChatPage(roomid, messageType, parts);
 
 	switch (messageType) {
 	case 'c:':
@@ -73,7 +66,7 @@ module.exports = function parse(roomid, messageType, parts) {
 	case 'popup':
 		let popup = parts.join('|');
 		if (popup.includes('has banned you from the room')) {
-			const [room, user] = /<p>(.+) has banned you from the room ([^\.]+)[.]<\/p><p>To appeal/.exec(popup);
+			const [room, user] = /<p>(.+) has banned you from the room ([^.]+)[.]<\/p><p>To appeal/.exec(popup);
 			debug(`POPUP (ROOMBAN) - Banned from room '${room}' by '${user}'; please inspect the situation`);
 		}
 		break;
@@ -131,7 +124,7 @@ function parsePM(from, message) {
 	new ChatParser(message, user, null).parse();
 }
 
-function parseChatPage(pageid, message) {
+function parseChatPage(pageid, messageType, parts) {
 	debug(`Viewing chat page '${pageid}'`);
 }
 

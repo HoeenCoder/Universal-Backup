@@ -38,7 +38,7 @@ Tools.stringify = function (value, depth = 0) {
 	}
 	if (Array.isArray(value)) {
 		if (depth > 10) return `[array]`;
-		return `[` + value.map(elem => stringify(elem, depth + 1)).join(`, `) + `]`;
+		return `[` + value.map(elem => Tools.stringify(elem, depth + 1)).join(`, `) + `]`;
 	}
 	if (value instanceof RegExp || value instanceof Date || value instanceof Function) {
 		if (depth && value instanceof Function) return `Function`;
@@ -68,7 +68,7 @@ Tools.stringify = function (value, depth = 0) {
 		}
 		if (buf) buf += `, `;
 		if (!/^[A-Za-z0-9_$]+$/.test(k)) k = JSON.stringify(k);
-		buf += `${k}: ` + stringify(value[k], depth + 1);
+		buf += `${k}: ` + Tools.stringify(value[k], depth + 1);
 	}
 	if (constructorName && !buf && constructorName !== 'null') return constructorName;
 	return `${constructorName}{${buf}}`;
