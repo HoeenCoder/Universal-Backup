@@ -106,6 +106,10 @@ class Client {
 		}
 	}
 
+	/**
+	 * @param {string} roomid
+	 * @param {string} message
+	 */
 	parseMessage(roomid, message) {
 		const [messageType, ...parts] = message.split('|').slice(1);
 		if (!messageType) return;
@@ -154,7 +158,7 @@ class Client {
 						process.exit(1);
 					}
 					try {
-						data = JSON.parse(data.substring(1));
+						data = JSON.parse(data.slice(1));
 						if (data.actionsuccess) {
 							data = data.assertion;
 						} else {

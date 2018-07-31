@@ -30,7 +30,7 @@ module.exports = function parse(roomid, messageType, parts) {
 	case 'leave':
 	case 'l':
 	case 'L':
-		Rooms(roomid).userLeave(parts[0].slice(1));
+		Rooms(roomid).userLeave(parts[0]);
 		break;
 	case 'name':
 	case 'n':
@@ -74,6 +74,7 @@ module.exports = function parse(roomid, messageType, parts) {
 			const [room, user] = /<p>(.+) has banned you from the room ([^.]+)[.]<\/p><p>To appeal/.exec(popup);
 			console.log(`POPUP (ROOMBAN) - Banned from room '${room}' by '${user}'; please inspect the situation`);
 		}
+		debug(`POPUP: ${popup}`);
 		break;
 	case 'unlink':
 	case 'formats':
@@ -164,7 +165,7 @@ class ChatParser {
 	 * @param {Room | null} [room]
 	 */
 	parse(message = this.message, user = this.user, room = this.room) {
-		const commandToken = Config.commandTokens.find(token => message.startsWith(token));
+		const commandToken = Config.commandTokens.find(token => message.startsWith(token) && message !== token);
 		if (!commandToken) return;
 
 		[this.cmd, this.target] = message.slice(commandToken.length).split(' ');
@@ -172,7 +173,7 @@ class ChatParser {
 		let command = Commands[this.cmd];
 		if (typeof command === 'string') command = Commands[command];
 		if (typeof command !== 'function') return debug(`[ChatParser#parse] Expected ${this.cmd} command to be a function, instead received ${typeof command}`);
-		debug(`[Commands.${this.cmd}] target = ${this.target} | room = ${room.roomid} | user = ${user.userid}`);
+		debug(`[Commands.${this.cmd}] target = ${this.target} | room = ${room ? room.roomid : 'PMs'} | user = ${user.userid}`);
 		command.call(this, this.target, room, user, this.cmd, message);
 	}
 
