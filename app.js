@@ -55,6 +55,19 @@ global.Rooms = require('./rooms.js');
 global.Users = require('./users.js');
 
 global.Client = require('./client.js').Client; // Handles the connection to PS
+
+global.sendMessage = function (roomid, message) {
+	const room = Rooms(roomid);
+	if (!room && roomid) return debug(`Sending to invalid room ${roomid}`);
+	Client.send(`${room.roomid}|${message}`);
+};
+global.sendPM = function (userid, message) {
+	const target = Users(userid);
+	if (!target) debug(`Sending PM to unknown user ${userid}`);
+	Client.send(`|/pm ${target ? target.userid : userid}, ${message}`);
+};
+
+global.Commands = require('./commands.js');
 Client.messageCallback = require('./parser.js');
 
 Client.connect();

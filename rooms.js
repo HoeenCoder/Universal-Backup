@@ -17,6 +17,7 @@ class Room {
 	destroy() {
 		/*for (const [userid, user] of this.users.entries()) {
 		}*/
+		debug(`DEINIT ROOM: ${this.roomid}`);
 		Rooms.rooms.delete(this.roomid);
 	}
 

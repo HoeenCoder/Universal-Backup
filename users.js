@@ -89,7 +89,10 @@ function renameUser(from, newGroup, to, init) {
 	const oldId = toId(from);
 	const newId = toId(to);
 	let user = Users(oldId);
-	if (oldId === newId) return user.updateGlobalRank(newGroup); // happens on promos/locks
+	if (oldId === newId) {
+		user.name = to;
+		return;
+	}
 	// this can fire multiple times, since the rename message gets sent to each room theyre in
 	if (!user && Users.users.has(newId)) return true;
 	if (!user) {

@@ -66,12 +66,16 @@ module.exports = function parse(roomid, message) {
 				if (room) debug(`Join failed - The room ${room[1]} does not exist or is modjoined`);
 			}
 			break;
+		case 'popup':
+			debug(`Popup: ${parts.join('|')}`);
+			break;
 		case 'nametaken':
 		case 'challstr':
 		case 'updateuser':
 			break; // Handled in client.js
 		case 'unlink':
 		case 'formats':
+		case 'tour':
 		case 'updatesearch':
 		case 'updatechallenges':
 		case 'battle':
@@ -114,42 +118,20 @@ function parseChat(roomid, userid, message) {
 		if (userid !== '~') debug(`When parsing chat, unable to find user: ${userid}`);
 		return;
 	}
-	if (!Config.commandTokens.includes(message.charAt(0))) return;
-	debug(`Start command: ${message}`);
-	// Its a command!
-	// TODO proper command parser
-	//let token = message.substring(0, 1);
-	let cmd = message.substring(1, message.indexOf(' '));
-	message = message.slice(message.indexOf(' '));
-	// Pass off to command parser here
-	// Temp eval function
-	if (cmd === 'eval') {
-		if (!user.isDev) return false;
-		try {
-			let result = eval(message);
-			if (result && result.then) {
-				Client.send(`${roomid}|<< Promise`);
-			} else {
-				console.log(typeof result);
-				Client.send(`${roomid}|<< ${stringify(result).replace(/\n/g, ' ').slice(0, 250)}`);
-			}
-		} catch (e) {
-			Client.send(`${roomid}|<< Error (check console)`);
-			console.log(`[Eval Error]: ${e.stack}`);
-		}
-	}
+	const parser = new ChatParser(message, user, room); // eslint-disable-line no-unused-vars
 }
 
 function parsePM(from, message) {
 	if (toId(from) === toId(Config.nick)) return;
+	let user = Users.addUser(from);
+	const parser = new ChatParser(message, user, null); // eslint-disable-line no-unused-vars
 }
-
 function parseChatPage(pageid, message) {
 	debug(`Viewing chat page ${pageid}`);
 }
 
 // borrowed from ps
-function stringify(value, depth = 0) {
+global.stringify = function (value, depth = 0) {
 	if (value === undefined) return `undefined`;
 	if (value === null) return `null`;
 	if (typeof value === 'number' || typeof value === 'boolean') {
@@ -197,4 +179,43 @@ function stringify(value, depth = 0) {
 	}
 	if (constructor && !buf && constructor !== 'null') return constructor;
 	return `${constructor}{${buf}}`;
+};
+
+class ChatParser {
+	constructor(message, user, room) {
+		this.room = room;
+		this.user = Users(user);
+		if (!this.user) {
+			if (room) debug(`User desync in room ${room.id} user ${user}`);
+			this.user = Users.addUser(user);
+		}
+		this.message = message;
+		this.parse();
+	}
+
+	parse(message, user, room) {
+		room = room || this.room;
+		user = user || this.user;
+		message = message || this.message;
+
+		if (!Config.commandTokens.includes(message.charAt(0))) return;
+
+		const spaceIndex = message.indexOf(' ');
+		if (spaceIndex < 0) {
+			this.cmd = message;
+			this.target = '';
+		} else {
+			this.cmd = message.slice(1, spaceIndex);
+			this.target = message.slice(spaceIndex + 1);
+		}
+		let commandCB = Commands[this.cmd];
+		if (typeof commandCB !== 'function') commandCB = Commands[commandCB];
+		if (typeof commandCB !== 'function') return debug(`Bad command ${this.cmd}`);
+		commandCB.call(this, this.target, room, user, this.cmd, message);
+	}
+
+	reply(message) {
+		if (this.room) return sendMessage(this.room, message);
+		sendPM(this.user, message);
+	}
 }
