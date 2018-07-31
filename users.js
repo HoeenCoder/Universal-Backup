@@ -27,7 +27,7 @@ class User {
 	 * @return {boolean}
 	 */
 	can(permission, targetUser, room) {
-		let groupsIndex = Object.keys(Config.groups);
+		const groupsIndex = Object.keys(Config.groups);
 		let group = this.group;
 		if (room && groupsIndex.indexOf(room.getAuth(this.userid)) > groupsIndex.indexOf(this.group)) group = room.getAuth(this.userid);
 		let permissions = Config.groups[group];
@@ -57,7 +57,7 @@ class User {
 	 * @type {boolean}
 	 */
 	get isDev() {
-		return ['mystifi', 'hoeenhero', 'jumbowhales'].includes(this.userid);
+		return ['hoeenhero', 'jumbowhales'].includes(this.userid);
 	}
 
 	/**

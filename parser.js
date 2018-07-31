@@ -1,5 +1,10 @@
 'use strict';
 
+/**
+ * @param {string} roomid
+ * @param {string} messageType
+ * @param {string[]} parts
+ */
 module.exports = function parse(roomid, messageType, parts) {
 	if (roomid.startsWith('view-')) return parseChatPage(roomid, messageType, parts);
 
@@ -89,7 +94,7 @@ module.exports = function parse(roomid, messageType, parts) {
 			console.error(`Error while parsing userdetails: ${e}\n`);
 			console.log(parts[1]);
 		}
-		let user = Users(details.userid);
+		const user = Users(details.userid);
 		if (!user) break;
 		user.updateGlobalRank(details.group);
 		break;
@@ -104,8 +109,8 @@ module.exports = function parse(roomid, messageType, parts) {
  * @param {string} message
  */
 function parseChat(roomid, userstr, message) {
-	let room = Rooms(roomid);
-	let user = Users(userstr);
+	const room = Rooms(roomid);
+	const user = Users(userstr);
 	if (!room && roomid !== 'global') {
 		debug(`When parsing chat, unable to find non-global room: ${roomid}`);
 		return;
@@ -118,18 +123,32 @@ function parseChat(roomid, userstr, message) {
 	new ChatParser(message, user, room).parse();
 }
 
+/**
+ * @param {string} from
+ * @param {string} message
+ */
 function parsePM(from, message) {
 	if (toId(from) === toId(Config.nick)) return;
-	let user = Users.addUser(from);
-	new ChatParser(message, user, null).parse();
+	const user = Users.addUser(from);
+	new ChatParser(message, user).parse();
 }
 
+/**
+ * @param {string} pageid
+ * @param {string} messageType
+ * @param {string[]} parts
+ */
 function parseChatPage(pageid, messageType, parts) {
 	debug(`Viewing chat page '${pageid}'`);
 }
 
 class ChatParser {
-	constructor(message, user, room) {
+	/**
+	 * @param {string} message
+	 * @param {User} user
+	 * @param {Room | null} [room]
+	 */
+	constructor(message, user, room = null) {
 		this.room = room;
 		this.user = Users(user);
 		if (!this.user) {
@@ -139,11 +158,12 @@ class ChatParser {
 		this.message = message;
 	}
 
-	parse(message, user, room) {
-		room = room || this.room;
-		user = user || this.user;
-		message = message || this.message;
-
+	/**
+	 * @param {string} [message]
+	 * @param {User} [user]
+	 * @param {Room | null} [room]
+	 */
+	parse(message = this.message, user = this.user, room = this.room) {
 		const commandToken = Config.commandTokens.find(token => message.startsWith(token));
 		if (!commandToken) return;
 
@@ -156,6 +176,9 @@ class ChatParser {
 		command.call(this, this.target, room, user, this.cmd, message);
 	}
 
+	/**
+	 * @param {string} message
+	 */
 	reply(message) {
 		if (this.room) return sendMessage(this.room, message);
 		sendPM(this.user, message);

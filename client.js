@@ -26,8 +26,12 @@ class Client {
 		this.sendTimeout = null;
 		/** @type {string[]?} */
 		this.extraJoin = null;
-		/** @param {string} roomid @param {string} message */
-		this.messageCallback = (roomid, message) => {};
+		/**
+		 * @param {string} roomid
+		 * @param {string} messageType
+		 * @param {string[]} parts
+		 */
+		this.messageCallback = (roomid, messageType, parts) => {};
 	}
 
 	connect() {
@@ -76,31 +80,6 @@ class Client {
 		}, 600);
 	}
 
-	/*
-	send(data) {
-		if (this.connection && this.connection.connected) {
-			if (!Array.isArray(data)) data = [data];
-			if (data.length > 3) {
-				while (data.length > 3) {
-					debug(`Queueing: ${data}`);
-					this.sendQueue.push(data.splice(0, 3));
-				}
-			}
-			debug(`Queueing: ${data}`);
-			this.sendQueue.push(data);
-			if (!this.sendTimer) {
-				this.sendTimer = setInterval(() => {
-					if (!this.sendQueue.length) return;
-					let toSend = JSON.stringify(this.sendQueue.shift());
-					this.connection.send(toSend);
-				}, 1000);
-			}
-		} else {
-			debug(`Can't send: ${data}; disconnected`);
-		}
-	}
-	*/
-
 	// Borrowed from sirDonovan's Cassius because it's actually the right way
 	// to parse all incoming messages.
 	onMessage(message) {
@@ -128,20 +107,20 @@ class Client {
 	}
 
 	parseMessage(roomid, message) {
-		let [messageType, ...parts] = message.split('|').slice(1);
+		const [messageType, ...parts] = message.split('|').slice(1);
 		if (!messageType) return;
 		debug(`roomid = ${roomid} | messageType = ${messageType} | parts = ${JSON.stringify(parts)}`);
 
 		switch (messageType) {
 		case 'challstr': {
 			this.challstr = parts.join('|');
-			let reqOptions = {
+			const reqOptions = {
 				hostname: "play.pokemonshowdown.com",
 				path: "/~~showdown/action.php",
 				agent: false,
 			};
 
-			let loginQuerystring = null;
+			let loginQuerystring;
 			if (!Config.pass) {
 				reqOptions.method = 'GET';
 				reqOptions.path += `?act=getassertion&userid=${toId(Config.nick)}&challstr=${this.challstr}`;
@@ -188,7 +167,7 @@ class Client {
 					// be joined manually. (This allows the server to remember the first
 					// eleven if you happen to cut back on rooms)
 					if (Config.autojoin.length) {
-						let [autojoin, extra] = [Config.autojoin.slice(0, 11), Config.autojoin.slice(11)];
+						const [autojoin, extra] = [Config.autojoin.slice(0, 11), Config.autojoin.slice(11)];
 						this.send(`|/autojoin ${autojoin.join(',')}`);
 						if (extra.length) this.extraJoin = extra;
 					}
@@ -210,7 +189,7 @@ class Client {
 			// The formatting is `|updateuser|USERNAME|LOGINSTATUS|AVATAR`, where REGISTERED is either
 			// '0' (guest user) or '1' (actually logged in). We only want the latter so we can actually
 			// do stuff.
-			let [serverName, loginStatus] = parts;
+			const [serverName, loginStatus] = parts;
 			if (serverName !== Config.nick) return;
 			if (loginStatus !== '1') {
 				console.log("UPDATEUSER - failed to log in, still a guest");
