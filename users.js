@@ -12,7 +12,6 @@ class User {
 		this.name = name;
 		this.group = ' ';
 		this.isDev = this.hasDevAccess();
-		this.rooms = [];
 
 		// Get global rank
 		Client.send(`|/cmd userdetails ${this.userid}`);
@@ -63,6 +62,10 @@ class User {
 	 * @param {string} group
 	 */
 	updateGlobalRank(group) {
+		if (!(group in Config.groups)) {
+			debug(`Unhandled group: ${group} for ${this.name}`);
+			group = ' ';
+		}
 		this.group = group;
 	}
 }
@@ -82,24 +85,29 @@ function addUser(name) {
 	return user;
 }
 
-function renameUser(from, to) {
+function renameUser(from, newGroup, to, init) {
 	const oldId = toId(from);
 	const newId = toId(to);
+	let user = Users(oldId);
+	if (oldId === newId) return user.updateGlobalRank(newGroup); // happens on promos/locks
 	// this can fire multiple times, since the rename message gets sent to each room theyre in
-	if (!Users(oldId) && Users(newId)) return true;
-	const user = Users(oldId);
-	if (!user) return debug(`Renaming non-existent user ${from} to ${to}`);
-	user.name = to.substring(1);
-	let group = to.substring(0, 1);
-	if (!(group in Config.groups)) {
-		debug(`Unhandled group: ${group} for ${to}`);
-		group = ' ';
+	if (!user && Users.users.has(newId)) return true;
+	if (!user) {
+		if (!init) debug(`Renaming non-existent user ${from} to ${to}`);
+		// this can trigger without a valid user object being created if we're reading the backlog
+		// todo reimplement/ignore when this happens
+		user = addUser(to);
+		user.updateGlobalRank(newGroup);
+		Users.users.set(newId, user);
+		debug(`RENAME CREATE: ${user.name}`);
+		return true;
 	}
-	user.group = group;
+	user.name = to;
+	user.updateGlobalRank(newGroup);
 	user.userid = newId;
 	Users.users.set(newId, user);
 	Users.users.delete(oldId);
-	debug(`RENAME USER: ${oldId} => ${user.name}`);
+	debug(`RENAME USER: '${oldId}' => '${user.name}'`);
 	return true;
 }
 

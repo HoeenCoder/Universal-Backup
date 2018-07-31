@@ -48,7 +48,7 @@ if (!toId(Config.nick)) {
 
 global.debug = function (msg) {
 	if (!Config.debugMode) return;
-	console.log(`[DEBUG] ${msg}\n`);
+	console.log(`[DEBUG] ${msg}`);
 };
 
 global.Rooms = require('./rooms.js');
