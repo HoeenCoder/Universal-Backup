@@ -7,10 +7,12 @@
 'use strict';
 
 // Connection details
+
 // play.pokemonshowdown.com
 exports.server = 'sim.smogon.com';
 exports.port = 8000;
 exports.serverid = 'showdown';
+
 // localhost.psim.us
 /*
 exports.server = 'localhost';

@@ -11,10 +11,13 @@ class User {
 		this.userid = toId(name);
 		this.name = name;
 		this.group = ' ';
-		this.isDev = this.hasDevAccess();
 
 		// Get global rank
 		Client.send(`|/cmd userdetails ${this.userid}`);
+	}
+
+	destroy() {
+		Users.users.delete(this.userid);
 	}
 
 	/**
@@ -29,11 +32,11 @@ class User {
 		if (room && groupsIndex.indexOf(room.getAuth(this.userid)) > groupsIndex.indexOf(this.group)) group = room.getAuth(this.userid);
 		let permissions = Config.groups[group];
 		if (!permissions) return false; // ??!
-		if (permission.root || this.isDev) return true;
+		if (permissions.root || this.isDev) return true;
 		let auth = permissions[permission];
 		if (auth === undefined && permissions.inherit) {
 			let depth = 0;
-			while (auth === undefined && permission.inherit && depth < 10) {
+			while (auth === undefined && permissions.inherit && depth < 10) {
 				permissions = Config.groups[permissions.inherit];
 				if (!permissions) break;
 				auth = permissions[permission];
@@ -51,11 +54,10 @@ class User {
 	}
 
 	/**
-	 * @return {boolean}
+	 * @type {boolean}
 	 */
-	hasDevAccess() {
-		if (['hoeenhero', 'jumbowhales'].indexOf(this.userid) > -1) return true;
-		return false;
+	get isDev() {
+		return ['mystifi', 'hoeenhero', 'jumbowhales'].includes(this.userid);
 	}
 
 	/**
@@ -70,12 +72,20 @@ class User {
 	}
 }
 
+/**
+ * @return {User | null}
+ */
 function getUser(name) {
 	if (typeof name === 'object') return name;
 	return Users.users.get(toId(name));
 }
 
-// adds a user, or if the user already exists, return them
+/**
+ * Creates a new user object for `name`, returning it if it
+ * already exists.
+ * @param {string} name
+ * @return {User}
+ */
 function addUser(name) {
 	let user = Users(toId(name));
 	if (user) return user;
@@ -85,7 +95,13 @@ function addUser(name) {
 	return user;
 }
 
-function renameUser(from, newGroup, to, init) {
+/**
+ * @param {string} from
+ * @param {string} newGroup
+ * @param {string} to
+ * @param {boolean} [init]
+ */
+function renameUser(from, newGroup, to, init = false) {
 	const oldId = toId(from);
 	const newId = toId(to);
 	let user = Users(oldId);
@@ -103,7 +119,7 @@ function renameUser(from, newGroup, to, init) {
 		user.updateGlobalRank(newGroup);
 		Users.users.set(newId, user);
 		debug(`RENAME CREATE: ${user.name}`);
-		return true;
+		return;
 	}
 	user.name = to;
 	user.updateGlobalRank(newGroup);
@@ -111,7 +127,6 @@ function renameUser(from, newGroup, to, init) {
 	Users.users.set(newId, user);
 	Users.users.delete(oldId);
 	debug(`RENAME USER: '${oldId}' => '${user.name}'`);
-	return true;
 }
 
 module.exports = Users;
