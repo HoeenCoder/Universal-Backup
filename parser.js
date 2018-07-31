@@ -62,17 +62,17 @@ module.exports = function parse(roomid, messageType, parts) {
 	case 'noinit':
 		if (parts[0] === 'joinfailed') {
 			const room = /You are banned from the room "(.*)"/.exec(parts[1]);
-			if (room) debug(`Join failed - Banned from room ${room[1]}`);
+			if (room) console.log(`Join failed - Banned from room ${room[1]}`);
 		} else if (parts[1] === 'nonexistent') {
 			const room = /The room "(.*)" does not exist\./.exec(parts[1]);
-			if (room) debug(`Join failed - The room ${room[1]} does not exist or is modjoined`);
+			if (room) console.log(`Join failed - The room ${room[1]} does not exist or is modjoined`);
 		}
 		break;
 	case 'popup':
 		let popup = parts.join('|');
 		if (popup.includes('has banned you from the room')) {
 			const [room, user] = /<p>(.+) has banned you from the room ([^.]+)[.]<\/p><p>To appeal/.exec(popup);
-			debug(`POPUP (ROOMBAN) - Banned from room '${room}' by '${user}'; please inspect the situation`);
+			console.log(`POPUP (ROOMBAN) - Banned from room '${room}' by '${user}'; please inspect the situation`);
 		}
 		break;
 	case 'unlink':

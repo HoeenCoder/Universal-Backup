@@ -1,6 +1,7 @@
 'use strict';
 
 let Users = Object.assign(getUser, {
+	/** @type {Map<string, User>} */
 	users: new Map(),
 	addUser,
 	renameUser,
