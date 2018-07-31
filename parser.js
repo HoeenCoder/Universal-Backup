@@ -168,12 +168,13 @@ class ChatParser {
 		const commandToken = Config.commandTokens.find(token => message.startsWith(token) && message !== token);
 		if (!commandToken) return;
 
-		[this.cmd, this.target] = message.slice(commandToken.length).split(' ');
+		[this.cmd, ...this.target] = message.slice(commandToken.length).split(' ');
+		this.target = this.target.join(' ');
 
 		let command = Commands[this.cmd];
 		if (typeof command === 'string') command = Commands[command];
 		if (typeof command !== 'function') return debug(`[ChatParser#parse] Expected ${this.cmd} command to be a function, instead received ${typeof command}`);
-		debug(`[Commands.${this.cmd}] target = ${this.target} | room = ${room ? room.roomid : 'PMs'} | user = ${user.userid}`);
+		debug(`[Commands.${this.cmd}] target = '${this.target}' | room = ${room ? room.roomid : 'PMs'} | user = ${user.userid}`);
 		command.call(this, this.target, room, user, this.cmd, message);
 	}
 
