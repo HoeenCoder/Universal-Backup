@@ -113,7 +113,7 @@ class Client {
 	parseMessage(roomid, message) {
 		const [messageType, ...parts] = message.split('|').slice(1);
 		if (!messageType) return;
-		debug(`roomid = ${roomid} | messageType = ${messageType} | parts = ${JSON.stringify(parts)}`);
+		log(`roomid = ${roomid} | messageType = ${messageType} | parts = ${JSON.stringify(parts)}`);
 
 		switch (messageType) {
 		case 'challstr': {

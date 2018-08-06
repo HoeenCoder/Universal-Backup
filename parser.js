@@ -53,6 +53,9 @@ module.exports = function parse(roomid, messageType, parts) {
 	case 'title':
 		Rooms(roomid).setTitle(parts[0]);
 		break;
+	case 'pagehtml':
+		debug(`Recieved chat page html for ${roomid}`);
+		break;
 	case 'users':
 		Rooms(roomid).updateUserlist(parts[0]);
 		break;
@@ -169,11 +172,15 @@ class ChatParser {
 		if (!commandToken) return;
 
 		[this.cmd, ...this.target] = message.slice(commandToken.length).split(' ');
+		this.cmd = toId(this.cmd);
 		this.target = this.target.join(' ');
 
 		let command = Commands[this.cmd];
 		if (typeof command === 'string') command = Commands[command];
-		if (typeof command !== 'function') return debug(`[ChatParser#parse] Expected ${this.cmd} command to be a function, instead received ${typeof command}`);
+		if (typeof command !== 'function') {
+			if (typeof command !== 'undefined') debug(`[ChatParser#parse] Expected ${this.cmd} command to be a function, instead received ${typeof command}`);
+			return;
+		}
 		debug(`[Commands.${this.cmd}] target = '${this.target}' | room = ${room ? room.roomid : 'PMs'} | user = ${user.userid}`);
 		command.call(this, this.target, room, user, this.cmd, message);
 	}
@@ -184,5 +191,18 @@ class ChatParser {
 	reply(message) {
 		if (this.room) return sendMessage(this.room, message);
 		sendPM(this.user, message);
+	}
+
+	/**
+	 * @param {string} message
+	 */
+	replyPM(message) {
+		sendPM(this.user, message);
+	}
+
+	replyHTMLPM(message) {
+		const pmRoom = Rooms.canPMInfobox(this.user.userid);
+		if (!pmRoom) return this.replyPM(`Can't send you HTML, make sure that I have the bot rank in a room you're in.`);
+		sendMessage(pmRoom, `/pminfobox ${this.user.userid}, ${message}`);
 	}
 }

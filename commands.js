@@ -2,7 +2,7 @@
 
 module.exports = {
 	js: 'eval',
-	'eval': function (target, room, user) {
+	eval: function (target, room, user) {
 		if (!user.isDev || !target) return;
 		try {
 			let result = Tools.stringify(eval(target));
@@ -12,11 +12,15 @@ module.exports = {
 			}
 			this.reply(`<< ${result}`);
 		} catch (e) {
-			sendPM(user, `<< An error was thrown while trying to eval; please check the console.`);
+			this.replyPM(`<< An error was thrown while trying to eval; please check the console.`);
 			console.log(`[Commands.eval] An error occurred: ${e.stack}`);
 		}
 	},
+	c: function (target, room, user) {
+		if (!user.isDev || !target) return;
+		this.reply(target);
+	},
 	git: function () {
-		sendPM(this.user, `https://github.com/HoeenCoder/Universal-Backup/`);
+		this.replyPM(`https://github.com/HoeenCoder/Universal-Backup/`);
 	},
 };

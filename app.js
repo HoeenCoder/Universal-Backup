@@ -41,7 +41,11 @@ if (!toId(Config.nick)) {
 
 global.debug = function (msg) {
 	if (!Config.debugMode) return;
-	console.log(`[DEBUG] ${msg}`);
+	console.log("[DEBUG] " + msg);
+};
+global.log = function (msg) {
+	if (!Config.verboseMode) return;
+	console.log("[LOG] " + msg);
 };
 
 global.Rooms = require('./rooms.js');
@@ -51,16 +55,28 @@ global.Client = require('./client.js'); // Handles the connection to PS
 
 global.sendMessage = function (roomid, message) {
 	const room = Rooms(roomid);
-	if (!room && roomid) return debug(`Sending to invalid room '${roomid}'`);
+	if (!room && roomid) return debug("Sending to invalid room '" + roomid + "'");
+	if (message.length > 300 && !['/', '!'].includes(message.charAt(0))) message = message.slice(0, 296) + '...';
 	Client.send(`${room.roomid}|${message}`);
 };
 global.sendPM = function (userid, message) {
 	const target = Users(userid);
-	if (!target) debug(`Sending PM to unknown user '${userid}'`);
-	Client.send(`|/pm ${target ? target.userid : userid}, ${message}`);
+	if (!target) debug("Sending PM to unknown user '" + userid + "'");
+	if (message.length > 300 && !['/', '!'].includes(message.charAt(0))) message = message.slice(0, 296) + '...';
+	Client.send("|/pm " + (target ? target.userid : userid) + "," + message);
 };
 
-global.Commands = require('./commands.js');
+function loadCommands() {
+	global.Commands = require('./commands.js');
+	const files = fs.readdirSync('plugins');
+	for (const file of files) {
+		if (file.substr(-3) !== '.js') continue;
+		const plugin = require('./plugins/' + file);
+		Object.assign(Commands, plugin.commands);
+	}
+	debug(`${Object.keys(Commands).length} commands/aliases loaded`);
+}
+loadCommands();
 
 Client.messageCallback = require('./parser.js');
 

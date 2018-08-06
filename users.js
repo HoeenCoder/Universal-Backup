@@ -110,9 +110,9 @@ function renameUser(from, newGroup, to, init = false) {
 		user.name = to;
 		return;
 	}
-	// this can fire multiple times, since the rename message gets sent to each room theyre in
-	if (!user && Users.users.has(newId)) return true;
 	if (!user) {
+		// this can fire multiple times, since the rename message gets sent to each room theyre in
+		if (Users.users.has(newId)) return true;
 		if (!init) debug(`Renaming non-existent user ${from} to ${to}`);
 		// this can trigger without a valid user object being created if we're reading the backlog
 		// todo reimplement/ignore when this happens

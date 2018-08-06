@@ -34,7 +34,8 @@ exports.commandTokens = ['@'];
 
 // Debug mode - Prints more info to the console, useful for fixing issues
 exports.debugMode = false;
-
+// Verbose mode - Prints a lot more debug info to the console, including all messages
+exports.verboseMode = false;
 /**
  * Permissions by rank
  *

@@ -1,9 +1,13 @@
 'use strict';
 
+const {RoomGame, RoomGamePlayer} = require('./room-game.js');
 let Rooms = Object.assign(getRoom, {
 	/** @type {Map<string, Room>} */
 	rooms: new Map(),
 	addRoom,
+	canPMInfobox,
+	RoomGame,
+	RoomGamePlayer,
 });
 
 class Room {
@@ -15,6 +19,8 @@ class Room {
 		this.users = new Map();
 		/** @type {Map<string, string>} */
 		this.roomauth = new Map();
+
+		this.game = null;
 	}
 
 	destroy() {
@@ -64,6 +70,8 @@ class Room {
 		const user = this.users.get(userid);
 		if (!user) return debug(`User '${userid}' trying to leave a room '${this.roomid}' when they're not in it`);
 		this.roomauth.delete(userid);
+		this.users.delete(userid);
+
 		if (![...Rooms.rooms.values()].some(room => room.users.has(userid))) {
 			debug(`User '${userid}' has left all of the bot's rooms; destroying`);
 			user.destroy();
@@ -86,7 +94,6 @@ class Room {
 	 * @param {string} to
 	 */
 	userRename(from, newGroup, to) {
-		// this should ALWAYS be dealt with in the user/global scope before the room scope
 		const oldId = toId(from);
 		const newId = toId(to);
 		if (oldId === newId) return this.roomauth.set(newId, newGroup); // name gets updated in Users
@@ -133,4 +140,20 @@ function addRoom(roomid, roomType) {
 	return room;
 }
 
+/**
+ * Returns the roomid where the bot has the bot rank and where the target is in
+ * Returns a valid roomid or null
+ * @param {string} user
+ */
+function canPMInfobox(user) {
+	const rooms = [...Rooms.rooms.values()];
+	if (Users(Config.nick).group === '*') return rooms[0] && rooms[0].roomid;
+
+	for (const room of rooms) {
+		if (room.roomauth.get(toId(Config.nick)) === '*') {
+			if (room.users.has(user)) return room.roomid;
+		}
+	}
+	return null;
+}
 module.exports = Rooms;
