@@ -102,7 +102,7 @@ class Client {
 				}
 				return;
 			}
-			this.parseMessage(roomid, lines[i]);
+			if (lines[i]) this.parseMessage(roomid, lines[i]);
 		}
 	}
 
@@ -111,8 +111,11 @@ class Client {
 	 * @param {string} message
 	 */
 	parseMessage(roomid, message) {
-		const [messageType, ...parts] = message.split('|').slice(1);
-		if (!messageType) return;
+		let [messageType, ...parts] = message.split('|').slice(1);
+		if (!messageType) {
+			messageType = '';
+			parts = [message];
+		}
 		log(`roomid = ${roomid} | messageType = ${messageType} | parts = ${JSON.stringify(parts)}`);
 
 		switch (messageType) {

@@ -59,21 +59,22 @@ class TriviaGame extends Rooms.RoomGame {
 	}
 
 	/**
-     * @param {User} user
+     * @param {string} user
      * @param {string} answer
      */
 	answer(user, answer) {
 		answer = toId(answer);
 		if (!answer) return;
 		if (this.currentAnswer.includes(answer)) {
-			this.sendRoom(` ${user.name} is correct with ${answer}!`);
-			if (!this.score[user.userid]) {
-				this.score[user.userid] = 1;
+			this.sendRoom(` ${user} is correct with ${answer}!`);
+			const userid = toId(user);
+			if (!this.score[userid]) {
+				this.score[userid] = 1;
 			} else {
-				this.score[user.userid]++;
+				this.score[userid]++;
 			}
-			if (this.score[user.userid] >= this.scoreCap) {
-				this.sendRoom(` **${user.name} wins!**`);
+			if (this.score[userid] >= this.scoreCap) {
+				this.sendRoom(` **${user} wins!**`);
 				this.destroy();
 				return;
 			}
@@ -117,7 +118,7 @@ class TriviaGame extends Rooms.RoomGame {
 
 exports.commands = {
 	trivia: function (target, room, user) {
-		if (!room || !user.can('game')) return;
+		if (!room || !this.can('game')) return;
 		if (room.game) return this.reply(`A game is already in progress`);
 		let cap = parseInt(target);
 		if (isNaN(cap) || cap < 1 || cap > Number.MAX_SAFE_INTEGER) cap = 5;
@@ -129,7 +130,7 @@ exports.commands = {
 		room.game.answer(user, target);
 	},
 	addquestion: function (target, room, user) {
-		if (!user.isDev) return;
+		if (!this.can('eval')) return;
 		const question = target.split('|').map(n => n.trim());
 		if (question.length < 2) return this.reply(`Invalid question.`);
 		if (question.map(toId).some(n => !n)) return this.reply(`Questions must contain text.`);
@@ -139,7 +140,7 @@ exports.commands = {
 		return this.reply(`Question added successfully.`);
 	},
 	removequestion: function (target, room, user) {
-		if (!user.isDev) return;
+		if (!this.can('eval')) return;
 		let targetIndex = parseInt(target);
 		if (isNaN(targetIndex)) {
 			target = toId(target);
@@ -153,7 +154,7 @@ exports.commands = {
 		return;
 	},
 	questions: function (target, room, user) {
-		if (!user.isDev) return;
+		if (!this.can('eval')) return;
 		if (!Questions.length) return this.replyPM(`No questions`);
 		if (room && !room.roomid.startsWith('groupchat-')) return this.replyPM(`Please don't use this in a proper room`);
 		let entries = [];

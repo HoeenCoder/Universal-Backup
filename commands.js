@@ -3,7 +3,7 @@
 module.exports = {
 	js: 'eval',
 	eval: function (target, room, user) {
-		if (!user.isDev || !target) return;
+		if (!this.can('eval') || !target) return;
 		try {
 			let result = Tools.stringify(eval(target));
 			result = result.replace(/\n/g, '');
@@ -17,7 +17,7 @@ module.exports = {
 		}
 	},
 	c: function (target, room, user) {
-		if (!user.isDev || !target) return;
+		if (!this.can('eval') || !target) return;
 		this.reply(target);
 	},
 	git: function () {

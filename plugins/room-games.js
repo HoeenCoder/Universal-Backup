@@ -10,7 +10,7 @@ exports.commands = {
 		room.game.leave(user, target);
 	},
 	end: function (target, room, user) {
-		if (!user.can('games') || !room || !room.game || !room.game.end) return;
+		if (!this.can('games') || !room || !room.game || !room.game.end) return;
 		room.game.end(user, target);
 	},
 };

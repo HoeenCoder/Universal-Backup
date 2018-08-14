@@ -15,10 +15,12 @@ class Room {
 		this.roomid = roomid;
 		this.title = roomid;
 		this.roomType = roomType;
-		/** @type {Map<string, User>} */
-		this.users = new Map();
 		/** @type {Map<string, string>} */
-		this.roomauth = new Map();
+		this.users = new Map(); // userid->name
+		/** @type {Map<string, string>} */
+		this.auth = new Map(); // userid->auth
+		// auth is strictly roomauth, gets updated on /roomauth and on (pro/de)mote messages
+		sendMessage(null, `/roomauth1 ${this.roomid}`); // need to use roomauth1 because it gives the roomname
 
 		this.game = null;
 	}
@@ -43,8 +45,8 @@ class Room {
 	updateUserlist(users) {
 		const userList = users.split(',').slice(1);
 		for (const user of userList) {
-			const [auth, nick] = Tools.splitUser(user);
-			this.userJoin(nick, auth);
+			const [auth, name] = Tools.splitUser(user);
+			this.userJoin(auth, name);
 		}
 	}
 
@@ -52,7 +54,7 @@ class Room {
 	 * @type {string[]} A list of all userids in the room
 	 */
 	get userList() {
-		return [...this.users.keys()];
+		return [...this.users.keys()].map;
 	}
 
 	/**
@@ -69,23 +71,18 @@ class Room {
 		const userid = toId(name);
 		const user = this.users.get(userid);
 		if (!user) return debug(`User '${userid}' trying to leave a room '${this.roomid}' when they're not in it`);
-		this.roomauth.delete(userid);
+		//this.auth.delete(userid);
 		this.users.delete(userid);
-
-		if (![...Rooms.rooms.values()].some(room => room.users.has(userid))) {
-			debug(`User '${userid}' has left all of the bot's rooms; destroying`);
-			user.destroy();
-		}
 	}
 
 	/**
-	 * @param {string} name
 	 * @param {string} group
+	 * @param {string} name
 	 */
-	userJoin(name, group) {
-		const user = Users.addUser(name);
-		this.users.set(user.userid, user);
-		this.roomauth.set(user.userid, group);
+	userJoin(group, name) {
+		const userid = toId(name);
+		this.users.set(userid, name);
+		//this.auth.set(userid, group);
 	}
 
 	/**
@@ -96,12 +93,19 @@ class Room {
 	userRename(from, newGroup, to) {
 		const oldId = toId(from);
 		const newId = toId(to);
-		if (oldId === newId) return this.roomauth.set(newId, newGroup); // name gets updated in Users
-		this.users.set(newId, this.users.get(oldId));
+		if (oldId === newId) {
+			this.users.set(newId, to);
+			//this.auth.set(newId, newGroup);
+			return;
+		}
 		this.users.delete(oldId);
-		this.roomauth.set(newId, newGroup);
-		this.roomauth.delete(oldId);
+		//this.auth.delete(oldId);
+		this.users.set(newId, to);
+		//this.auth.set(newId, newGroup);
 		debug(`User rename in '${this.roomid}': '${from}' => '${to}'`);
+		for (const activity in this.activities) {
+			if (activity.onRename) activity.onRename(oldId, to);
+		}
 	}
 
 	/**
@@ -109,7 +113,7 @@ class Room {
 	 * @return {string}
 	 */
 	getAuth(userid) {
-		return this.roomauth.get(userid);
+		return this.auth.get(userid) || ' ';
 	}
 }
 
@@ -146,11 +150,8 @@ function addRoom(roomid, roomType) {
  * @param {string} user
  */
 function canPMInfobox(user) {
-	const rooms = [...Rooms.rooms.values()];
-	if (Users(Config.nick).group === '*') return rooms[0] && rooms[0].roomid;
-
-	for (const room of rooms) {
-		if (room.roomauth.get(toId(Config.nick)) === '*') {
+	for (const room of [...Rooms.rooms.values()]) {
+		if (room.auth.get(toId(Config.nick)) === '*') {
 			if (room.users.has(user)) return room.roomid;
 		}
 	}

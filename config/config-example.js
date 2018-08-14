@@ -29,6 +29,8 @@ exports.avatar = 52;
 
 // List of rooms to try and join after the bot starts
 exports.autojoin = ['lobby'];
+// Use this room's auth for commands in PMs
+exports.primaryRoom = 'mafia';
 // Command characters for the bot
 exports.commandTokens = ['@'];
 
@@ -36,6 +38,10 @@ exports.commandTokens = ['@'];
 exports.debugMode = false;
 // Verbose mode - Prints a lot more debug info to the console, including all messages
 exports.verboseMode = false;
+
+// Developers have access to everything, and are the only ones that can use eval
+exports.developers = ['jumbowhales', 'hoeenhero'];
+
 /**
  * Permissions by rank
  *

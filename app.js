@@ -39,6 +39,8 @@ if (!toId(Config.nick)) {
 	process.exit(1);
 }
 
+if (!Config.primaryRoom) console.log("No primary room set, commands requiring auth will not work in PMs.");
+
 global.debug = function (msg) {
 	if (!Config.debugMode) return;
 	console.log("[DEBUG] " + msg);
@@ -49,7 +51,6 @@ global.log = function (msg) {
 };
 
 global.Rooms = require('./rooms.js');
-global.Users = require('./users.js');
 
 global.Client = require('./client.js'); // Handles the connection to PS
 
@@ -57,13 +58,11 @@ global.sendMessage = function (roomid, message) {
 	const room = Rooms(roomid);
 	if (!room && roomid) return debug("Sending to invalid room '" + roomid + "'");
 	if (message.length > 300 && !['/', '!'].includes(message.charAt(0))) message = message.slice(0, 296) + '...';
-	Client.send(`${room.roomid}|${message}`);
+	Client.send(`${room ? room.roomid : ''}|${message}`);
 };
 global.sendPM = function (userid, message) {
-	const target = Users(userid);
-	if (!target) debug("Sending PM to unknown user '" + userid + "'");
 	if (message.length > 300 && !['/', '!'].includes(message.charAt(0))) message = message.slice(0, 296) + '...';
-	Client.send("|/pm " + (target ? target.userid : userid) + "," + message);
+	Client.send("|/pm " + userid + "," + message);
 };
 
 function loadCommands() {

@@ -13,6 +13,12 @@ class RoomGame {
 		this.room.game = null;
 		this.room = null;
 	}
+
+	/**
+	 * @param {string} oldId
+	 * @param {string} newName
+	 */
+	onRename(oldId, newName) {}
 }
 
 class RoomGamePlayer {
