@@ -1,12 +1,23 @@
 'use strict';
 
+function sendMessage(roomid, message) {
+	const room = Rooms(roomid);
+	if (!room && roomid) return debug("Sending to invalid room '" + roomid + "'");
+	if (message.length > 300 && !['/', '!'].includes(message.charAt(0))) message = message.slice(0, 296) + '...';
+	Chat.client.send(`${room ? room.roomid : ''}|${message}`);
+}
+function sendPM(target, message) {
+	if (message.length > 300 && !['/', '!'].includes(message.charAt(0))) message = message.slice(0, 296) + '...';
+	Chat.client.send("|/pm " + target + "," + message);
+}
 /**
  * @param {string} roomid
  * @param {string} messageType
  * @param {string[]} parts
  */
-module.exports = function parse(roomid, messageType, parts) {
+function parse(roomid, messageType, parts) {
 	if (roomid.startsWith('view-')) return parseChatPage(roomid, messageType, parts);
+	let normalisedType = messageType;
 	switch (messageType) {
 	case 'c:':
 		// we dont care about timestamps
@@ -14,25 +25,30 @@ module.exports = function parse(roomid, messageType, parts) {
 	case 'chat':
 	case 'c':
 		parseChat(roomid, parts[0], parts.slice(1).join('|'));
+		normalisedType = 'chat';
 		break;
 	case 'raw':
 	case 'html':
+		normalisedType = 'html';
 		break;
 	case '': // raw message
 		const authChange = /\((.*) was demoted to Room (.*) by .*\.\)/.exec(parts.join('|'));
 		if (authChange) parseAuthChange(Rooms(roomid), authChange);
+		normalisedType = 'raw'; // NOTE THAT THIS ISNT A |raw| HTML MESSAGE
 		break;
 	case 'join':
 	case 'j':
 	case 'J': {
 		const [auth, nick] = Tools.splitUser(parts[0]);
 		Rooms(roomid).userJoin(auth, nick);
+		normalisedType = 'join';
 		break;
 	}
 	case 'leave':
 	case 'l':
 	case 'L':
 		Rooms(roomid).userLeave(parts[0]);
+		normalisedType = 'leave';
 		break;
 	case 'name':
 	case 'n':
@@ -40,10 +56,12 @@ module.exports = function parse(roomid, messageType, parts) {
 		const [auth, newNick] = Tools.splitUser(parts[0]);
 		const oldNick = parts[1];
 		Rooms(roomid).userRename(oldNick, auth, newNick);
+		normalisedType = 'name';
 		break;
 	}
 	case 'uhtml':
 	case 'uhtmlchange':
+		normalisedType = 'uhtml';
 		break;
 	case 'pm':
 		parsePM(parts[0], parts.slice(2).join('|'));
@@ -125,12 +143,36 @@ module.exports = function parse(roomid, messageType, parts) {
 	default:
 		debug(`[parser.js.parse] Unhandled message: [${roomid}|${messageType}|${parts.join(',')}]`);
 	}
+
+	for (const id in Chat.listeners) {
+		const listener = Chat.listeners[id];
+		if (listener.messagesTypes !== true && !listener.messageTypes.includes(normalisedType)) continue;
+		if (listener.rooms !== true && !listener.rooms.includes(roomid)) continue;
+		const result = listener.callback(normalisedType, roomid, parts);
+		// true decrememnts the count and continues, null drops the message, false continues as if nothing happened
+		if (result === true) {
+			if (listener.repeat) listener.repeat--;
+			if (listener.repeat === 0) delete Chat.listeners[id];
+		} else if (result === null) {
+			return;
+		}
+	}
 };
 
+function addListener(id, rooms, messageTypes, callback, repeat = true) {
+	if (Chat.listeners[id]) throw new Error(`Trying to add existing listener: '${id}'`);
+	Chat.listeners[id] = {rooms, messageTypes, callback, repeat};
+	return id;
+}
+function removeListener(id) {
+	if (!Chat.listeners[id]) throw new Error(`Trying to remove nonexistent listener: '${id}'`);
+	delete Chat.listeners[id];
+	return id;
+}
 /**
  * Takes a parsed regex of [message, user, group] and updates auth
  * @param {Room} room
- * @param {string[]} authChange
+ * @param {[string, string, string]} authChange
  */
 function parseAuthChange(room, authChange) {
 	if (!room) return debug(`Setting auth for invalid room.`);
@@ -246,10 +288,9 @@ class ChatParser {
 	 * @param {string} message
 	 */
 	replyHTMLPM(message) {
-		const userid = toId(this.user);
-		const pmRoom = Rooms.canPMInfobox(userid);
+		const pmRoom = Rooms.canPMInfobox(toId(this.user));
 		if (!pmRoom) return this.replyPM(`Can't send you HTML, make sure that I have the bot rank in a room you're in.`);
-		sendMessage(pmRoom, `/pminfobox ${userid}, ${message}`);
+		sendMessage(pmRoom, `/pminfobox ${this.user}, ${message}`);
 	}
 
 	/**
@@ -294,4 +335,19 @@ class ChatParser {
 			return !!auth;
 		}
 	}
+}
+
+const Client = require('./client.js');
+
+let Chat = module.exports = {
+	parse,
+	addListener,
+	removeListener,
+	ChatParser: ChatParser,
+	client: new Client(parse),
+
+	sendMessage,
+	sendPM,
+
+	listeners: {},
 }

@@ -51,9 +51,12 @@ global.log = function (msg) {
 };
 
 global.Rooms = require('./rooms.js');
+global.Chat = require('./chat.js'); // handles the connection too
 
-global.Client = require('./client.js'); // Handles the connection to PS
+global.sendMessage = Chat.sendMessage;
+global.sendPM = Chat.sendPM;
 
+/*
 global.sendMessage = function (roomid, message) {
 	const room = Rooms(roomid);
 	if (!room && roomid) return debug("Sending to invalid room '" + roomid + "'");
@@ -64,6 +67,7 @@ global.sendPM = function (userid, message) {
 	if (message.length > 300 && !['/', '!'].includes(message.charAt(0))) message = message.slice(0, 296) + '...';
 	Client.send("|/pm " + userid + "," + message);
 };
+*/
 
 function loadCommands() {
 	global.Commands = require('./commands.js');
@@ -75,8 +79,8 @@ function loadCommands() {
 	}
 	debug(`${Object.keys(Commands).length} commands/aliases loaded`);
 }
+
 loadCommands();
 
-Client.messageCallback = require('./parser.js');
 
-Client.connect();
+Chat.client.connect();

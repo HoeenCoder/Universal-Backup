@@ -1,15 +1,5 @@
 'use strict';
 
-const {RoomGame, RoomGamePlayer} = require('./room-game.js');
-let Rooms = Object.assign(getRoom, {
-	/** @type {Map<string, Room>} */
-	rooms: new Map(),
-	addRoom,
-	canPMInfobox,
-	RoomGame,
-	RoomGamePlayer,
-});
-
 class Room {
 	constructor(roomid, roomType) {
 		this.roomid = roomid;
@@ -23,6 +13,10 @@ class Room {
 		sendMessage(null, `/roomauth1 ${this.roomid}`); // need to use roomauth1 because it gives the roomname
 
 		this.game = null;
+	}
+
+	send(message) {
+		sendMessage(this.roomid, message);
 	}
 
 	destroy() {
@@ -157,4 +151,13 @@ function canPMInfobox(user) {
 	}
 	return null;
 }
-module.exports = Rooms;
+
+const {RoomGame, RoomGamePlayer} = require('./room-game.js');
+let Rooms = module.exports = Object.assign(getRoom, {
+	/** @type {Map<string, Room>} */
+	rooms: new Map(),
+	addRoom,
+	canPMInfobox,
+	RoomGame,
+	RoomGamePlayer,
+});

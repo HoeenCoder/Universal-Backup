@@ -12,7 +12,7 @@ function quickToRoomid(roomid) {
 }
 
 class Client {
-	constructor() {
+	constructor(parser) {
 		this.connected = false;
 		this.closed = false;
 		/** @type {WebSocketClient?} */
@@ -31,7 +31,7 @@ class Client {
 		 * @param {string} messageType
 		 * @param {string[]} parts
 		 */
-		this.messageCallback = (roomid, messageType, parts) => {};
+		this.messageCallback = parser || ((roomid, messageType, parts) => {});
 	}
 
 	connect() {
@@ -222,4 +222,4 @@ class Client {
 	}
 }
 
-module.exports = new Client();
+module.exports = Client;
