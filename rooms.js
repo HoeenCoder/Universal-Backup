@@ -13,6 +13,7 @@ class Room {
 		sendMessage(null, `/roomauth1 ${this.roomid}`); // need to use roomauth1 because it gives the roomname
 
 		this.game = null;
+		this.iso = null;
 	}
 
 	send(message) {
@@ -144,8 +145,9 @@ function addRoom(roomid, roomType) {
  * @param {string} user
  */
 function canPMInfobox(user) {
+	const nick = toId(Config.nick);
 	for (const room of [...Rooms.rooms.values()]) {
-		if (room.auth.get(toId(Config.nick)) === '*') {
+		if (room.getAuth(nick) === '*') {
 			if (room.users.has(user)) return room.roomid;
 		}
 	}

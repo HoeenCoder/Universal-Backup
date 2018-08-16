@@ -151,13 +151,13 @@ function parse(roomid, messageType, parts) {
 		const result = listener.callback(normalisedType, roomid, parts);
 		// true decrememnts the count and continues, null drops the message, false continues as if nothing happened
 		if (result === true) {
-			if (listener.repeat) listener.repeat--;
+			if (listener.repeat !== true) listener.repeat--;
 			if (listener.repeat === 0) delete Chat.listeners[id];
 		} else if (result === null) {
 			return;
 		}
 	}
-};
+}
 
 function addListener(id, rooms, messageTypes, callback, repeat = true) {
 	if (Chat.listeners[id]) throw new Error(`Trying to add existing listener: '${id}'`);
@@ -350,4 +350,4 @@ let Chat = module.exports = {
 	sendPM,
 
 	listeners: {},
-}
+};

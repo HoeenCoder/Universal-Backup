@@ -24,6 +24,11 @@ Tools.splitUser = function (user) {
 	return [user.charAt(0), user.slice(1)];
 };
 
+Tools.escapeHTML = function (str) {
+	if (!str) return '';
+	return ('' + str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;').replace(/\//g, '&#x2f;');
+};
+
 Tools.stringify = function (value, depth = 0) {
 	if (value === undefined) return `undefined`;
 	if (value === null) return `null`;
