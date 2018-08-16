@@ -146,6 +146,7 @@ function addRoom(roomid, roomType) {
  */
 function canPMInfobox(user) {
 	const nick = toId(Config.nick);
+	user = toId(user);
 	for (const room of [...Rooms.rooms.values()]) {
 		if (room.getAuth(nick) === '*') {
 			if (room.users.has(user)) return room.roomid;
