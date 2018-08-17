@@ -13,7 +13,7 @@
 	},
 	"globals": {
 		"Config": false, "debug": false, "log": false, "toId": false, "Tools": false, "Rooms": false, "Users": false,
-		"fs": false, "Chat": false, "sendMessage": false, "sendPM": false, "Commands": false, "addListener": false
+		"fs": false, "Chat": false, "sendMessage": false, "sendPM": false, "Commands": false, "addListener": false, "Mafia": false
 	},
 	"extends": "eslint:recommended",
 	"rules": {

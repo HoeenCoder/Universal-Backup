@@ -2,8 +2,8 @@
 
 const fs = require('fs');
 const TIMEOUT = 10 * 1000;
-let Questions = [];
 
+let Questions = [];
 function loadQuestions() {
 	try {
 		Questions = require('../config/trivia-questions.json');
@@ -130,7 +130,7 @@ exports.commands = {
 		room.game.answer(user, target);
 	},
 	addquestion: function (target, room, user) {
-		if (!this.can('eval')) return;
+		if (!this.can('roommanagement')) return;
 		const question = target.split('|').map(n => n.trim());
 		if (question.length < 2) return this.reply(`Invalid question.`);
 		if (question.map(toId).some(n => !n)) return this.reply(`Questions must contain text.`);
@@ -140,7 +140,7 @@ exports.commands = {
 		return this.reply(`Question added successfully.`);
 	},
 	removequestion: function (target, room, user) {
-		if (!this.can('eval')) return;
+		if (!this.can('roommanagement')) return;
 		let targetIndex = parseInt(target);
 		if (isNaN(targetIndex)) {
 			target = toId(target);
@@ -154,7 +154,7 @@ exports.commands = {
 		return;
 	},
 	questions: function (target, room, user) {
-		if (!this.can('eval')) return;
+		if (!this.can('roommanagement')) return;
 		if (!Questions.length) return this.replyPM(`No questions`);
 		if (room && !room.roomid.startsWith('groupchat-')) return this.replyPM(`Please don't use this in a proper room`);
 		let entries = [];

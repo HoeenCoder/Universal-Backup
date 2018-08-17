@@ -56,6 +56,8 @@ global.Chat = require('./chat.js'); // handles the connection too
 global.sendMessage = Chat.sendMessage;
 global.sendPM = Chat.sendPM;
 
+global.Mafia = require('./mafia-tracker.js');
+
 /*
 global.sendMessage = function (roomid, message) {
 	const room = Rooms(roomid);

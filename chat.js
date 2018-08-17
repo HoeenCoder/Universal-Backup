@@ -1,15 +1,17 @@
 'use strict';
 
-function sendMessage(roomid, message) {
+let Chat = module.exports;
+
+Chat.sendMessage = function (roomid, message) {
 	const room = Rooms(roomid);
 	if (!room && roomid) return debug("Sending to invalid room '" + roomid + "'");
 	if (message.length > 300 && !['/', '!'].includes(message.charAt(0))) message = message.slice(0, 296) + '...';
 	Chat.client.send(`${room ? room.roomid : ''}|${message}`);
-}
-function sendPM(target, message) {
+};
+Chat.sendPM = function (target, message) {
 	if (message.length > 300 && !['/', '!'].includes(message.charAt(0))) message = message.slice(0, 296) + '...';
 	Chat.client.send("|/pm " + target + "," + message);
-}
+};
 /**
  * @param {string} roomid
  * @param {string} messageType
@@ -158,17 +160,18 @@ function parse(roomid, messageType, parts) {
 		}
 	}
 }
+Chat.listeners = {};
 
-function addListener(id, rooms, messageTypes, callback, repeat = true) {
+Chat.addListener = function (id, rooms, messageTypes, callback, repeat = true) {
 	if (Chat.listeners[id]) throw new Error(`Trying to add existing listener: '${id}'`);
 	Chat.listeners[id] = {rooms, messageTypes, callback, repeat};
 	return id;
-}
-function removeListener(id) {
+};
+Chat.removeListener = function (id) {
 	if (!Chat.listeners[id]) throw new Error(`Trying to remove nonexistent listener: '${id}'`);
 	delete Chat.listeners[id];
 	return id;
-}
+};
 /**
  * Takes a parsed regex of [message, user, group] and updates auth
  * @param {Room} room
@@ -337,17 +340,7 @@ class ChatParser {
 	}
 }
 
+Chat.ChatParser = ChatParser;
+
 const Client = require('./client.js');
-
-let Chat = module.exports = {
-	parse,
-	addListener,
-	removeListener,
-	ChatParser: ChatParser,
-	client: new Client(parse),
-
-	sendMessage,
-	sendPM,
-
-	listeners: {},
-};
+Chat.client = new Client(parse);

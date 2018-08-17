@@ -78,20 +78,25 @@ function parseChat(messageType, roomid, parts) {
 	const iso = room.iso;
 	if (!iso) return;
 
-	if (author === '~') {
-		let lynch = /^(.*) has (lynch|unlynch)ed (.*)\.$/.exec(message);
-		if (lynch) return iso.addMessage([lynch[1]], message);
-		lynch = /^(.*) has shifted their lynch from (.*) to (.*)$/.exec(message);
-		if (lynch) return iso.addMessage(lynch.slice(1, 4), message);
-		lynch = /^(.*) has abstained from lynching\.$/.exec(message);
-		if (lynch) return iso.addMessage([lynch[1]], message);
-		lynch = /^(.*) is no longer abstaining from lynching\.$/.exec(message);
-		if (lynch) return iso.addMessage([lynch[1]], message);
-	} else {
-		iso.addChatMessage(author, message);
-	}
+	if (author === '~') return;
+	if (message.startsWith('/log')) return;
+	iso.addChatMessage(author, message);
 }
 
+function addLynch(event, roomid, details, message) {
+	const room = Rooms(roomid);
+	if (!room) return;
+	const iso = room.iso;
+	if (!iso) return;
+	iso.addMessage(details, message);
+}
+function addDay(event, roomid, details, message) {
+	const room = Rooms(roomid);
+	if (!room) return;
+	const iso = room.iso;
+	if (!iso) return;
+	iso.addMessage(['~'], `Day ${details[0]}. The hammer count is set at ${details[1]}`);
+}
 function parseHTML(messageType, roomid, parts) {
 	const room = Rooms(roomid);
 	if (!room) return;
@@ -100,16 +105,15 @@ function parseHTML(messageType, roomid, parts) {
 	const message = parts.join('|');
 	if (message === '<div class="broadcast-blue">The game of Mafia is starting!</div>') return iso.startSession();
 	if (message === 'mafia|<div class="infobox">The game of Mafia has ended.</div>') return iso.endSession();
-
-	const day = /^<div class="broadcast-blue">(Day \d+\. The hammer count is set at \d+)<\/div>$/.exec(message);
-	if (day) return iso.addMessage(['~'], day[1]);
 }
 Chat.addListener('iso-chat', true, ['chat'], parseChat, true);
 Chat.addListener('iso-html', true, ['html', 'uhtml'], parseHTML, true);
+Mafia.addMafiaListener('iso-lynch', true, ['lynch', 'unlynch', 'lynchshift', 'nolynch', 'unnolynch'], addLynch, true);
+Mafia.addMafiaListener('iso-day', true, ['day'], addDay, true);
 
 exports.commands = {
 	enableiso: function (target, room) {
-		if (!this.can('eval')) return false;
+		if (!this.can('roommanagement')) return false;
 		if (!room) return;
 		if (room.iso) return this.reply(`ISO already exists`);
 		room.iso = new ISO(room.roomid);
@@ -147,7 +151,8 @@ exports.commands = {
 				}
 			}
 		}
-		if (!foundLog.length) return this.reply(`No ISO found`);
+		delete foundNames['~'];
+		if (!Object.keys(foundNames).length) return this.reply(`No ISO found`);
 		const countLine = `ISO for ${Object.entries(foundNames).reduce((acc, [a, n]) => {
 			if (a === '~') return acc;
 			acc.push(`${a}: ${n} lines`);
@@ -155,8 +160,10 @@ exports.commands = {
 		}, []).join('; ')}`;
 		let buf = '';
 		if (usehtml) {
-			buf = `<details><summary>ISO ${countLine}</summary><div role="log">${foundLog.join('')}</div></details>`;
-			if (!replyInRoom) return this.replyHTMLPM(buf);
+			buf = `<details><summary>${countLine}</summary><div role="log">${foundLog.join('')}</div></details>`;
+			if (!replyInRoom) {
+				return this.replyHTMLPM(buf);
+			}
 			return this.reply(`/addhtmlbox ${buf}`);
 		} else {
 			this.reply(`!code ${countLine}\n${foundLog.join('\n')}`);
