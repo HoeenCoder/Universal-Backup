@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = Mafia;
+let Mafia = module.exports;
 
 Mafia.listeners = {};
 
@@ -27,7 +27,7 @@ function emitEvent(roomid, event, details, message) {
 			if (listener.repeat === 0) delete Mafia.listeners[id];
 		}
 	}
-	debug(`MAFIAEVENT: ${event}: ${JSON.stringify(details)} in ${roomid}: "${message}"`);
+	log(`MAFIAEVENT: ${event}: ${JSON.stringify(details)} in ${roomid}: "${message}"`);
 }
 
 function parseChat(messageType, roomid, parts) {
@@ -57,10 +57,8 @@ function parseHTML(messageType, roomid, parts) {
 	const night = /^<div class="broadcast-blue">Night (\d+). PM the host your action, or idle\.<\/div>$/.exec(message);
 	if (night) return emitEvent(roomid, 'night', [night[1]], message);
 	const day = /^<div class="broadcast-blue">Day (\d+)\. The hammer count is set at (\d+)<\/div>$/.exec(message);
-	if (day) {
-		console.log("DAY EVENT");
-		return emitEvent(roomid, 'day', day.slice(1, 3), message);
-	}
+	if (day) return emitEvent(roomid, 'day', day.slice(1, 3), message);
+
 	let kill = /^<div class="broadcast-blue">(.+) was kicked from the game!<\/div>$/.exec(message);
 	if (kill) return emitEvent(roomid, 'kick', [kill[1]], message);
 	kill = /^<div class="broadcast-blue">(.+) has been treestumped!<\/div>$/.exec(message);

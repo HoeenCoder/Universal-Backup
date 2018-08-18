@@ -7,9 +7,9 @@ class ISO {
 	constructor(roomid) {
 		this.room = roomid;
 
-		this.authors = [/* string[][] */]; // contains the authors for each index, system messages are ~
+		this.authors = [/* string[][] */]; // contains the authors for each index, system messages are ~. lines with multiple authors are from lynches
 		this.log = []; // contains just the lines. lines should be able to be directly output
-		this.htmllog = []; // the above, but as html divs
+		this.htmllog = []; // the above, but as safe html divs
 
 		this.startTime = 0;
 		this.enabled = false;
@@ -34,10 +34,8 @@ class ISO {
 	}
 
 	getTimestamp() {
-		if (!this.startTime) {
-			debug(`Timestamp desync in iso.`);
-			return '[]';
-		}
+		if (!this.startTime) return '[]';
+
 		function p02d(v) {
 			return v < 10 ? '0' + v : v;
 		}
@@ -74,42 +72,33 @@ function parseChat(messageType, roomid, parts) {
 	const message = parts.slice(1).join('|');
 
 	const room = Rooms(roomid);
-	if (!room) return;
-	const iso = room.iso;
-	if (!iso) return;
+	if (!room || !room.iso) return;
 
 	if (author === '~') return;
 	if (message.startsWith('/log')) return;
-	iso.addChatMessage(author, message);
+	room.iso.addChatMessage(author, message);
 }
 
 function addLynch(event, roomid, details, message) {
 	const room = Rooms(roomid);
-	if (!room) return;
-	const iso = room.iso;
-	if (!iso) return;
-	iso.addMessage(details, message);
+	if (!room || !room.iso) return;
+	room.iso.addMessage(details, message);
 }
 function addDay(event, roomid, details, message) {
 	const room = Rooms(roomid);
-	if (!room) return;
-	const iso = room.iso;
-	if (!iso) return;
-	iso.addMessage(['~'], `Day ${details[0]}. The hammer count is set at ${details[1]}`);
+	if (!room || !room.iso) return;
+	room.iso.addMessage(['~'], `Day ${details[0]}. The hammer count is set at ${details[1]}`);
 }
-function parseHTML(messageType, roomid, parts) {
-	const room = Rooms(roomid);
-	if (!room) return;
-	const iso = room.iso;
-	if (!iso) return;
-	const message = parts.join('|');
-	if (message === '<div class="broadcast-blue">The game of Mafia is starting!</div>') return iso.startSession();
-	if (message === 'mafia|<div class="infobox">The game of Mafia has ended.</div>') return iso.endSession();
-}
+
 Chat.addListener('iso-chat', true, ['chat'], parseChat, true);
-Chat.addListener('iso-html', true, ['html', 'uhtml'], parseHTML, true);
 Mafia.addMafiaListener('iso-lynch', true, ['lynch', 'unlynch', 'lynchshift', 'nolynch', 'unnolynch'], addLynch, true);
 Mafia.addMafiaListener('iso-day', true, ['day'], addDay, true);
+Mafia.addMafiaListener('iso-init', true, ['gamestart', 'gameend'], (e, r) => {
+	const room = Rooms(r);
+	if (!room || !room.iso) return;
+	if (e === 'gamestart') return room.iso.startSession();
+	room.iso.endSession();
+}, true);
 
 exports.commands = {
 	enableiso: function (target, room) {
@@ -120,6 +109,16 @@ exports.commands = {
 		this.reply('Listener created');
 	},
 
+	istart: function (target, room, user) {
+		if (!room || !room.iso) return;
+		if (!this.can('games')) return;
+		room.iso.startSession();
+	},
+	istop: function (target, room, user) {
+		if (!room || !room.iso) return;
+		if (!this.can('games')) return;
+		room.iso.endSession();
+	},
 	iso: function (target, room, user) {
 		target = target.split(',').map(s => s.trim());
 		let replyInRoom = this.can('broadcast');
