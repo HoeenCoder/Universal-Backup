@@ -20,6 +20,9 @@ exports.port = 8000;
 exports.serverid = 'localhost';
 */
 
+// Time to wait before trying to reconnect in seconds. Set to 0 to disable autoreconnects
+exports.reconnectTime = 5;
+
 // Nickname and password for the bot
 exports.nick = '';
 exports.pass = '';

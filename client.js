@@ -44,10 +44,24 @@ class Client {
 			this.connected = true;
 			this.connection = connection;
 
+			connection.on('close', () => {
+				console.log(`Connection closed`);
+				if (Config.reconnectTime) {
+					console.log(`Retrying in ${Config.reconnectTime} seconds...`);
+					setTimeout(() => this.connect(), Config.reconnectTime * 1000);
+				}
+			});
 			connection.on('message', (message) => this.onMessage(message));
 		});
 		this.socket.on('error', (e) => {
 			console.log(`Error with connection: ${e}`);
+		});
+		this.socket.on('connectFailed', (e) => {
+			console.log(`Connection failed: ${e}`);
+			if (Config.reconnectTime) {
+				console.log(`Retrying in ${Config.reconnectTime} seconds...`);
+				setTimeout(() => this.connect(), Config.reconnectTime * 1000);
+			}
 		});
 		this.closed = false;
 		const conStr = `ws://${Config.server}:${Config.port}/showdown/websocket`;

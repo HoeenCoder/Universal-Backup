@@ -49,7 +49,7 @@ class Room {
 	 * @type {string[]} A list of all userids in the room
 	 */
 	get userList() {
-		return [...this.users.keys()].map;
+		return [...this.users.keys()];
 	}
 
 	/**

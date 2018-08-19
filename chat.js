@@ -300,7 +300,7 @@ class ChatParser {
 	 * @param {string} userid
 	 * @returns {User?}
 	 */
-	user(userid) {
+	getUser(userid) {
 		return this.room && this.room.users.get(toId(userid));
 	}
 	/**
