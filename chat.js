@@ -310,7 +310,7 @@ class ChatParser {
 	 * @return {boolean}
 	 */
 	can(permission, targetUser, room) {
-		if (Config.developers.includes(toId(this.user))) return true;
+		if (Config.developers && Config.developers.includes(toId(this.user))) return true;
 		if (permission === 'eval') return false;
 
 		const groupsIndex = Object.keys(Config.groups);

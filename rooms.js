@@ -116,6 +116,7 @@ class Room {
  * @return {Room | null}
  */
 function getRoom(roomid) {
+	if (!roomid) return null;
 	if (typeof roomid === 'object') return roomid;
 	return Rooms.rooms.get(roomid.startsWith('groupchat') ? roomid : toId(roomid));
 }

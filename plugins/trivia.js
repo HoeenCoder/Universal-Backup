@@ -118,7 +118,7 @@ class TriviaGame extends Rooms.RoomGame {
 
 exports.commands = {
 	trivia: function (target, room, user) {
-		if (!room || !this.can('game')) return;
+		if (!room || !this.can('games')) return;
 		if (room.game) return this.reply(`A game is already in progress`);
 		let cap = parseInt(target);
 		if (isNaN(cap) || cap < 1 || cap > Number.MAX_SAFE_INTEGER) cap = 5;
