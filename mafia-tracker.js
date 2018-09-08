@@ -67,6 +67,9 @@ function parseChat(messageType, roomid, parts) {
 
 		const playerList = /^\*\*Players \(\d+\)\*\*: (.*)$/.exec(message);
 		if (playerList) return emitEvent(roomid, 'players', [playerList[1]], message);
+	} else {
+		const host = /^\/log (.*) was appointed the mafia host by (.*)\.$/.exec(message);
+		if (host) return emitEvent(roomid, 'host', [host[1], host[2]], message);
 	}
 }
 

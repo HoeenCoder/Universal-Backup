@@ -41,7 +41,8 @@ exports.commandTokens = ['@'];
 exports.debugMode = false;
 // Verbose mode - Prints a lot more debug info to the console, including all messages
 exports.verboseMode = false;
-
+// Mafia cooldown length. Set to 0 to use default
+exports.MafiaCooldown = 60;
 // Developers have access to everything, and are the only ones that can use eval
 exports.developers = ['jumbowhales', 'hoeenhero'];
 

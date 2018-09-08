@@ -146,6 +146,7 @@ function parse(roomid, messageType, parts) {
 		}
 		debug(`POPUP: ${popup}`);
 		break;
+	case 'error':
 	case 'unlink':
 	case 'notify':
 	case 'formats':
