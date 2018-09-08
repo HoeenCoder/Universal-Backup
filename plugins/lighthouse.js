@@ -1,4 +1,5 @@
 'use strict';
+// @ts-nocheck rewriting this soon
 
 class Lighthouse extends Rooms.RoomGame {
 	constructor(room) {

@@ -1,17 +1,39 @@
 'use strict';
 
 let Chat = module.exports;
+const fs = require('fs');
 
+/**
+ * @param {string | null} roomid
+ * @param {string} message
+ */
 Chat.sendMessage = function (roomid, message) {
-	const room = Rooms(roomid);
+	const room = roomid ? Rooms(roomid) : null;
 	if (!room && roomid) return debug("Sending to invalid room '" + roomid + "'");
 	if (message.length > 300 && !['/', '!'].includes(message.charAt(0))) message = message.slice(0, 296) + '...';
 	Chat.client.send(`${room ? room.roomid : ''}|${message}`);
 };
+/**
+ * @param {string} target
+ * @param {string} message
+ */
 Chat.sendPM = function (target, message) {
 	if (message.length > 300 && !['/', '!'].includes(message.charAt(0))) message = message.slice(0, 296) + '...';
 	Chat.client.send("|/pm " + target + "," + message);
 };
+
+Chat.commands = {};
+Chat.loadCommands = function () {
+	Chat.Commands = require('./commands.js').commands;
+	const files = fs.readdirSync('plugins');
+	for (const file of files) {
+		if (file.substr(-3) !== '.js') continue;
+		const plugin = require('./plugins/' + file);
+		Object.assign(Chat.Commands, plugin.commands);
+	}
+	debug(`${Object.keys(Chat.Commands).length} commands/aliases loaded`);
+};
+
 /**
  * @param {string} roomid
  * @param {string} messageType
@@ -20,6 +42,7 @@ Chat.sendPM = function (target, message) {
 function parse(roomid, messageType, parts) {
 	if (roomid.startsWith('view-')) return parseChatPage(roomid, messageType, parts);
 	let normalisedType = messageType;
+	const room = Rooms(roomid);
 	switch (messageType) {
 	case 'c:':
 		// we dont care about timestamps
@@ -35,21 +58,24 @@ function parse(roomid, messageType, parts) {
 		break;
 	case '': // raw message
 		const authChange = /\((.*) was demoted to Room (.*) by .*\.\)/.exec(parts.join('|'));
-		if (authChange) parseAuthChange(Rooms(roomid), authChange);
+		if (authChange) {
+			if (!room) throw new Error(`Roomdemote in non existent room ${roomid}`);
+			parseAuthChange(room, authChange[1], authChange[2]);
+		}
 		normalisedType = 'raw'; // NOTE THAT THIS ISNT A |raw| HTML MESSAGE
 		break;
 	case 'join':
 	case 'j':
 	case 'J': {
 		const [auth, nick] = Tools.splitUser(parts[0]);
-		Rooms(roomid).userJoin(auth, nick);
+		if (room) room.userJoin(auth, nick);
 		normalisedType = 'join';
 		break;
 	}
 	case 'leave':
 	case 'l':
 	case 'L':
-		Rooms(roomid).userLeave(parts[0]);
+		if (room) room.userLeave(parts[0]);
 		normalisedType = 'leave';
 		break;
 	case 'name':
@@ -57,7 +83,7 @@ function parse(roomid, messageType, parts) {
 	case 'N': {
 		const [auth, newNick] = Tools.splitUser(parts[0]);
 		const oldNick = parts[1];
-		Rooms(roomid).userRename(oldNick, auth, newNick);
+		if (room) room.userRename(oldNick, auth, newNick);
 		normalisedType = 'name';
 		break;
 	}
@@ -72,16 +98,16 @@ function parse(roomid, messageType, parts) {
 		Rooms.addRoom(roomid, parts[0]);
 		break;
 	case 'title':
-		Rooms(roomid).setTitle(parts[0]);
+		if (room) room.setTitle(parts[0]);
 		break;
 	case 'pagehtml':
 		debug(`Recieved chat page html for ${roomid}`);
 		break;
 	case 'users':
-		Rooms(roomid).updateUserlist(parts[0]);
+		if (room) room.updateUserlist(parts[0]);
 		break;
 	case 'deinit':
-		Rooms(roomid).destroy();
+		if (room) room.destroy();
 		break;
 	case 'noinit':
 		if (parts[0] === 'joinfailed') {
@@ -114,12 +140,14 @@ function parse(roomid, messageType, parts) {
 			}
 		}
 		if (popup.includes('has banned you from the room')) {
-			const [room, user] = /<p>(.+) has banned you from the room ([^.]+)[.]<\/p><p>To appeal/.exec(popup);
-			console.log(`POPUP (ROOMBAN) - Banned from room '${room}' by '${user}'; please inspect the situation`);
+			const message = /<p>(.+) has banned you from the room ([^.]+)[.]<\/p><p>To appeal/.exec(popup);
+			if (!message) return;
+			console.log(`POPUP (ROOMBAN) - Banned from room '${message[1]}' by '${message[2]}'; please inspect the situation`);
 		}
 		debug(`POPUP: ${popup}`);
 		break;
 	case 'unlink':
+	case 'notify':
 	case 'formats':
 	case 'tour':
 	case 'updatesearch':
@@ -160,13 +188,23 @@ function parse(roomid, messageType, parts) {
 		}
 	}
 }
-Chat.listeners = {};
 
+Chat.listeners = {};
+/**
+ * @param {string} id
+ * @param {string[] | true} rooms
+ * @param {string[] | true} messageTypes
+ * @param {function} callback
+ * @param {number | true} repeat
+ */
 Chat.addListener = function (id, rooms, messageTypes, callback, repeat = true) {
 	if (Chat.listeners[id]) throw new Error(`Trying to add existing listener: '${id}'`);
 	Chat.listeners[id] = {rooms, messageTypes, callback, repeat};
 	return id;
 };
+/**
+ * @param {string} id
+ */
 Chat.removeListener = function (id) {
 	if (!Chat.listeners[id]) throw new Error(`Trying to remove nonexistent listener: '${id}'`);
 	delete Chat.listeners[id];
@@ -175,14 +213,15 @@ Chat.removeListener = function (id) {
 /**
  * Takes a parsed regex of [message, user, group] and updates auth
  * @param {Room} room
- * @param {[string, string, string]} authChange
+ * @param {string} user
+ * @param {string} rank
  */
-function parseAuthChange(room, authChange) {
+function parseAuthChange(room, user, rank) {
 	if (!room) return debug(`Setting auth for invalid room.`);
-	const groupId = toId(authChange[2]);
+	const groupId = toId(rank);
 	const group = Object.entries(Config.groups).find((e) => e[1].id === groupId);
 	if (!group) return debug(`Invalid group ${groupId}`);
-	room.auth.set(toId(authChange[1]), group[0]);
+	room.auth.set(toId(user), group[0]);
 }
 
 /**
@@ -200,10 +239,11 @@ function parseChat(roomid, userstr, message) {
 	if (message.substr(0, 4) === '/log') {
 		const authChange = /^\/log (.*) was (?:promoted|demoted) to Room ([a-zA-Z]*) by .*\.$/.exec(message);
 		if (authChange) {
-			parseAuthChange(room, authChange);
+			if (!room) throw new Error(`Auth change in non existent room ${roomid}`);
+			parseAuthChange(room, authChange[1], authChange[2]);
 		} else {
 			const roomOwner = /^\/log (.*?) was appointed Room Owner by .*$/.exec(message);
-			if (roomOwner) room.auth.set(toId(roomOwner[1]), '#');
+			if (roomOwner && room) room.auth.set(toId(roomOwner[1]), '#');
 		}
 	}
 
@@ -234,12 +274,13 @@ function parseChatPage(pageid, messageType, parts) {
 class ChatParser {
 	/**
 	 * @param {string} message
-	 * @param {User} user
+	 * @param {string} user
 	 * @param {Room | null} [room]
 	 */
 	constructor(message, user, room = null) {
 		this.room = room;
 		this.user = user;
+		this.userid = toId(user);
 		if (this.room) {
 			this.group = this.room.getAuth(toId(this.user));
 		} else {
@@ -251,19 +292,21 @@ class ChatParser {
 
 	/**
 	 * @param {string} [message]
-	 * @param {User} [user]
+	 * @param {string} [user]
 	 * @param {Room | null} [room]
 	 */
 	parse(message = this.message, user = this.user, room = this.room) {
 		const commandToken = Config.commandTokens.find(token => message.startsWith(token) && message !== token);
 		if (!commandToken) return;
 
-		[this.cmd, ...this.target] = message.slice(commandToken.length).split(' ');
-		this.cmd = toId(this.cmd);
-		this.target = this.target.join(' ');
+		const [cmd, ...target] = message.slice(commandToken.length).split(' ');
+		/** @type {string} **/
+		this.cmd = toId(cmd);
+		/** @type {string} **/
+		this.target = target.join(' ');
 
-		let command = Commands[this.cmd];
-		if (typeof command === 'string') command = Commands[command];
+		let command = Chat.Commands[this.cmd];
+		if (typeof command === 'string') command = Chat.Commands[command];
 		if (typeof command !== 'function') {
 			if (typeof command !== 'undefined') debug(`[ChatParser#parse] Expected ${this.cmd} command to be a function, instead received ${typeof command}`);
 			return;
@@ -276,7 +319,7 @@ class ChatParser {
 	 * @param {string} message
 	 */
 	reply(message) {
-		if (this.room) return sendMessage(this.room, message);
+		if (this.room) return sendMessage(this.room.roomid, message);
 		sendPM(this.user, message);
 	}
 
@@ -298,10 +341,10 @@ class ChatParser {
 
 	/**
 	 * @param {string} userid
-	 * @returns {User?}
+	 * @returns {string?}
 	 */
 	getUser(userid) {
-		return this.room && this.room.users.get(toId(userid));
+		return this.room && this.room.users.get(toId(userid)) || null;
 	}
 	/**
 	 * @param {string} permission
@@ -309,13 +352,14 @@ class ChatParser {
 	 * @param {Room?} room
 	 * @return {boolean}
 	 */
-	can(permission, targetUser, room) {
+	can(permission, targetUser = null, room = null) {
 		if (Config.developers && Config.developers.includes(toId(this.user))) return true;
 		if (permission === 'eval') return false;
 
 		const groupsIndex = Object.keys(Config.groups);
 		let group = this.group;
 		//if (room && groupsIndex.indexOf(room.getAuth(this.userid)) > groupsIndex.indexOf(this.group)) group = room.getAuth(this.userid);
+		if (!group) group = ' '; // should never happen
 		let permissions = Config.groups[group];
 		if (!permissions) return false; // ??!
 		if (permissions.root) return true;
@@ -331,9 +375,9 @@ class ChatParser {
 		}
 		switch (auth) {
 		case 'u':
-			return (targetUser && groupsIndex.indexOf(this.group) > groupsIndex.indexOf(targetUser[0]));
+			return !!(targetUser && groupsIndex.indexOf(group) > groupsIndex.indexOf(targetUser[0]));
 		case 's':
-			return (targetUser && targetUser[1] === this.userid);
+			return !!(targetUser && targetUser[1] === this.userid);
 		default:
 			return !!auth;
 		}

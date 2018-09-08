@@ -23,12 +23,18 @@ Tools.toId = function (text) {
 Tools.splitUser = function (user) {
 	return [user.charAt(0), user.slice(1)];
 };
-
+/**
+ * @param {string} str
+ */
 Tools.escapeHTML = function (str) {
 	if (!str) return '';
 	return ('' + str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;').replace(/\//g, '&#x2f;');
 };
-
+/**
+ * Visualizes eval output in a slightly more readable form
+ * Borrowed from PS
+ * @param {any} value
+ */
 Tools.stringify = function (value, depth = 0) {
 	if (value === undefined) return `undefined`;
 	if (value === null) return `null`;
@@ -49,32 +55,33 @@ Tools.stringify = function (value, depth = 0) {
 		if (depth && value instanceof Function) return `Function`;
 		return `${value}`;
 	}
-	let constructorName = '';
+	let constructor = '';
 	if (value.constructor && value.constructor.name && typeof value.constructor.name === 'string') {
-		constructorName = value.constructor.name;
-		if (constructorName === 'Object') constructorName = '';
+		constructor = value.constructor.name;
+		if (constructor === 'Object') constructor = '';
 	} else {
-		constructorName = 'null';
+		constructor = 'null';
 	}
 	if (value.toString) {
 		try {
 			const stringValue = value.toString();
-			if (typeof stringValue === 'string' && stringValue !== '[object Object]' && stringValue !== `[object ${constructorName}]`) {
-				return `${constructorName}(${stringValue})`;
+			if (typeof stringValue === 'string' && stringValue !== '[object Object]' && stringValue !== `[object ${constructor}]`) {
+				return `${constructor}(${stringValue})`;
 			}
 		} catch (e) {}
 	}
 	let buf = '';
-	for (let k in value) {
-		if (!Object.prototype.hasOwnProperty.call(value, k)) continue;
-		if (depth > 2 || (depth && constructorName)) {
+	for (let key in value) {
+		if (!Object.prototype.hasOwnProperty.call(value, key)) continue;
+		if (depth > 2 || (depth && constructor)) {
 			buf = '...';
 			break;
 		}
 		if (buf) buf += `, `;
-		if (!/^[A-Za-z0-9_$]+$/.test(k)) k = JSON.stringify(k);
-		buf += `${k}: ` + Tools.stringify(value[k], depth + 1);
+		let displayedKey = key;
+		if (!/^[A-Za-z0-9_$]+$/.test(key)) displayedKey = JSON.stringify(key);
+		buf += `${displayedKey}: ` + Tools.stringify(value[key], depth + 1);
 	}
-	if (constructorName && !buf && constructorName !== 'null') return constructorName;
-	return `${constructorName}{${buf}}`;
+	if (constructor && !buf && constructor !== 'null') return constructor;
+	return `${constructor}{${buf}}`;
 };

@@ -4,17 +4,33 @@ let Mafia = module.exports;
 
 Mafia.listeners = {};
 
+/**
+ * @param {string} id
+ * @param {string[] | true} rooms
+ * @param {string[] | true} events
+ * @param {function} callback
+ * @param {number | true} repeat
+ */
 Mafia.addMafiaListener = function (id, rooms, events, callback, repeat = true) {
 	if (Mafia.listeners[id]) throw new Error(`Trying to add existing mafia listener: '${id}'`);
 	Mafia.listeners[id] = {rooms, events, callback, repeat};
 	return id;
 };
+/**
+ * @param {string} id
+ */
 Mafia.removeMafiaListener = function (id) {
 	if (!Mafia.listeners[id]) throw new Error(`Trying to remove nonexistent mafia listener: '${id}'`);
 	delete Mafia.listeners[id];
 	return id;
 };
 
+/**
+ * @param {string} roomid
+ * @param {string} event
+ * @param {string[]} details
+ * @param {string} message
+ */
 function emitEvent(roomid, event, details, message) {
 	for (const id in Mafia.listeners) {
 		const listener = Mafia.listeners[id];
@@ -30,6 +46,11 @@ function emitEvent(roomid, event, details, message) {
 	log(`MAFIAEVENT: ${event}: ${JSON.stringify(details)} in ${roomid}: "${message}"`);
 }
 
+/**
+ * @param {string} messageType
+ * @param {string} roomid
+ * @param {string[]} parts
+ */
 function parseChat(messageType, roomid, parts) {
 	const author = parts[0];
 	const message = parts.slice(1).join('|');
@@ -49,6 +70,11 @@ function parseChat(messageType, roomid, parts) {
 	}
 }
 
+/**
+ * @param {string} messageType
+ * @param {string} roomid
+ * @param {string[]} parts
+ */
 function parseHTML(messageType, roomid, parts) {
 	const message = parts.join('|');
 	if (message === '<div class="broadcast-blue">The game of Mafia is starting!</div>') return emitEvent(roomid, 'gamestart', [], message);
@@ -90,6 +116,11 @@ function parseHTML(messageType, roomid, parts) {
 	if (deadline) return emitEvent(roomid, 'deadline', deadline.slice(1, 3), message);
 }
 
+/**
+ * @param {string} messageType
+ * @param {string} roomid
+ * @param {string[]} parts
+ */
 function parseRaw(messageType, roomid, parts) {
 	const message = parts.join('|');
 	const leave = /^(.*) has (join|left)(?:ed)? the game\.$/.exec(message);

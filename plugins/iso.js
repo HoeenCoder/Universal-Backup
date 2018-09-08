@@ -4,11 +4,17 @@ const crypto = require('crypto');
 
 class ISO {
 	// this exists basically just for data storage
+	/**
+	 * @param {string} roomid
+	 */
 	constructor(roomid) {
 		this.room = roomid;
 
+		/** @type {string[][]} */
 		this.authors = [/* string[][] */]; // contains the authors for each index, system messages are ~. lines with multiple authors are from lynches
+		/** @type {string[]} */
 		this.log = []; // contains just the lines. lines should be able to be directly output
+		/** @type {string[]} */
 		this.htmllog = []; // the above, but as safe html divs
 
 		this.startTime = 0;
@@ -16,7 +22,7 @@ class ISO {
 	}
 
 	startSession() {
-		this.sendRoom(`ISO session started`);
+		this.sendRoom(`Isolation session started`);
 		this.enabled = true;
 		this.startTime = Date.now();
 		this.authors = [];
@@ -25,10 +31,13 @@ class ISO {
 	}
 
 	endSession() {
-		this.sendRoom(`ISO session ended. ${this.authors.length} messages recorded`);
+		this.sendRoom(`Isolation session ended. ${this.authors.length} messages recorded`);
 		this.enabled = false;
 	}
 
+	/**
+	 * @param {string} m
+	 */
 	sendRoom(m) {
 		Chat.sendMessage(this.room, m);
 	}
@@ -36,6 +45,9 @@ class ISO {
 	getTimestamp() {
 		if (!this.startTime) return '[]';
 
+		/**
+		 * @param {number} v
+		 */
 		function p02d(v) {
 			return v < 10 ? '0' + v : v;
 		}
@@ -49,6 +61,10 @@ class ISO {
 		return `[${h ? `${p02d(h)}:` : ''}${p02d(m)}:${p02d(s)}]`;
 	}
 
+	/**
+	 * @param {string} author
+	 * @param {string} message
+	 */
 	addChatMessage(author, message) {
 		if (!this.enabled) return;
 		const time = this.getTimestamp();
@@ -57,6 +73,10 @@ class ISO {
 		this.htmllog.push(`<div class="chat chatmessage-${toId(author)}"><small>${time} ${author.charAt(0)}</small><strong style="${colourName(author)}">${author.slice(1)}:</strong><em>${Tools.escapeHTML(message)}</em></div>`);
 	}
 
+	/**
+	 * @param {string[]} authors
+	 * @param {string} message
+	 */
 	addMessage(authors, message) {
 		if (!this.enabled) return;
 		const time = this.getTimestamp();
@@ -67,6 +87,11 @@ class ISO {
 	}
 }
 
+/**
+ * @param {string} messageType
+ * @param {string} roomid
+ * @param {string[]} parts
+ */
 function parseChat(messageType, roomid, parts) {
 	const author = parts[0];
 	const message = parts.slice(1).join('|');
@@ -78,12 +103,23 @@ function parseChat(messageType, roomid, parts) {
 	if (message.startsWith('/log')) return;
 	room.iso.addChatMessage(author, message);
 }
-
+/**
+ * @param {string} event
+ * @param {string} roomid
+ * @param {string[]} details
+ * @param {string} message
+ */
 function addLynch(event, roomid, details, message) {
 	const room = Rooms(roomid);
 	if (!room || !room.iso) return;
 	room.iso.addMessage(details, message);
 }
+/**
+ * @param {string} event
+ * @param {string} roomid
+ * @param {string[]} details
+ * @param {string} message
+ */
 function addDay(event, roomid, details, message) {
 	const room = Rooms(roomid);
 	if (!room || !room.iso) return;
@@ -93,14 +129,18 @@ function addDay(event, roomid, details, message) {
 Chat.addListener('iso-chat', true, ['chat'], parseChat, true);
 Mafia.addMafiaListener('iso-lynch', true, ['lynch', 'unlynch', 'lynchshift', 'nolynch', 'unnolynch'], addLynch, true);
 Mafia.addMafiaListener('iso-day', true, ['day'], addDay, true);
-Mafia.addMafiaListener('iso-init', true, ['gamestart', 'gameend'], (e, r) => {
+Mafia.addMafiaListener('iso-init', true, ['gamestart', 'gameend'], (/** @type {string} **/e, /** @type {string} **/r) => {
 	const room = Rooms(r);
 	if (!room || !room.iso) return;
 	if (e === 'gamestart') return room.iso.startSession();
 	room.iso.endSession();
 }, true);
 
-exports.commands = {
+/** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
+/** @typedef {{[k: string]: string | ChatCommand}} ChatCommands */
+
+/** @type {ChatCommands} */
+const commands = {
 	enableiso: function (target, room) {
 		if (!this.can('roommanagement')) return false;
 		if (!room) return;
@@ -119,11 +159,15 @@ exports.commands = {
 		if (!this.can('games')) return;
 		room.iso.endSession();
 	},
-	iso: function (target, room, user) {
-		target = target.split(',').map(s => s.trim());
+	i: 'isolation',
+	isolate: 'isolation',
+	isolation: function (target, room, user) {
+		let args = target.split(',').map(s => s.trim());
+		if (!args.length) return;
 		let replyInRoom = this.can('broadcast');
 		if (!room) {
-			room = Rooms(target.shift());
+			// @ts-ignore guaranteed at this point
+			room = Rooms(args.shift());
 			if (!room) return;
 			replyInRoom = false;
 		}
@@ -131,7 +175,7 @@ exports.commands = {
 		if (!iso) return false;
 		if (!iso.authors.length) return this.reply(`No entries`);
 
-		target = [...target.map(toId), '~'];
+		args = [...args.map(toId), '~'];
 
 		if (!replyInRoom && !Rooms.canPMInfobox(user)) return this.replyPM(`Can't PM you html, make sure you share a room in which I have the bot rank.`);
 		const usehtml = !replyInRoom || (room.getAuth(toId(Config.nick)) === '*');
@@ -141,7 +185,7 @@ exports.commands = {
 		let foundLog = [];
 		for (let i = 0; i < iso.authors.length; i++) {
 			const authors = iso.authors[i];
-			for (const author of target) {
+			for (const author of args) {
 				if (authors.includes(author)) {
 					if (!foundNames[author]) foundNames[author] = 0;
 					foundNames[author]++;
@@ -151,9 +195,10 @@ exports.commands = {
 			}
 		}
 		delete foundNames['~'];
-		if (!Object.keys(foundNames).length) return this.reply(`No ISO found`);
+		if (!Object.keys(foundNames).length) return this.reply(`No entries found`);
 		const countLine = `ISO for ${Object.entries(foundNames).reduce((acc, [a, n]) => {
 			if (a === '~') return acc;
+			// @ts-ignore ???
 			acc.push(`${a}: ${n} lines`);
 			return acc;
 		}, []).join('; ')}`;
@@ -170,7 +215,13 @@ exports.commands = {
 	},
 };
 
+exports.commands = commands;
+
+/** @type {{[n: string]: string}} */
 let nameCache = {};
+/**
+ * @param {string} n
+ */
 function colourName(n) {
 	n = toId(n);
 	if (nameCache[n]) return nameCache[n];

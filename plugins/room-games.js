@@ -1,6 +1,10 @@
 'use strict';
 
-exports.commands = {
+/** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
+/** @typedef {{[k: string]: string | ChatCommand}} ChatCommands */
+
+/** @type {ChatCommands} */
+const commands = {
 	join: function (target, room, user) {
 		if (!room || !room.game || !room.game.join) return;
 		room.game.join(user, target);
@@ -14,3 +18,5 @@ exports.commands = {
 		room.game.end(user, target);
 	},
 };
+
+exports.commands = commands;

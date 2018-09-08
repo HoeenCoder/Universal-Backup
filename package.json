@@ -25,12 +25,13 @@
 		}
 	],
 	"dependencies": {
+		"@types/websocket": "0.0.40",
 		"websocket": "^1.0.26"
 	},
 	"devDependencies": {
 		"@types/node": "^10.5.7",
 		"eslint": "^4.16.0",
 		"husky": "^0.14.3",
-		"typescript": "2.8.3"
+		"typescript": "3.0.1"
 	}
 }

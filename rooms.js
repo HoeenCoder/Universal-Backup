@@ -1,6 +1,10 @@
 'use strict';
 
 class Room {
+	/**
+	 * @param {string} roomid
+	 * @param {string} roomType
+	 */
 	constructor(roomid, roomType) {
 		this.roomid = roomid;
 		this.title = roomid;
@@ -12,10 +16,15 @@ class Room {
 		// auth is strictly roomauth, gets updated on /roomauth and on (pro/de)mote messages
 		sendMessage(null, `/roomauth1 ${this.roomid}`); // need to use roomauth1 because it gives the roomname
 
+		/** @type {RoomGame | null}*/
 		this.game = null;
+		// @ts-ignore not worth fixing since im rewriting this
 		this.iso = null;
 	}
 
+	/**
+	 * @param {string} message
+	 */
 	send(message) {
 		sendMessage(this.roomid, message);
 	}
@@ -98,9 +107,7 @@ class Room {
 		this.users.set(newId, to);
 		//this.auth.set(newId, newGroup);
 		debug(`User rename in '${this.roomid}': '${from}' => '${to}'`);
-		for (const activity in this.activities) {
-			if (activity.onRename) activity.onRename(oldId, to);
-		}
+		if (this.game && this.game.onRename) this.game.onRename(oldId, to);
 	}
 
 	/**
@@ -113,17 +120,18 @@ class Room {
 }
 
 /**
+ * @param {string} roomid
  * @return {Room | null}
  */
 function getRoom(roomid) {
 	if (!roomid) return null;
 	if (typeof roomid === 'object') return roomid;
-	return Rooms.rooms.get(roomid.startsWith('groupchat') ? roomid : toId(roomid));
+	return Rooms.rooms.get(roomid.startsWith('groupchat') ? roomid : toId(roomid)) || null;
 }
 
 /**
  * @param {string} roomid
- * @param {string} roomtype
+ * @param {string} roomType
  */
 function addRoom(roomid, roomType) {
 	let room = Rooms(roomid);
@@ -157,7 +165,8 @@ function canPMInfobox(user) {
 }
 
 const {RoomGame, RoomGamePlayer} = require('./room-game.js');
-let Rooms = module.exports = Object.assign(getRoom, {
+let Rooms = Object.assign(getRoom, {
+	Room,
 	/** @type {Map<string, Room>} */
 	rooms: new Map(),
 	addRoom,
@@ -165,3 +174,4 @@ let Rooms = module.exports = Object.assign(getRoom, {
 	RoomGame,
 	RoomGamePlayer,
 });
+module.exports = Rooms;

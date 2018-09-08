@@ -3,10 +3,12 @@
 const fs = require('fs');
 const TIMEOUT = 10 * 1000;
 
+/** @type {string[][]} */
 let Questions = [];
 function loadQuestions() {
 	try {
-		Questions = require('../config/trivia-questions.json');
+		const data = fs.readFileSync('./config/trivia-questions.json');
+		Questions = JSON.parse(data.toString());
 	} catch (e) {} // file doesn't exist/isnt valid json
 }
 loadQuestions();
@@ -27,10 +29,12 @@ class TriviaGame extends Rooms.RoomGame {
 		this.id = 'trivia';
 
 		this.currentQuestion = '';
-		this.currentAnswer = '';
+		/** @type {string[]} */
+		this.currentAnswer = [];
 
 		this.questionNum = 0;
-		this.selectableIndexes = Object.keys(Questions);
+		/** @type {number[]} */
+		this.selectableIndexes = Object.keys(Questions).map(n => parseInt(n));
 
 		/** @type {{[u: string]: number}} */
 		this.score = {};
@@ -52,7 +56,7 @@ class TriviaGame extends Rooms.RoomGame {
 			this.destroy();
 			return;
 		}
-		const questionIndex = this.selectableIndexes.splice(~~(Math.random() * this.selectableIndexes.length), 1);
+		const questionIndex = this.selectableIndexes.splice(~~(Math.random() * this.selectableIndexes.length), 1)[0];
 		[this.currentQuestion, ...this.currentAnswer] = Questions[questionIndex];
 		this.sendRoom(`Q${this.questionNum}: **${this.currentQuestion}**`);
 		this.timer = setTimeout(() => this.skipQuestion(), TIMEOUT);
@@ -82,9 +86,13 @@ class TriviaGame extends Rooms.RoomGame {
 		}
 	}
 
+	/**
+	 * @returns {[string[], number]?}
+	 */
 	getWinners() {
 		// gets the users with the most points as [names[], points]
 		let highestPoints = 0;
+		/** @type {string[]} */
 		let users = [];
 		for (const [user, points] of Object.entries(this.score)) {
 			if (points < highestPoints) continue;
@@ -116,7 +124,11 @@ class TriviaGame extends Rooms.RoomGame {
 	}
 }
 
-exports.commands = {
+/** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
+/** @typedef {{[k: string]: string | ChatCommand}} ChatCommands */
+
+/** @type {ChatCommands} */
+const commands = {
 	trivia: function (target, room, user) {
 		if (!room || !this.can('games')) return;
 		if (room.game) return this.reply(`A game is already in progress`);
@@ -127,11 +139,13 @@ exports.commands = {
 	g: 'guess',
 	guess: function (target, room, user) {
 		if (!room || !room.game || room.game.id !== 'trivia') return;
-		room.game.answer(user, target);
+		const game = /** @type {TriviaGame} */(room.game);
+		game.answer(user, target);
 	},
 	addquestion: function (target, room, user) {
 		if (!this.can('roommanagement')) return;
-		const question = target.split('|').map(n => n.trim());
+		/** @type {string[]} */
+		const question = target.split('|').map((/** @type {string} */n) => n.trim());
 		if (question.length < 2) return this.reply(`Invalid question.`);
 		if (question.map(toId).some(n => !n)) return this.reply(`Questions must contain text.`);
 		if (Questions.some(v => (toId(v[0]) === toId(question[0])))) return this.reply(`Question already exists in database.`);
@@ -169,3 +183,4 @@ exports.commands = {
 	},
 };
 
+exports.commands = commands;

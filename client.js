@@ -11,7 +11,17 @@ function quickToRoomid(roomid) {
 	return roomid.toLowerCase().replace(/[^a-z0-9-]+/g, '');
 }
 
+/**
+ * @typedef {function} ParserCallback
+ * @param {string} roomid
+ * @param {string} messageType
+ * @param {string[]} parts
+ */
+
 class Client {
+	/**
+	 * @param {ParserCallback} parser
+	 */
 	constructor(parser) {
 		this.connected = false;
 		this.closed = false;
@@ -20,7 +30,7 @@ class Client {
 		/** @type {any?} */ // not sure what this would be called
 		this.connection = null;
 		this.challstr = '';
-		/** @type {string[][]} */
+		/** @type {string[]} */
 		this.sendQueue = [];
 		/** @type {NodeJS.Timer?} */
 		this.sendTimeout = null;
@@ -31,15 +41,16 @@ class Client {
 		 * @param {string} messageType
 		 * @param {string[]} parts
 		 */
-		this.messageCallback = parser || ((roomid, messageType, parts) => {});
+		/** @type {ParserCallback} */
+		this.messageCallback = parser;
 	}
 
 	connect() {
 		this.socket = new WebSocketClient();
-		this.socket.on('connectionFailed', (err) => {
+		this.socket.on('connectionFailed', (/** @type {string} */e) => {
 			console.log(`Connection failed!`);
 		});
-		this.socket.on('connect', (connection) => {
+		this.socket.on('connect', (/** @type {object} */connection) => {
 			console.log(`Connected!`);
 			this.connected = true;
 			this.connection = connection;
@@ -51,12 +62,12 @@ class Client {
 					setTimeout(() => this.connect(), Config.reconnectTime * 1000);
 				}
 			});
-			connection.on('message', (message) => this.onMessage(message));
+			connection.on('message', (/** @type {object }*/message) => this.onMessage(message));
 		});
-		this.socket.on('error', (e) => {
+		this.socket.on('error', (/** @type {string} */e) => {
 			console.log(`Error with connection: ${e}`);
 		});
-		this.socket.on('connectFailed', (e) => {
+		this.socket.on('connectFailed', (/** @type {string} */e) => {
 			console.log(`Connection failed: ${e}`);
 			if (Config.reconnectTime) {
 				console.log(`Retrying in ${Config.reconnectTime} seconds...`);
@@ -74,6 +85,9 @@ class Client {
 		if (this.connection) this.connection.close();
 	}
 
+	/**
+	 * @param {string | string[]} data
+	 */
 	send(data) {
 		if (!(data && this.connection && this.connection.connected)) {
 			return debug(`Failed to send data: ${data ? 'disconnected from the server' : 'no data to send'}`);
@@ -96,6 +110,9 @@ class Client {
 
 	// Borrowed from sirDonovan's Cassius because it's actually the right way
 	// to parse all incoming messages.
+	/**
+	 * @param {object} message
+	 */
 	onMessage(message) {
 		if (!(message.type === 'utf8' && message.utf8Data)) return;
 		let roomid = 'lobby';
@@ -175,9 +192,9 @@ class Client {
 						process.exit(1);
 					}
 					try {
-						data = JSON.parse(data.slice(1));
-						if (data.actionsuccess) {
-							data = data.assertion;
+						const dataObject = JSON.parse(data.slice(1));
+						if (dataObject.actionsuccess) {
+							data = dataObject.assertion;
 						} else {
 							console.log(`Unable to login; the request was unsuccessful\n${JSON.stringify(data)}\n`);
 							process.exit(1);

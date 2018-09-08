@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+		"target": "es2018",
+		"noEmit": true,
+		"allowJs": true,
+		"checkJs": true,
+		"strict": true,
+		"moduleResolution": "node",
+		"types": [
+		    "node",
+		    "websocket",
+		],
+		"lib": [
+		    "es2017"
+		],
+	},
+	"exclude": [
+		"config/config.js",
+		"plugins/lighthouse.js"
+	]
+}
