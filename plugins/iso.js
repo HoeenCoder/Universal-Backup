@@ -29,6 +29,7 @@ class ISO {
 		this.authors = [];
 		this.log = [];
 		this.htmllog = [];
+		this.systemlog = [];
 	}
 
 	endSession() {
