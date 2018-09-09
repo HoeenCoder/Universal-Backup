@@ -31,6 +31,16 @@ Tools.escapeHTML = function (str) {
 	return ('' + str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;').replace(/\//g, '&#x2f;');
 };
 /**
+ * Strips HTML from a string.
+ *
+ * @param {string} html
+ * @return {string}
+ */
+Tools.stripHTML = function (html) {
+	if (!html) return '';
+	return html.replace(/<[^>]*>/g, '');
+};
+/**
  * Visualizes eval output in a slightly more readable form
  * Borrowed from PS
  * @param {any} value

@@ -16,7 +16,8 @@ class ISO {
 		this.log = []; // contains just the lines. lines should be able to be directly output
 		/** @type {string[]} */
 		this.htmllog = []; // the above, but as safe html divs
-
+		/** @type {string[]} */
+		this.systemLog = [];
 		this.startTime = 0;
 		this.enabled = false;
 	}
@@ -85,6 +86,13 @@ class ISO {
 		this.log.push(`${time} ${message}`);
 		this.htmllog.push(`<div class="chat"><small>${time} </small><em>${Tools.escapeHTML(message)}</em></div>`);
 	}
+	/**
+	 * @param {string} message
+	 */
+	addSystemMessage(message) {
+		if (!this.enabled) return;
+		this.systemLog.push(`${this.getTimestamp()} ${message}`);
+	}
 }
 
 /**
@@ -125,10 +133,23 @@ function addDay(event, roomid, details, message) {
 	if (!room || !room.iso) return;
 	room.iso.addMessage(['~'], `Day ${details[0]}. The hammer count is set at ${details[1]}`);
 }
+/**
+ * @param {string} event
+ * @param {string} roomid
+ * @param {string[]} details
+ * @param {string} message
+ */
+function addSystemMessage(event, roomid, details, message) {
+	const room = Rooms(roomid);
+	if (!room || !room.iso) return;
+	room.iso.addSystemMessage(Tools.stripHTML(message));
+}
 
 Chat.addListener('iso-chat', true, ['chat'], parseChat, true);
 Mafia.addMafiaListener('iso-lynch', true, ['lynch', 'unlynch', 'lynchshift', 'nolynch', 'unnolynch'], addLynch, true);
 Mafia.addMafiaListener('iso-day', true, ['day'], addDay, true);
+const SYSTEM_EVENTS = ['night', 'day', 'kick', 'treestump', 'spirit', 'spiritstump', 'kill', 'revive', 'add', 'hammer', 'sethammer', 'shifthammer'];
+Mafia.addMafiaListener('iso-system-messages', true, SYSTEM_EVENTS, addSystemMessage, true);
 Mafia.addMafiaListener('iso-init', true, ['gamestart', 'gameend'], (/** @type {string} **/e, /** @type {string} **/r) => {
 	const room = Rooms(r);
 	if (!room || !room.iso) return;
@@ -161,13 +182,21 @@ const commands = {
 	},
 	i: 'isolation',
 	isolate: 'isolation',
-	isolation: function (target, room, user) {
+	si: 'isolation',
+	gamelog: 'isolation',
+	systemisolation: 'isolation',
+	isolation: function (target, room, user, cmd, message) {
 		let args = target.split(',').map(s => s.trim());
 		if (!args.length) return;
 		let replyInRoom = this.can('broadcast');
 		if (!room) {
 			// @ts-ignore guaranteed at this point
-			room = Rooms(args.shift());
+			room = Rooms(args[0]);
+			if (!room) {
+				room = Rooms(Config.primaryRoom);
+			} else {
+				args.shift();
+			}
 			if (!room) return;
 			replyInRoom = false;
 		}
@@ -175,36 +204,43 @@ const commands = {
 		if (!iso) return false;
 		if (!iso.authors.length) return this.reply(`No entries`);
 
-		args = [...args.map(toId), '~'];
 
 		if (!replyInRoom && !Rooms.canPMInfobox(user)) return this.replyPM(`Can't PM you html, make sure you share a room in which I have the bot rank.`);
 		const usehtml = !replyInRoom || (room.getAuth(toId(Config.nick)) === '*');
 		const log = usehtml ? iso.htmllog : iso.log;
 
+		args = [...args.map(toId), '~'];
 		let foundNames = {};
 		let foundLog = [];
-		for (let i = 0; i < iso.authors.length; i++) {
-			const authors = iso.authors[i];
-			for (const author of args) {
-				if (authors.includes(author)) {
-					if (!foundNames[author]) foundNames[author] = 0;
-					foundNames[author]++;
-					foundLog.push(log[i]);
-					break;
+		let countLine = 'System messages';
+		let system = false;
+		if (cmd === 'si' || cmd === 'systemisolation' || cmd === 'gamelog') {
+			foundLog = iso.systemLog;
+			system = true;
+		} else {
+			for (let i = 0; i < iso.authors.length; i++) {
+				const authors = iso.authors[i];
+				for (const author of args) {
+					if (authors.includes(author)) {
+						if (!foundNames[author]) foundNames[author] = 0;
+						foundNames[author]++;
+						foundLog.push(log[i]);
+						break;
+					}
 				}
 			}
+			delete foundNames['~'];
+			if (!Object.keys(foundNames).length) return this.reply(`No entries found`);
+			countLine = `ISO for ${Object.entries(foundNames).reduce((acc, [a, n]) => {
+				if (a === '~') return acc;
+				// @ts-ignore ???
+				acc.push(`${a}: ${n} lines`);
+				return acc;
+			}, []).join('; ')}`;
 		}
-		delete foundNames['~'];
-		if (!Object.keys(foundNames).length) return this.reply(`No entries found`);
-		const countLine = `ISO for ${Object.entries(foundNames).reduce((acc, [a, n]) => {
-			if (a === '~') return acc;
-			// @ts-ignore ???
-			acc.push(`${a}: ${n} lines`);
-			return acc;
-		}, []).join('; ')}`;
 		let buf = '';
 		if (usehtml) {
-			buf = `<details><summary>${countLine}</summary><div role="log">${foundLog.join('')}</div></details>`;
+			buf = `<details><summary>${countLine}</summary><div role="log">${foundLog.join(system ? '<br/>' : '')}</div></details>`;
 			if (!replyInRoom) {
 				return this.replyHTMLPM(buf);
 			}

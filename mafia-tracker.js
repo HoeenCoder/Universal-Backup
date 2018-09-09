@@ -112,6 +112,7 @@ function parseHTML(messageType, roomid, parts) {
 	let hammer = /^<div class="broadcast-blue">The hammer count has been set at (\d+), and lynches have been reset\.<\/div>$/.exec(message);
 	if (hammer) return emitEvent(roomid, 'sethammer', [hammer[1]], message);
 	hammer = /^<div class="broadcast-blue">The hammer count has been shifted to (\d+)\. Lynches have not been reset\.<\/div>$/.exec(message);
+	if (hammer) return emitEvent(roomid, 'shifthammer', [hammer[1]], message);
 
 	let deadline = /^<strong>The deadline has been set for (\d+) minutes\.<\/strong>$/.exec(message);
 	if (deadline) return emitEvent(roomid, 'deadlineset', [deadline[1]], message);
