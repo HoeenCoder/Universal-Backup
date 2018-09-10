@@ -16,11 +16,11 @@ class Lighthouse extends Rooms.RoomGame {
 		this.enabled = true;
 		// this object should get recreated after each game. it's not like iso
 
-		this.listenerId = Chat.addListener(`lighthouse-${room.roomid}`, true, ['pm'], (t, u, m) => this.onMessage(t, u, m), true);
-		this.mafiaListenerId = Mafia.addMafiaListener(`lighthouse-${room.roomid}`, [room.roomid], ['players', 'gameend'], (e, r, d) => {
+		this.listenerId = Chat.addListener(`lighthouse-${room.roomid}`, true, ['pm'], true, (t, u, m) => this.onMessage(t, u, m));
+		this.mafiaListenerId = Mafia.addMafiaListener(`lighthouse-${room.roomid}`, [room.roomid], ['players', 'gameend'], true, (e, r, d) => {
 			if (e === 'players') return this.parsePlayerList(e, r, d);
 			this.end();
-		}, true);
+		});
 		this.sendRoom(`Darkness falls across the land...`);
 		this.sendRoom(`!mafia players`);
 	}

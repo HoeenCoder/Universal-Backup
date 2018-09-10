@@ -31,6 +31,7 @@ Chat.loadCommands = function () {
 		const plugin = require('./plugins/' + file);
 		Object.assign(Chat.Commands, plugin.commands);
 	}
+	Object.assign(Chat.Commands, Mafia.commands);
 	debug(`${Object.keys(Chat.Commands).length} commands/aliases loaded`);
 };
 
@@ -198,7 +199,7 @@ Chat.listeners = {};
  * @param {function} callback
  * @param {number | true} repeat
  */
-Chat.addListener = function (id, rooms, messageTypes, callback, repeat = true) {
+Chat.addListener = function (id, rooms, messageTypes, repeat, callback) {
 	if (Chat.listeners[id]) throw new Error(`Trying to add existing listener: '${id}'`);
 	Chat.listeners[id] = {rooms, messageTypes, callback, repeat};
 	return id;
@@ -207,9 +208,9 @@ Chat.addListener = function (id, rooms, messageTypes, callback, repeat = true) {
  * @param {string} id
  */
 Chat.removeListener = function (id) {
-	if (!Chat.listeners[id]) throw new Error(`Trying to remove nonexistent listener: '${id}'`);
+	if (!Chat.listeners[id]) return false;
 	delete Chat.listeners[id];
-	return id;
+	return true;
 };
 /**
  * Takes a parsed regex of [message, user, group] and updates auth

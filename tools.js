@@ -31,6 +31,13 @@ Tools.escapeHTML = function (str) {
 	return ('' + str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;').replace(/\//g, '&#x2f;');
 };
 /**
+ * @param {string} str
+ */
+Tools.unescapeHTML = function (str) {
+	if (!str) return '';
+	return ('' + str).replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&#x2f;/g, '/');
+};
+/**
  * Strips HTML from a string.
  *
  * @param {string} html

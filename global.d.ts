@@ -19,4 +19,5 @@ declare global {
 
     const Room: typeof RoomsType.Room
     const CommandContext: typeof ChatType.ChatParser
+    const MafiaTracker: typeof MafiaType.MafiaTracker
 }

@@ -18,10 +18,12 @@ class Room {
 
 		/** @type {RoomGame | null}*/
 		this.game = null;
+		/** @type {object | null} */
+		this.mafiaTracker = null;
+		/** @type {object | null} */
+		this.iso = null;
 		/** @type {Object} */
 		this.mafiaCooldown = null;
-		// @ts-ignore not worth fixing since im rewriting this
-		this.iso = null;
 	}
 
 	/**

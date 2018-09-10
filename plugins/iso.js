@@ -146,17 +146,17 @@ function addSystemMessage(event, roomid, details, message) {
 	room.iso.addSystemMessage(Tools.stripHTML(message));
 }
 
-Chat.addListener('iso-chat', true, ['chat'], parseChat, true);
-Mafia.addMafiaListener('iso-lynch', true, ['lynch', 'unlynch', 'lynchshift', 'nolynch', 'unnolynch'], addLynch, true);
-Mafia.addMafiaListener('iso-day', true, ['day'], addDay, true);
+Chat.addListener('iso-chat', true, ['chat'], true, parseChat);
+Mafia.addMafiaListener('iso-lynch', true, ['lynch', 'unlynch', 'lynchshift', 'nolynch', 'unnolynch'], true, addLynch);
+Mafia.addMafiaListener('iso-day', true, ['day'], true, addDay);
 const SYSTEM_EVENTS = ['night', 'day', 'kick', 'treestump', 'spirit', 'spiritstump', 'kill', 'revive', 'add', 'hammer', 'sethammer', 'shifthammer'];
-Mafia.addMafiaListener('iso-system-messages', true, SYSTEM_EVENTS, addSystemMessage, true);
-Mafia.addMafiaListener('iso-init', true, ['gamestart', 'gameend'], (/** @type {string} **/e, /** @type {string} **/r) => {
+Mafia.addMafiaListener('iso-system-messages', true, SYSTEM_EVENTS, true, addSystemMessage);
+Mafia.addMafiaListener('iso-init', true, ['gamestart', 'gameend'], true, (/** @type {string} **/e, /** @type {string} **/r) => {
 	const room = Rooms(r);
 	if (!room || !room.iso) return;
 	if (e === 'gamestart') return room.iso.startSession();
 	room.iso.endSession();
-}, true);
+});
 
 /** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
 /** @typedef {{[k: string]: string | ChatCommand}} ChatCommands */

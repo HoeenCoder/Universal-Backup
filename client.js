@@ -170,7 +170,7 @@ class Client {
 					'Content-Length': loginQuerystring.length,
 				};
 			}
-			debug(`Sending login to ${reqOptions.path}${loginQuerystring ? ` | Data: ${loginQuerystring}` : ''}`);
+			debug(`Sending login to ${reqOptions.path}`);
 
 			const req = https.request(reqOptions, res => {
 				res.setEncoding('utf8');
