@@ -17,7 +17,7 @@ class ISO {
 		/** @type {string[]} */
 		this.htmllog = []; // the above, but as safe html divs
 		/** @type {string[]} */
-		this.systemLog = [];
+		this.systemlog = [];
 		this.startTime = 0;
 		this.enabled = false;
 	}
@@ -92,7 +92,7 @@ class ISO {
 	 */
 	addSystemMessage(message) {
 		if (!this.enabled) return;
-		this.systemLog.push(`${this.getTimestamp()} ${message}`);
+		this.systemlog.push(`${this.getTimestamp()} ${message}`);
 	}
 }
 
@@ -216,7 +216,7 @@ const commands = {
 		let countLine = 'System messages';
 		let system = false;
 		if (cmd === 'si' || cmd === 'systemisolation' || cmd === 'gamelog') {
-			foundLog = iso.systemLog;
+			foundLog = iso.systemlog;
 			system = true;
 		} else {
 			for (let i = 0; i < iso.authors.length; i++) {
