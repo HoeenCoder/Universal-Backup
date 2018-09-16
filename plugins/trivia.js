@@ -143,7 +143,7 @@ const commands = {
 		game.answer(user, target);
 	},
 	addquestion: function (target, room, user) {
-		if (!this.can('roommanagement')) return;
+		if (!this.can('games')) return;
 		/** @type {string[]} */
 		const question = target.split('|').map((/** @type {string} */n) => n.trim());
 		if (question.length < 2) return this.reply(`Invalid question.`);
@@ -154,7 +154,7 @@ const commands = {
 		return this.reply(`Question added successfully.`);
 	},
 	removequestion: function (target, room, user) {
-		if (!this.can('roommanagement')) return;
+		if (!this.can('games')) return;
 		let targetIndex = parseInt(target);
 		if (isNaN(targetIndex)) {
 			target = toId(target);
@@ -168,7 +168,7 @@ const commands = {
 		return;
 	},
 	questions: function (target, room, user) {
-		if (!this.can('roommanagement')) return;
+		if (!this.can('games')) return;
 		if (!Questions.length) return this.replyPM(`No questions`);
 		if (room && !room.roomid.startsWith('groupchat-')) return this.replyPM(`Please don't use this in a proper room`);
 		let entries = [];

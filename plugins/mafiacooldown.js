@@ -14,7 +14,8 @@ class MafiaCooldown extends Rooms.RoomGame {
 		this.curHost = null;
 		/** @type {NodeJS.Timer?} */
 		this.timer = null;
-		this.cooldown = Config.MafiaCooldown || 10;
+		this.cooldownStart = 0;
+		this.cooldown = Config.MafiaCooldown || 60;
 		/** @type {string[]} */
 		this.themeHistory = [];
 		this.themeHistoryLength = 2;
@@ -25,7 +26,10 @@ class MafiaCooldown extends Rooms.RoomGame {
      * @param {string} by
      */
 	onHost(user, by) {
-		if (this.timer) clearTimeout(this.timer);
+		if (this.timer) {
+			clearTimeout(this.timer);
+			this.cooldownStart = 0;
+		}
 		if (this.enabled && this.state !== 'pregame' && toId(by) !== toId(Config.nick)) {
 			this.sendRoom(`Cooldown ended early by ${by}.`);
 		}
@@ -38,12 +42,9 @@ class MafiaCooldown extends Rooms.RoomGame {
 		this.state = 'cooldown';
 		this.curHost = null;
 		if (this.enabled) {
+			this.cooldownStart = Date.now();
 			this.timer = setTimeout(() => this.nextHost(), this.cooldown * 1000);
-			let time = `${this.cooldown} seconds`;
-			if (this.cooldown > 60) {
-				time = `${Math.round(this.cooldown / 60)} minutes`;
-			}
-			this.sendRoom(`Cooldown time - The next mafia game can start in ${time}.`);
+			this.sendRoom(`Cooldown time - The next mafia game can start in ${Tools.toDurationString(this.cooldown * 1000, {precision: 2})}.`);
 		}
 	}
 
@@ -61,7 +62,10 @@ class MafiaCooldown extends Rooms.RoomGame {
 	disable() {
 		if (!this.enabled) return this.sendRoom(`Cooldown already disabled`);
 		this.enabled = false;
-		if (this.timer) clearTimeout(this.timer);
+		if (this.timer) {
+			clearTimeout(this.timer);
+			this.cooldownStart = 0;
+		}
 		this.sendRoom(`The mafia cooldown was disabled`);
 	}
 	enable() {
@@ -89,7 +93,7 @@ function parseEvent(type, roomid, details, message = '') {
 		if (details[0] === 'Nobody on the host queue could be hosted.' || details[0] === 'Nobody is on the host queue.') {
 			cooldown.onHostFail();
 		}
-		if (details[0] === 'There is already a game in progress in this room.') {
+		if (details[0].startsWith('There is already a game of')) {
 			cooldown.onHostFail(true);
 		}
 		break;
@@ -128,6 +132,14 @@ const commands = {
 		} else {
 			room.mafiaCooldown.disable();
 		}
+	},
+	cooldown: function (target, room) {
+		if (!room || !room.mafiaCooldown) return;
+		/** @type {MafiaCooldown} */
+		const cd = room.mafiaCooldown;
+		let remaining = (cd.cooldownStart + cd.cooldown * 1000) - Date.now();
+		if (remaining < 1) return this.reply(`The cooldown timer is not running.`);
+		this.reply(`There is ${Tools.toDurationString(remaining, {precision: 2})} left on the cooldown timer.`);
 	},
 	theme: function (target, room, user) {
 		if (!room || !room.mafiaCooldown) return;
