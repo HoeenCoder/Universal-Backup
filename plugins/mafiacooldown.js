@@ -37,7 +37,11 @@ class MafiaCooldown extends Rooms.RoomGame {
 		this.state = 'cooldown';
 		if (this.enabled) {
 			this.timer = setTimeout(() => this.nextHost(), this.cooldown * 1000);
-			this.sendRoom(`Cooldown time - The next mafia game can start in ${this.cooldown} seconds`);
+			let time = `${this.cooldown} seconds`;
+			if (this.cooldown > 60) {
+				time = `${Math.round(this.cooldown / 60)} minutes`;
+			}
+			this.sendRoom(`Cooldown time - The next mafia game can start in ${time}.`);
 		}
 	}
 
@@ -123,7 +127,7 @@ const commands = {
 		/** @type {MafiaCooldown} */
 		const cd = room.mafiaCooldown;
 		cd.themeHistory.unshift(toId(target));
-		if (cd.themeHistory.length > cd.themeHistoryLength) cd.themeHistory.splice(-1, 1);
+		if (cd.themeHistory.length > cd.themeHistoryLength) cd.themeHistory.pop();
 		this.reply(`Added ${toId(target)} to the played themes history`);
 	},
 	t: function (target, room) {
