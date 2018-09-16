@@ -67,7 +67,9 @@ exports.developers = ['jumbowhales', 'hoeenhero'];
  *
  * Permissions List
  * root - This group automatically has all permissions set to true, only supports true.
- * listen - If this is not set to a truthy value, the bot will ignore users of this rank
+ * listen - If this is not set to a truthy value, the bot will ignore users of this rank.
+ * games - This group can run games using the bot.
+ * roommanagement - This group lets user manage the bot's settings for the room.
  *
  */
 exports.groups = {
@@ -80,37 +82,33 @@ exports.groups = {
 		name: 'Leader',
 		id: 'leader',
 		inherit: '#',
-
 	},
 	'#': {
 		name: 'Room Owner',
 		id: 'roomowner',
 		inherit: '@',
-
+		roommanagement: true,
 	},
 	'*': {
 		name: 'Bot',
 		id: 'bot',
 		inherit: '@',
-
 	},
 	'@': {
 		name: 'Moderator',
 		id: 'moderator',
 		inherit: '%',
-
 	},
 	'%': {
 		name: 'Driver',
 		id: 'driver',
 		inherit: '+',
-
+		games: true,
 	},
 	'+': {
 		name: 'Voice',
 		id: 'voice',
 		inherit: ' ',
-
 	},
 	' ': {
 		name: 'Regular User',
