@@ -10,6 +10,8 @@ class MafiaCooldown extends Rooms.RoomGame {
 		this.enabled = true;
 		/** @type {"pregame" | "game" | "cooldown"} */
 		this.state = 'pregame';
+		/** @type {string?} */
+		this.curHost = null;
 		/** @type {NodeJS.Timer?} */
 		this.timer = null;
 		this.cooldown = Config.MafiaCooldown || 10;
@@ -25,16 +27,16 @@ class MafiaCooldown extends Rooms.RoomGame {
 	onHost(user, by) {
 		if (this.timer) clearTimeout(this.timer);
 		if (this.enabled && this.state !== 'pregame' && toId(by) !== toId(Config.nick)) {
-			this.sendRoom(`Disabling cooldown - reenable postgame with \`\`${Config.commandTokens[0]}enablecd\`\``);
-			this.enabled = false;
-		} else {
-			this.sendRoom(`Themes on cooldown: ${this.themeHistory.join(', ')}`);
+			this.sendRoom(`Cooldown ended early by ${by}.`);
 		}
+		this.sendRoom(`Themes on cooldown: ${this.themeHistory.join(', ')}`);
 		this.state = 'game';
+		this.curHost = user;
 	}
 
 	onEnd() {
 		this.state = 'cooldown';
+		this.curHost = null;
 		if (this.enabled) {
 			this.timer = setTimeout(() => this.nextHost(), this.cooldown * 1000);
 			let time = `${this.cooldown} seconds`;
@@ -51,9 +53,9 @@ class MafiaCooldown extends Rooms.RoomGame {
 		this.sendRoom('/mafia nexthost');
 	}
 
-	onHostFail() {
+	onHostFail(activeGame = false) {
 		if (!this.enabled) return;
-		this.sendRoom(`Nobody could be automatically hosted - host a user manually and the queue will continue`);
+		this.sendRoom(`Nobody could be automatically hosted ${activeGame ? 'because another game is being played' : ''} - host a user manually and the queue will continue`);
 	}
 
 	disable() {
@@ -87,9 +89,15 @@ function parseEvent(type, roomid, details, message = '') {
 		if (details[0] === 'Nobody on the host queue could be hosted.' || details[0] === 'Nobody is on the host queue.') {
 			cooldown.onHostFail();
 		}
+		if (details[0] === 'There is already a game in progress in this room.') {
+			cooldown.onHostFail(true);
+		}
 		break;
 	case 'host':
 		cooldown.onHost(details[0], details[1]);
+		break;
+	case 'setroles':
+		if (cooldown.curHost) Chat.sendPM(cooldown.curHost, `${cooldown.curHost}, please add what theme your hosting to the cooldown queue with \`\`@theme [Name of theme]\`\` in the ${room.title} room. Adding a different theme to the queue than the theme you actually hosted can result in a hostban.`);
 		break;
 	case 'gameend':
 		cooldown.onEnd();
@@ -97,7 +105,7 @@ function parseEvent(type, roomid, details, message = '') {
 	}
 }
 Chat.addListener('mafia-cooldown-html', true, ['error'], parseEvent, true);
-Mafia.addMafiaListener('cooldown-events', true, ['host', 'gameend'], parseEvent, true);
+Mafia.addMafiaListener('cooldown-events', true, ['host', 'setroles', 'gameend'], parseEvent, true);
 
 /** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
 /** @typedef {{[k: string]: string | ChatCommand}} ChatCommands */
@@ -121,14 +129,15 @@ const commands = {
 			room.mafiaCooldown.disable();
 		}
 	},
-	theme: function (target, room) {
-		if (!this.can('games')) return;
+	theme: function (target, room, user) {
 		if (!room || !room.mafiaCooldown) return;
 		/** @type {MafiaCooldown} */
 		const cd = room.mafiaCooldown;
+		if (!this.can('games') && toId(cd.curHost) !== toId(user)) return;
 		cd.themeHistory.unshift(toId(target));
 		if (cd.themeHistory.length > cd.themeHistoryLength) cd.themeHistory.pop();
 		this.reply(`Added ${toId(target)} to the played themes history`);
+		if (toId(cd.curHost) === toId(user)) cd.curHost = null;
 	},
 	t: function (target, room) {
 		if (!room || !room.mafiaCooldown) return;
