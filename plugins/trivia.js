@@ -17,75 +17,47 @@ function writeQuestions() {
 	fs.writeFileSync('./config/trivia-questions.json', JSON.stringify(Questions, null, 2));
 }
 
-class TriviaGame extends Rooms.RoomGame {
+class Trivia extends Rooms.RoomGame {
 	/**
      * @param {Room} room
      * @param {number} scoreCap
+	 * @param {string} name
      */
-	constructor(room, scoreCap) {
+	constructor(room, scoreCap, name) {
 		super(room);
-		this.sendRoom(`A new game of trivia is starting! First to ${scoreCap} points wins!`);
+		this.sendRoom(`A new game of ${name} is starting! First to ${scoreCap} points wins!`);
 
 		this.id = 'trivia';
 
-		this.currentQuestion = '';
-		/** @type {string[]} */
-		this.currentAnswer = [];
+		/** @type {any} */
+		this.currentQuestion = null;
 
 		this.questionNum = 0;
-		/** @type {number[]} */
-		this.selectableIndexes = Object.keys(Questions).map(n => parseInt(n));
 
 		/** @type {{[u: string]: number}} */
 		this.score = {};
 		/** @type {number} */
 		this.scoreCap = scoreCap;
 
+		/** @type {NodeJS.Timer?} */
 		this.timer = null;
-
-		this.nextQuestion();
-	}
-
-	nextQuestion() {
-		if (this.timer) clearTimeout(this.timer);
-		this.questionNum++;
-		if (!this.selectableIndexes.length) {
-			this.sendRoom(`No questions left!`);
-			const winners = this.getWinners();
-			if (winners) this.sendRoom(`Winner: ${winners[0].join(', ')} with ${winners[1]} points.`);
-			this.destroy();
-			return;
-		}
-		const questionIndex = this.selectableIndexes.splice(~~(Math.random() * this.selectableIndexes.length), 1)[0];
-		[this.currentQuestion, ...this.currentAnswer] = Questions[questionIndex];
-		this.sendRoom(`Q${this.questionNum}: **${this.currentQuestion}**`);
-		this.timer = setTimeout(() => this.skipQuestion(), TIMEOUT);
 	}
 
 	/**
-     * @param {string} user
-     * @param {string} answer
-     */
-	answer(user, answer) {
-		answer = toId(answer);
-		if (!answer) return;
-		if (this.currentAnswer.includes(answer)) {
-			this.sendRoom(` ${user} is correct with ${answer}!`);
-			const userid = toId(user);
-			if (!this.score[userid]) {
-				this.score[userid] = 1;
-			} else {
-				this.score[userid]++;
-			}
-			if (this.score[userid] >= this.scoreCap) {
-				this.sendRoom(` **${user} wins!**`);
-				this.destroy();
-				return;
-			}
-			this.nextQuestion();
-		}
+	 * This function is reponsible for issuing the next question
+	 */
+	nextQuestion() {
+		this.sendRoom(`next question not implemented`);
 	}
 
+	/**
+	 * This function is reponsible for taking an answer, verifying it, and moving to the next question if correct.
+	 * @param {string} user
+	 * @param {string} answer
+	 */
+	answer(user, answer) {
+		this.sendRoom(`answer not implemented`);
+	}
 	/**
 	 * @returns {[string[], number]?}
 	 */
@@ -124,23 +96,176 @@ class TriviaGame extends Rooms.RoomGame {
 	}
 }
 
+class AnswerTrivia extends Trivia {
+	/**
+	 * @param {Room} room
+	 * @param {number} scoreCap
+	 */
+	constructor(room, scoreCap) {
+		super(room, scoreCap, 'answer');
+
+		this.questions = Tools.lazyShuffle(Questions);
+		/** @type {string[]} */
+		this.currentAnswer = [];
+
+		this.nextQuestion();
+	}
+
+	nextQuestion() {
+		if (this.timer) clearTimeout(this.timer);
+		this.questionNum++;
+		const question = this.questions.next();
+		if (!question.value && question.done) {
+			this.sendRoom(`No questions left!`);
+			const winners = this.getWinners();
+			if (winners) this.sendRoom(`Winner: ${winners[0].join(', ')} with ${winners[1]} points.`);
+			this.destroy();
+			return;
+		}
+		[this.currentQuestion, ...this.currentAnswer] = question.value;
+		this.sendRoom(`Q${this.questionNum}: **${this.currentQuestion}**`);
+		this.timer = setTimeout(() => this.skipQuestion(), TIMEOUT);
+	}
+
+	/**
+     * @param {string} user
+     * @param {string} answer
+     */
+	answer(user, answer) {
+		answer = toId(answer);
+		if (!answer) return;
+		if (this.currentAnswer.includes(answer)) {
+			this.sendRoom(` ${user} is correct with ${answer}!`);
+			const userid = toId(user);
+			if (!this.score[userid]) {
+				this.score[userid] = 1;
+			} else {
+				this.score[userid]++;
+			}
+			if (this.score[userid] >= this.scoreCap) {
+				this.sendRoom(` **${user} wins!**`);
+				this.destroy();
+				return;
+			}
+			this.nextQuestion();
+		}
+	}
+}
+/** @type {{[k: string]: string | string[]}} */
+let Themes = {};
+function loadThemes() {
+	const theme_data = require('../mafia-data').themes;
+	for (const theme in theme_data) {
+		if (typeof theme_data[theme] === 'string') {
+			Themes[theme] = theme_data[theme];
+		} else {
+			/** @type {string[]} */
+			let entries = [];
+			for (const key in theme_data[theme]) {
+				if (!isNaN(parseInt(key))) {
+					entries.push(theme_data[theme][key]);
+				}
+			}
+			Themes[theme] = entries;
+		}
+	}
+}
+loadThemes();
+
+class KuncTrivia extends Trivia {
+	/**
+	 * @param {Room} room
+	 * @param {number} scoreCap
+	 */
+	constructor(room, scoreCap) {
+		super(room, scoreCap, 'kunc');
+
+		this.themes = Tools.lazyShuffle(Object.keys(Themes));
+		/** @type {string} */
+		this.currentQuestion = '';
+
+		this.nextQuestion();
+	}
+
+	nextQuestion() {
+		if (this.timer) clearTimeout(this.timer);
+		this.questionNum++;
+		let question;
+		do {
+			question = this.themes.next();
+			if (!question.value && question.done) {
+				this.sendRoom(`No questions left!`);
+				const winners = this.getWinners();
+				if (winners) this.sendRoom(`Winner: ${winners[0].join(', ')} with ${winners[1]} points.`);
+				this.destroy();
+				return;
+			}
+			question = Themes['' + question.value];
+		} while (!Array.isArray(question));
+		const setup = question[~~(question.length * Math.random())];
+		this.currentQuestion = setup;
+
+		let count = {};
+		let roles = [];
+		for (const role of setup.split(',').map((/** @type {string} */x) => x.trim())) {
+			count[role] = count[role] ? count[role] + 1 : 1;
+		}
+		for (const role in count) {
+			roles.push(count[role] > 1 ? `${count[role]}x ${role}` : role);
+		}
+
+		this.sendRoom(`**Q${this.questionNum}**: ${roles.join(', ')}`);
+		this.timer = setTimeout(() => this.skipQuestion(), TIMEOUT);
+	}
+
+	/**
+	 * @param {string} user
+	 * @param {string} answer
+	 */
+	answer(user, answer) {
+		answer = toId(answer);
+		if (!answer) return;
+
+		let setup = Themes[answer];
+		if (!setup) return;
+		if (typeof setup === 'string') setup = Themes[setup];
+		if (!Array.isArray(setup)) return this.sendRoom(`bad alias in '${answer}'`);
+		if (setup.includes(this.currentQuestion)) {
+			this.sendRoom(` ${user} is correct with ${answer}!`);
+			const userid = toId(user);
+			if (!this.score[userid]) {
+				this.score[userid] = 1;
+			} else {
+				this.score[userid]++;
+			}
+			if (this.score[userid] >= this.scoreCap) {
+				this.sendRoom(` **${user} wins!**`);
+				this.destroy();
+				return;
+			}
+			this.nextQuestion();
+		}
+	}
+}
+
 /** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
 /** @typedef {{[k: string]: string | ChatCommand}} ChatCommands */
 
 /** @type {ChatCommands} */
 const commands = {
+	g: 'guess',
+	guess: function (target, room, user) {
+		if (!room || !room.game || room.game.id !== 'trivia') return;
+		const game = /** @type {Trivia} */ (room.game);
+		game.answer(user, target);
+	},
+
 	trivia: function (target, room, user) {
 		if (!room || !this.can('games')) return;
 		if (room.game) return this.reply(`A game is already in progress`);
 		let cap = parseInt(target);
 		if (isNaN(cap) || cap < 1 || cap > Number.MAX_SAFE_INTEGER) cap = 5;
-		room.game = new TriviaGame(room, cap);
-	},
-	g: 'guess',
-	guess: function (target, room, user) {
-		if (!room || !room.game || room.game.id !== 'trivia') return;
-		const game = /** @type {TriviaGame} */(room.game);
-		game.answer(user, target);
+		room.game = new AnswerTrivia(room, cap);
 	},
 	addquestion: function (target, room, user) {
 		if (!this.can('games')) return;
@@ -180,6 +305,14 @@ const commands = {
 		} else {
 			this.reply(`!code ${entries.join('\n')}`);
 		}
+	},
+
+	kunc: function (target, room, user) {
+		if (!room || !this.can('games')) return;
+		if (room.game) return this.reply(`A game is already in progress`);
+		let cap = parseInt(target);
+		if (isNaN(cap) || cap < 1 || cap > Number.MAX_SAFE_INTEGER) cap = 5;
+		room.game = new KuncTrivia(room, cap);
 	},
 };
 

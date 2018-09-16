@@ -25,7 +25,7 @@ const AitC = {
 				this.destroy();
 			} else {
 				this.applyOption({kill: [author]});
-				this.sendRoom(`AUTOHOST - [${toId(author)}] tried to shoot in AitC as ${player.role}`);
+				this.sendRoom(`/mn AUTOHOST - [${toId(author)}] tried to shoot in AitC as ${player.role}`);
 			}
 		},
 		playerRoles: function () {

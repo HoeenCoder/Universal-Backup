@@ -17,6 +17,17 @@ Tools.toId = function (text) {
 };
 
 /**
+ * @param {any[]} arr
+ */
+Tools.lazyShuffle = function* (arr) {
+	/** @type {number[]} */
+	let selectableKeys = Object.keys(arr).map(n => parseInt(n));
+	while (selectableKeys.length) {
+		yield arr[selectableKeys.splice(~~(Math.random() * selectableKeys.length), 1)[0]];
+	}
+};
+
+/**
  * @param {string} user
  * @return {string[]}
  */
