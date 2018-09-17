@@ -139,3 +139,57 @@ Tools.toDurationString = function (number, options = {}) {
 	}
 	return parts.slice(positiveIndex).reverse().map((value, index) => value ? value + " " + unitNames[index] + (value > 1 ? "s" : "") : "").reverse().slice(0, precision).join(" ").trim();
 };
+
+/**
+ * @param {string} s - string 1
+ * @param {string} t - string 2
+ * @param {number} l - limit
+ * @return {number} - distance
+ */
+Tools.levenshtein = function (s, t, l = 0) {
+	// Original levenshtein distance function by James Westgate, turned out to be the fastest
+	/** @type {number[][]} */
+	let d = [];
+
+	// Step 1
+	let n = s.length;
+	let m = t.length;
+
+	if (n === 0) return m;
+	if (m === 0) return n;
+	if (l && Math.abs(m - n) > l) return Math.abs(m - n);
+
+	// Create an array of arrays in javascript (a descending loop is quicker)
+	for (let i = n; i >= 0; i--) d[i] = [];
+
+	// Step 2
+	for (let i = n; i >= 0; i--) d[i][0] = i;
+	for (let j = m; j >= 0; j--) d[0][j] = j;
+
+	// Step 3
+	for (let i = 1; i <= n; i++) {
+		let s_i = s.charAt(i - 1);
+
+		// Step 4
+		for (let j = 1; j <= m; j++) {
+			// Check the jagged ld total so far
+			if (i === j && d[i][j] > 4) return n;
+
+			let t_j = t.charAt(j - 1);
+			let cost = (s_i === t_j) ? 0 : 1; // Step 5
+
+			// Calculate the minimum
+			let mi = d[i - 1][j] + 1;
+			let b = d[i][j - 1] + 1;
+			let c = d[i - 1][j - 1] + cost;
+
+			if (b < mi) mi = b;
+			if (c < mi) mi = c;
+
+			d[i][j] = mi; // Step 6
+		}
+	}
+
+	// Step 7
+	return d[n][m];
+};

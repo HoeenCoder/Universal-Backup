@@ -1,5 +1,77 @@
 'use strict';
+const fs = require('fs');
 
+const THEMES_FILE = `./config/themes.json`;
+const THEMECOUNT_FILE = `./config/themecount.json`;
+
+/** @type {{[k: string]: string | true}} */
+let Themes = loadFile(THEMES_FILE) || {};
+/** @type {{[k: string]: number}} */
+let PlayHistory = loadFile(THEMECOUNT_FILE) || {};
+/**
+ * @param {string} path
+ */
+function loadFile(path) {
+	try {
+		const json = fs.readFileSync(path);
+		return (JSON.parse(json.toString()));
+	} catch (e) {
+		return false;
+	}
+}
+/**
+ * @param {string} path
+ * @param {any} data
+ */
+function writeFile(path, data) {
+	fs.writeFileSync(path, JSON.stringify(data, null, 2));
+}
+
+/**
+ * @param {string} name
+ * @returns {string | string[]}
+ */
+function findTheme(name) {
+	let theme = Themes[name];
+	if (theme) return (theme === true ? name : theme);
+
+	let themeDistances = {};
+	for (const entry of Object.keys(Themes)) {
+		themeDistances[entry] = Tools.levenshtein(name, entry);
+	}
+	/** @type {string[]} */
+	let results = [];
+	let lowest = 100;
+
+	for (const [entry, distance] of Object.entries(themeDistances)) {
+		if (distance < lowest) {
+			lowest = distance;
+			results = [entry];
+		} else if (distance === lowest) {
+			results.push(entry);
+		}
+	}
+	return results;
+}
+/**
+ * @param {string} name
+ */
+function addTheme(name) {
+	if (Themes[toId(name)]) return false;
+	Themes[toId(name)] = true;
+	writeFile(THEMES_FILE, Themes);
+	return true;
+}
+/**
+ * @param {string} name
+ * @param {string} theme
+ */
+function addAlias(name, theme) {
+	if (Themes[toId(theme)] !== true) return false;
+	Themes[toId(name)] = toId(theme);
+	writeFile(THEMES_FILE, Themes);
+	return true;
+}
 class MafiaCooldown extends Rooms.RoomGame {
 	/**
      * @param {Room} room
@@ -141,14 +213,31 @@ const commands = {
 		if (remaining < 1) return this.reply(`The cooldown timer is not running.`);
 		this.reply(`There is ${Tools.toDurationString(remaining, {precision: 2})} left on the cooldown timer.`);
 	},
-	theme: function (target, room, user) {
+	atheme: 'theme',
+	theme: function (target, room, user, cmd) {
 		if (!room || !room.mafiaCooldown) return;
 		/** @type {MafiaCooldown} */
 		const cd = room.mafiaCooldown;
 		if (!this.can('games') && toId(cd.curHost) !== toId(user)) return;
-		cd.themeHistory.unshift(toId(target));
+
+		let theme;
+		if (cmd === 'atheme') {
+			target = toId(target);
+			theme = target;
+			if (addTheme(theme)) room.send(`/mn ADDTHEME ${theme} by [${toId(user)}]`);
+		} else {
+			theme = findTheme(toId(target));
+			if (Array.isArray(theme)) {
+				this.reply(`${toId(target)} not found. Did you mean \`\`${theme.join(', ')}\`\`? If you are certain, use \`\`${Config.commandTokens[0]}atheme ${target}\`\``);
+				return;
+			}
+		}
+		cd.themeHistory.unshift(theme);
 		if (cd.themeHistory.length > cd.themeHistoryLength) cd.themeHistory.pop();
-		this.reply(`Added ${toId(target)} to the played themes history`);
+		this.reply(`Added ${theme} to the played themes history`);
+		if (!PlayHistory[theme]) PlayHistory[theme] = 0;
+		PlayHistory[theme]++;
+		writeFile(THEMECOUNT_FILE, PlayHistory);
 		if (toId(cd.curHost) === toId(user)) cd.curHost = null;
 	},
 	t: function (target, room) {
@@ -156,6 +245,28 @@ const commands = {
 		/** @type {MafiaCooldown} */
 		const cd = room.mafiaCooldown;
 		this.reply(`Themes on cooldown: ${cd.themeHistory.join(', ')}`);
+	},
+	addtheme: function (target) {
+		if (!this.can('games')) return false;
+		target = toId(target);
+		if (Themes[target]) return this.reply(`Already exists`);
+		addTheme(target);
+		this.reply(`Done`);
+	},
+	addalias: function (target) {
+		if (!this.can('games')) return false;
+		const args = target.split(',').map(toId);
+		if (args.length !== 2) return this.reply(`Invalid syntax`);
+		if (addAlias(args[0], args[1])) return this.reply('Done');
+		this.reply(`Target is not a theme - make sure it's not pointing at an existing alias`);
+	},
+	playcounts: function (target) {
+		if (!this.can('games')) return;
+		const themes = `<details><summary>Theme playcounts: </summary>` +
+		Object.entries(PlayHistory).sort((a, b) => a[1] - b[1]).map(([k, v]) => `${k}: ${v}`).join('<br />') +
+		`</details>`;
+		if (this.room) return this.reply(`/addhtmlbox ${themes}`);
+		this.replyHTMLPM(themes);
 	},
 };
 exports.commands = commands;
