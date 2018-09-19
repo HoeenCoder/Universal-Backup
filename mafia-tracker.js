@@ -132,8 +132,9 @@ function parseRaw(messageType, roomid, parts) {
 	const message = parts.join('|');
 	const leave = /^(.*) has (join|left)(?:ed)? the game\.$/.exec(message);
 	if (leave) return emitEvent(roomid, leave[2], [leave[1]], message);
-	const setRoles = /The roles have been set./.exec(message);
-	if (setRoles) return emitEvent(roomid, 'setroles', [], message);
+
+	if (message === "The roles have been set.") return emitEvent(roomid, 'setroles', [], message);
+
 	const plur = /^Plurality is on (.*)$/.exec(message);
 	if (plur) return emitEvent(roomid, 'plur', [plur[1]], message);
 }

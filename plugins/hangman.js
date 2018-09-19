@@ -33,6 +33,7 @@ const commands = {
      */
 	hangman: function (target, room) {
 		if (!this.can('games')) return;
+		target = toId(target);
 		let word = '';
 		let hint = '';
 		if (!target) target = ['theme', 'modifier', 'role'][~~(3 * Math.random())];
@@ -63,7 +64,7 @@ const commands = {
 		} else {
 			return this.reply(`Invalid group`);
 		}
-		createHangman(room, word, `${toId(target)}: ${hint}`);
+		createHangman(room, word, `${target.charAt(0).toUpperCase()}${target.slice(1)}: ${hint}`);
 	},
 };
 

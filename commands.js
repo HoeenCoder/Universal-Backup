@@ -27,6 +27,9 @@ const commands = {
 	git: function () {
 		this.replyPM(`https://github.com/HoeenCoder/Universal-Backup/`);
 	},
+	hotpatch: function (target) {
+		if (!this.can('eval')) return;
+	},
 };
 
 exports.commands = commands;

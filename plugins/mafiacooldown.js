@@ -80,7 +80,7 @@ class MafiaCooldown extends Rooms.RoomGame {
 		super(room);
 		this.roomid = room.roomid;
 		this.enabled = true;
-		/** @type {"pregame" | "game" | "cooldown"} */
+		/** @type {"pregame" | "signups" | "game" | "cooldown"} */
 		this.state = 'pregame';
 		/** @type {string?} */
 		this.curHost = null;
@@ -106,18 +106,27 @@ class MafiaCooldown extends Rooms.RoomGame {
 			this.sendRoom(`Cooldown ended early by ${by}.`);
 		}
 		this.sendRoom(`Themes on cooldown: ${this.themeHistory.join(', ')}`);
-		this.state = 'game';
+		this.state = 'signups';
 		this.curHost = user;
 	}
 
 	onEnd() {
-		this.state = 'cooldown';
 		this.curHost = null;
-		if (this.enabled) {
-			this.cooldownStart = Date.now();
-			this.timer = setTimeout(() => this.nextHost(), this.cooldown * 1000);
-			this.sendRoom(`Cooldown time - The next mafia game can start in ${Tools.toDurationString(this.cooldown * 1000, {precision: 2})}.`);
+		if (this.state === 'game') {
+			this.state = 'cooldown';
+			if (this.enabled) {
+				this.cooldownStart = Date.now();
+				this.timer = setTimeout(() => this.nextHost(), this.cooldown * 1000);
+				this.sendRoom(`Cooldown time - The next mafia game can start in ${Tools.toDurationString(this.cooldown * 1000, {precision: 2})}.`);
+			}
+		} else {
+			this.state = 'pregame';
+			this.sendRoom(`No game was properly started - A new user can be hosted anytime`);
 		}
+	}
+
+	onStart() {
+		this.state = 'game';
 	}
 
 	nextHost() {
@@ -159,7 +168,7 @@ function parseEvent(type, roomid, details, message = '') {
 	if (!room) return;
 	/** @type {MafiaCooldown} */
 	const cooldown = room.mafiaCooldown;
-	if (!cooldown) return;
+	if (!cooldown || !cooldown.enabled) return;
 	switch (type) {
 	case 'error':
 		if (details[0] === 'Nobody on the host queue could be hosted.' || details[0] === 'Nobody is on the host queue.') {
@@ -175,13 +184,16 @@ function parseEvent(type, roomid, details, message = '') {
 	case 'setroles':
 		if (cooldown.curHost) Chat.sendPM(cooldown.curHost, `${cooldown.curHost}, please add what theme your hosting to the cooldown queue with \`\`@theme [Name of theme]\`\` in the ${room.title} room. Adding a different theme to the queue than the theme you actually hosted can result in a hostban.`);
 		break;
+	case 'gamestart':
+		cooldown.onStart();
+		break;
 	case 'gameend':
 		cooldown.onEnd();
 		break;
 	}
 }
 Chat.addListener('mafia-cooldown-html', true, ['error'], true, parseEvent);
-Mafia.addMafiaListener('cooldown-events', true, ['host', 'setroles', 'gameend'], true, parseEvent);
+Mafia.addMafiaListener('cooldown-events', true, ['host', 'setroles', 'gamestart', 'gameend'], true, parseEvent);
 
 /** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
 /** @typedef {{[k: string]: string | ChatCommand}} ChatCommands */
