@@ -7,6 +7,7 @@
 const AitC = {
 	triggers: {
 		start: function () {
+			if (this.aliveCount < 4) return this.sendRoom(`Not enough players`);
 			const roleList = ["King", "Goo Assassin", ...Array(this.aliveCount - 2).fill("Guard")];
 			this.sendRoom(`/mafia close\n/mafia setroles ${roleList.join(',')}\n/mafia start`);
 			this.applyOption({phase: "night", nolynch: false});

@@ -13,7 +13,7 @@ Mafia.listeners = {};
  * @param {number | true} repeat
  */
 Mafia.addMafiaListener = function (id, rooms, events, repeat, callback) {
-	if (Mafia.listeners[id]) throw new Error(`Trying to add existing mafia listener: '${id}'`);
+	if (Mafia.listeners[id]) debug(`Overwriting existing mafia listener: '${id}'`);
 	Mafia.listeners[id] = {rooms, events, callback, repeat};
 	return id;
 };
@@ -281,7 +281,7 @@ class MafiaTracker extends Rooms.RoomGame {
 		delete this.players[oldId];
 		this.players[newId].user = newName;
 
-		if (this.game && this.game.triggers.sub) this.game.triggers.sub.call(oldName, newName);
+		if (this.game && this.game.triggers.sub) this.game.triggers.sub.call(this, oldName, newName);
 	}
 
 	/**

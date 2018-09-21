@@ -2,7 +2,7 @@
 
 let Chat = module.exports;
 const fs = require('fs');
-
+const path = require('path');
 /**
  * @param {string | null} roomid
  * @param {string} message
@@ -31,8 +31,25 @@ Chat.loadCommands = function () {
 		const plugin = require('./plugins/' + file);
 		Object.assign(Chat.Commands, plugin.commands);
 	}
-	Object.assign(Chat.Commands, Mafia.commands);
+	// Object.assign(Chat.Commands, Mafia.commands);
 	debug(`${Object.keys(Chat.Commands).length} commands/aliases loaded`);
+};
+
+/**
+ * @param {string} dir
+ */
+Chat.uncacheDirectory = function (dir) {
+	const root = path.resolve(dir);
+	for (const key in require.cache) {
+		if (key.startsWith(root)) delete require.cache[key];
+	}
+};
+/**
+ * @param {string} file
+ */
+Chat.uncacheFile = function (file) {
+	const filepath = path.resolve(file);
+	delete require.cache[filepath];
 };
 
 /**
@@ -200,7 +217,7 @@ Chat.listeners = {};
  * @param {number | true} repeat
  */
 Chat.addListener = function (id, rooms, messageTypes, repeat, callback) {
-	if (Chat.listeners[id]) throw new Error(`Trying to add existing listener: '${id}'`);
+	if (Chat.listeners[id]) debug(`Overwriting existing listener: '${id}'`);
 	Chat.listeners[id] = {rooms, messageTypes, callback, repeat};
 	return id;
 };

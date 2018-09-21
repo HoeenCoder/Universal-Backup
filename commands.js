@@ -29,6 +29,29 @@ const commands = {
 	},
 	hotpatch: function (target) {
 		if (!this.can('eval')) return;
+		Chat.uncacheDirectory('./plugins');
+		Chat.uncacheFile('./commands.js');
+		Chat.uncacheFile('./mafia-tracker.js');
+
+		debug('HOTPATCHING');
+		try {
+			Chat.listeners = {};
+			global.Mafia = require('./mafia-tracker');
+			Chat.loadCommands();
+		} catch (e) {
+			this.replyPM(e);
+		}
+		this.replyPM('done. remember to recreate cooldown/iso if they were modified');
+	},
+	update: function (target) {
+		if (!this.can('eval')) return;
+		let result = '';
+		try {
+			result = String(require('child_process').execSync('git merge origin master'));
+		} catch (e) {
+			this.replyPM(e);
+		}
+		this.replyPM(result);
 	},
 };
 
