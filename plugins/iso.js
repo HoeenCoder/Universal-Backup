@@ -72,7 +72,7 @@ class ISO {
 		const time = this.getTimestamp();
 		this.authors.push([toId(author)]);
 		this.log.push(`${time} ${author}: ${message}`);
-		this.htmllog.push(`<div class="chat chatmessage-${toId(author)}"><small>${time} ${author.charAt(0)}</small><strong style="${colourName(author)}">${author.slice(1)}:</strong><em>${Tools.escapeHTML(message)}</em></div>`);
+		this.htmllog.push(`<div class="chat"><small>${time} ${author.charAt(0)}</small><strong style="${colourName(author)}">${author.slice(1)}:</strong> ${Tools.escapeHTML(message)}</div>`);
 	}
 
 	/**
@@ -253,6 +253,10 @@ const commands = {
 };
 
 exports.commands = commands;
+let CustomColors = {};
+try {
+	CustomColors = require('../config/psconfig.js').customcolors;
+} catch (e) {}
 
 /** @type {{[n: string]: string}} */
 let nameCache = {};
@@ -261,6 +265,7 @@ let nameCache = {};
  */
 function colourName(n) {
 	n = toId(n);
+	if (n in CustomColors) n = CustomColors[n];
 	if (nameCache[n]) return nameCache[n];
 
 	// borrowed from ps
@@ -295,6 +300,6 @@ function colourName(n) {
 
 	L += HLmod;
 
-	nameCache[n] = "color:hsl(" + H + "," + S + "%," + L + "%);";
+	nameCache[n] = "color:hsl(" + Math.round(H) + "," + Math.round(S) + "%," + Math.round(L) + "%);";
 	return nameCache[n];
 }

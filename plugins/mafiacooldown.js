@@ -4,9 +4,50 @@ const fs = require('fs');
 const THEMES_FILE = `./config/themes.json`;
 const THEMECOUNT_FILE = `./config/themecount.json`;
 
+// hardcoding this because it doesn't need to be changed much
+const factions = {
+	townies: "town",
+	town: "town",
+
+	mafia: "mafia",
+
+	werewolves: "werewolf",
+	ww: "werewolf",
+	werewolf: "werewolf",
+
+	pygmees: "pygmee",
+	pygmee: "pygmee",
+
+	jester: "jester",
+
+	mimes: "mime",
+	mime: "mime",
+
+	aliens: "alien",
+	alien: "alien",
+
+	cult: "cult",
+	cultafia: "cultafia",
+
+	goos: "goo",
+	goo: "goo",
+
+	replicant: "replicant",
+
+	serialkiller: "solo",
+	sk: "solo",
+	solo: "solo",
+
+	scum: "scum",
+
+	universalloss: "uniloss",
+	nobody: "uniloss",
+	none: "uniloss",
+};
+
 /** @type {{[k: string]: string | true}} */
 let Themes = loadFile(THEMES_FILE) || {};
-/** @type {{[k: string]: number}} */
+/** @type {{[k: string]: {[k: string]: number}}} */
 let PlayHistory = loadFile(THEMECOUNT_FILE) || {};
 /**
  * @param {string} path
@@ -91,6 +132,9 @@ class MafiaCooldown extends Rooms.RoomGame {
 		/** @type {string[]} */
 		this.themeHistory = [];
 		this.themeHistoryLength = 2;
+		// Current theme and winner, to be written when the next game starts
+		this.theme = '';
+		this.winner = '';
 	}
 
 	/**
@@ -98,6 +142,18 @@ class MafiaCooldown extends Rooms.RoomGame {
      * @param {string} by
      */
 	onHost(user, by) {
+		if (this.theme) {
+			this.themeHistory.unshift(this.theme);
+			if (this.themeHistory.length > this.themeHistoryLength) this.themeHistory.pop();
+			if (!PlayHistory[this.theme]) PlayHistory[this.theme] = {};
+			if (!this.winner) this.winner = 'none';
+			if (!PlayHistory[this.theme][this.winner]) PlayHistory[this.theme][this.winner] = 0;
+			PlayHistory[this.theme][this.winner]++;
+			writeFile(THEMECOUNT_FILE, PlayHistory);
+			this.theme = '';
+			this.winner = '';
+		}
+
 		if (this.timer) {
 			clearTimeout(this.timer);
 			this.cooldownStart = 0;
@@ -118,10 +174,13 @@ class MafiaCooldown extends Rooms.RoomGame {
 				this.cooldownStart = Date.now();
 				this.timer = setTimeout(() => this.nextHost(), this.cooldown * 1000);
 				this.sendRoom(`Cooldown time - The next mafia game can start in ${Tools.toDurationString(this.cooldown * 1000, {precision: 2})}.`);
+				if (this.curHost) Chat.sendPM(this.curHost, `You can set the winning faction for stats with \`\`${Config.commandTokens[0]}win <faction>\`\``);
 			}
 		} else {
 			this.state = 'pregame';
 			this.sendRoom(`No game was properly started - A new user can be hosted anytime`);
+			this.theme = '';
+			this.winner = '';
 		}
 	}
 
@@ -231,39 +290,74 @@ const commands = {
 		/** @type {MafiaCooldown} */
 		const cd = room.mafiaCooldown;
 		if (!this.can('games') && toId(cd.curHost) !== toId(user)) return;
-
+		target = toId(target);
+		if (!target) return;
 		let theme;
 		if (cmd === 'atheme') {
-			target = toId(target);
 			theme = target;
-			if (addTheme(theme)) room.send(`/mn ADDTHEME ${theme} by [${toId(user)}]`);
+			if (addTheme(target)) room.send(`/mn ADDTHEME ${theme} by [${toId(user)}]`);
 		} else {
-			theme = findTheme(toId(target));
+			theme = findTheme(target);
 			if (Array.isArray(theme)) {
-				this.reply(`${toId(target)} not found. Did you mean \`\`${theme.join(', ')}\`\`? If you are certain, use \`\`${Config.commandTokens[0]}atheme ${target}\`\``);
+				this.reply(`${target} not found. Did you mean \`\`${theme.join(', ')}\`\`? If you are certain, use \`\`${Config.commandTokens[0]}atheme ${target}\`\``);
 				return;
 			}
 		}
-		cd.themeHistory.unshift(theme);
-		if (cd.themeHistory.length > cd.themeHistoryLength) cd.themeHistory.pop();
-		this.reply(`Added ${theme} to the played themes history`);
-		if (!PlayHistory[theme]) PlayHistory[theme] = 0;
-		PlayHistory[theme]++;
-		writeFile(THEMECOUNT_FILE, PlayHistory);
-		if (toId(cd.curHost) === toId(user)) cd.curHost = null;
+		cd.theme = theme;
+		this.replyPM(`Set the current theme to ${theme}.`);
+		return;
+	},
+	awin: 'win',
+	win: function (target, room, user, cmd) {
+		if (!room || !room.mafiaCooldown) return;
+		/** @type {MafiaCooldown} */
+		const cd = room.mafiaCooldown;
+		if (!this.can('games') && toId(cd.curHost) !== toId(user)) return;
+
+		let winner = toId(target);
+		if (!winner) return;
+
+		if (cmd !== 'awin') {
+			winner = factions[winner];
+			if (!winner) return this.reply(`Faction ${target} not found. If you are sure, use ${Config.commandTokens[0]}awin`);
+		}
+		cd.winner = winner;
+		this.replyPM(`Winner set to ${winner}.` + (cd.theme ? '' : ' Note that you will need to specify a theme for winner stats to count.'));
 	},
 	t: function (target, room) {
 		if (!room || !room.mafiaCooldown) return;
 		/** @type {MafiaCooldown} */
 		const cd = room.mafiaCooldown;
-		this.reply(`Themes on cooldown: ${cd.themeHistory.join(', ')}`);
+		this.reply(`Themes on cooldown: ${cd.theme ? `(${cd.theme})` : ''}${cd.themeHistory.join(', ')}`);
 	},
 	addtheme: function (target) {
 		if (!this.can('games')) return false;
 		target = toId(target);
+		if (!target) return;
 		if (Themes[target]) return this.reply(`Already exists`);
 		addTheme(target);
 		this.reply(`Done`);
+	},
+	removetheme: function (target) {
+		if (!this.can('editroom')) return false;
+		target = toId(target);
+		if (!target) return;
+		delete Themes[target];
+		this.reply(`Done. remember to remove any pointing aliases`);
+		writeFile(THEMES_FILE, Themes);
+	},
+	editstats: function (target) {
+		if (!this.can('editroom')) return false;
+		let args = target.split('|');
+		const theme = PlayHistory[toId(args[0])];
+		if (!theme) return this.reply('Theme not found');
+		const winner = toId(args[1]);
+		const change = parseInt(args[2]);
+		if (!winner || !change) return this.reply(`Invalid syntax`);
+		if (!theme[winner]) theme[winner] = 0;
+		theme[winner] += change;
+		this.reply(`${args[0]} wincount for ${winner} changed by ${change}`);
+		writeFile(THEMECOUNT_FILE, PlayHistory);
 	},
 	addalias: function (target) {
 		if (!this.can('games')) return false;
@@ -274,11 +368,29 @@ const commands = {
 	},
 	playcounts: function (target) {
 		if (!this.can('games')) return;
-		const themes = `<details><summary>Theme playcounts: </summary>` +
-		Object.entries(PlayHistory).sort((a, b) => a[1] - b[1]).map(([k, v]) => `${k}: ${v}`).join('<br />') +
+
+		if (target) {
+			const theme = PlayHistory[toId(target)];
+			if (!theme) return this.reply(`Theme not found`);
+			let buf = `Wincounts for ${target}: `;
+			for (const [k, v] of Object.entries(theme)) {
+				if (v) buf += `${k}: ${v}; `;
+			}
+			this.reply(buf);
+			return;
+		}
+
+		let totalCounts = {};
+		for (const [k, v] of Object.entries(PlayHistory)) {
+			totalCounts[k] = Object.values(v).reduce((a, c) => a + c);
+		}
+
+		const themes = `<details><summary>Theme total playcounts: </summary>` +
+        Object.entries(totalCounts).sort((a, b) => a[1] - b[1]).map(([k, v]) => `${k}: ${v}`).join('<br />') +
 		`</details>`;
 		if (this.room) return this.reply(`/addhtmlbox ${themes}`);
 		this.replyHTMLPM(themes);
 	},
+
 };
 exports.commands = commands;
