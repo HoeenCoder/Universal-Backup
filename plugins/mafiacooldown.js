@@ -181,6 +181,7 @@ class MafiaCooldown extends Rooms.RoomGame {
 			this.sendRoom(`No game was properly started - A new user can be hosted anytime`);
 			this.theme = '';
 			this.winner = '';
+			this.curHost = null;
 		}
 	}
 
@@ -241,7 +242,7 @@ function parseEvent(type, roomid, details, message = '') {
 		cooldown.onHost(details[0], details[1]);
 		break;
 	case 'setroles':
-		if (cooldown.curHost) Chat.sendPM(cooldown.curHost, `${cooldown.curHost}, please add what theme your hosting to the cooldown queue with \`\`@theme [Name of theme]\`\` in the ${room.title} room. Adding a different theme to the queue than the theme you actually hosted can result in a hostban.`);
+		if (cooldown.curHost) Chat.sendPM(cooldown.curHost, `${cooldown.curHost}, please add your theme to the cooldown queue with \`\`${Config.commandTokens[0]}theme [theme]\`\`. Adding the wrong theme can result in a hostban.`);
 		break;
 	case 'gamestart':
 		cooldown.onStart();
@@ -295,7 +296,7 @@ const commands = {
 		let theme;
 		if (cmd === 'atheme') {
 			theme = target;
-			if (addTheme(target)) room.send(`/mn ADDTHEME ${theme} by [${toId(user)}]`);
+			if (addTheme(target)) cd.sendRoom(`/mn ADDTHEME ${theme} by [${toId(user)}]`);
 		} else {
 			theme = findTheme(target);
 			if (Array.isArray(theme)) {
@@ -309,6 +310,7 @@ const commands = {
 	},
 	awin: 'win',
 	win: function (target, room, user, cmd) {
+		if (!room) room = Rooms(Config.primaryRoom);
 		if (!room || !room.mafiaCooldown) return;
 		/** @type {MafiaCooldown} */
 		const cd = room.mafiaCooldown;
