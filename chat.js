@@ -30,9 +30,13 @@ Chat.loadCommands = function () {
 		if (file.substr(-3) !== '.js') continue;
 		const plugin = require('./plugins/' + file);
 		Object.assign(Chat.Commands, plugin.commands);
+		Object.assign(Chat.listeners, plugin.listeners);
+		Object.assign(Mafia.listeners, plugin.mafiaListeners);
 	}
 	// Object.assign(Chat.Commands, Mafia.commands);
 	debug(`${Object.keys(Chat.Commands).length} commands/aliases loaded`);
+	debug(`${Object.keys(Chat.listeners).length} listeners loaded`);
+	debug(`${Object.keys(Mafia.listeners).length} mafia listeners loaded`);
 };
 
 /**

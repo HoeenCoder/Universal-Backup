@@ -145,18 +145,51 @@ function addSystemMessage(event, roomid, details, message) {
 	if (!room || !room.iso) return;
 	room.iso.addSystemMessage(Tools.stripHTML(message));
 }
-
-Chat.addListener('iso-chat', true, ['chat'], true, parseChat);
-Mafia.addMafiaListener('iso-lynch', true, ['lynch', 'unlynch', 'lynchshift', 'nolynch', 'unnolynch'], true, addLynch);
-Mafia.addMafiaListener('iso-day', true, ['day'], true, addDay);
-const SYSTEM_EVENTS = ['night', 'day', 'kick', 'treestump', 'spirit', 'spiritstump', 'kill', 'revive', 'add', 'hammer', 'sethammer', 'shifthammer'];
-Mafia.addMafiaListener('iso-system-messages', true, SYSTEM_EVENTS, true, addSystemMessage);
-Mafia.addMafiaListener('iso-init', true, ['gamestart', 'gameend'], true, (/** @type {string} **/e, /** @type {string} **/r) => {
-	const room = Rooms(r);
+/**
+ * @param {string} event
+ * @param {string} roomid
+ */
+function handleGames(event, roomid) {
+	const room = Rooms(roomid);
 	if (!room || !room.iso) return;
-	if (e === 'gamestart') return room.iso.startSession();
+	if (event === 'gamestart') return room.iso.startSession();
 	room.iso.endSession();
-});
+}
+
+const listeners = {
+	"iso": {
+		rooms: true,
+		messageTypes: ['chat'],
+		repeat: true,
+		callback: parseChat,
+	},
+};
+const mafiaListeners = {
+	"iso#lynches": {
+		rooms: true,
+		messageTypes: ['lynch', 'unlynch', 'lynchshift', 'nolynch', 'unnolynch'],
+		repeat: true,
+		callback: addLynch,
+	},
+	"iso#day": {
+		rooms: true,
+		messageTypes: ['day'],
+		repeat: true,
+		callback: addDay,
+	},
+	"iso#system": {
+		rooms: true,
+		messageTypes: ['night', 'day', 'kick', 'treestump', 'spirit', 'spiritstump', 'kill', 'revive', 'add', 'hammer', 'sethammer', 'shifthammer'],
+		repeat: true,
+		callback: addSystemMessage,
+	},
+	"iso#init": {
+		rooms: true,
+		messageTypes: ['gamestart', 'gameend'],
+		repeat: true,
+		callback: handleGames,
+	},
+};
 
 /** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
 /** @typedef {{[k: string]: string | ChatCommand}} ChatCommands */
@@ -252,7 +285,14 @@ const commands = {
 	},
 };
 
-exports.commands = commands;
+module.exports = {
+	commands,
+	listeners,
+	mafiaListeners,
+};
+
+/* PS colours */
+/** @type {{[k: string]: string}} */
 let CustomColors = {};
 try {
 	CustomColors = require('../config/psconfig.js').customcolors;

@@ -226,8 +226,23 @@ function parseEvent(type, roomid, details, message = '') {
 		break;
 	}
 }
-Chat.addListener('mafia-cooldown-html', true, ['error'], true, parseEvent);
-Mafia.addMafiaListener('cooldown-events', true, ['host', 'setroles', 'gamestart', 'gameend'], true, parseEvent);
+
+const listeners = {
+	"mafia-cooldown": {
+		rooms: true,
+		messageTypes: ['error'],
+		repeat: true,
+		callback: parseEvent,
+	},
+};
+const mafiaListeners = {
+	"mafia-cooldown": {
+		rooms: true,
+		messageTypes: ['host', 'setroles', 'gamestart', 'gameend'],
+		repeat: true,
+		callback: parseEvent,
+	},
+};
 
 /** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
 /** @typedef {{[k: string]: string | ChatCommand}} ChatCommands */
@@ -323,4 +338,8 @@ const commands = {
 		this.replyHTMLPM(themes);
 	},
 };
-exports.commands = commands;
+module.exports = {
+	commands,
+	listeners,
+	mafiaListeners,
+};
