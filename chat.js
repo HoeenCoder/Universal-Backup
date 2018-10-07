@@ -23,6 +23,8 @@ Chat.sendPM = function (target, message) {
 };
 
 Chat.commands = {};
+Chat.listeners = {};
+
 Chat.loadCommands = function () {
 	Chat.Commands = require('./commands.js').commands;
 	const files = fs.readdirSync('plugins');
@@ -37,6 +39,27 @@ Chat.loadCommands = function () {
 	debug(`${Object.keys(Chat.Commands).length} commands/aliases loaded`);
 	debug(`${Object.keys(Chat.listeners).length} listeners loaded`);
 	debug(`${Object.keys(Mafia.listeners).length} mafia listeners loaded`);
+};
+
+/**
+ * @param {string} id
+ * @param {string[] | true} rooms
+ * @param {string[] | true} messageTypes
+ * @param {function} callback
+ * @param {number | true} repeat
+ */
+Chat.addListener = function (id, rooms, messageTypes, repeat, callback) {
+	if (Chat.listeners[id]) debug(`Overwriting existing listener: '${id}'`);
+	Chat.listeners[id] = {rooms, messageTypes, callback, repeat};
+	return id;
+};
+/**
+ * @param {string} id
+ */
+Chat.removeListener = function (id) {
+	if (!Chat.listeners[id]) return false;
+	delete Chat.listeners[id];
+	return true;
 };
 
 /**
@@ -182,7 +205,6 @@ function parse(roomid, messageType, parts) {
 	case 'customgroups': // might want to handle this
 		break; // not needed for the bot
 	case 'queryresponse':
-	/*
 		if (parts[0] !== 'userdetails') break;
 		let details;
 		try {
@@ -191,7 +213,10 @@ function parse(roomid, messageType, parts) {
 			console.error(`Error while parsing userdetails: ${e}\n`);
 			console.log(parts[1]);
 		}
-		*/
+		if (details.userid === toId(Config.nick)) {
+			Chat.client.auth = details.group;
+			debug(`Setting self auth to "${details.group}"`);
+		}
 		break;
 	default:
 		debug(`[parser.js.parse] Unhandled message: [${roomid}|${messageType}|${parts.join(',')}]`);
@@ -212,27 +237,6 @@ function parse(roomid, messageType, parts) {
 	}
 }
 
-Chat.listeners = {};
-/**
- * @param {string} id
- * @param {string[] | true} rooms
- * @param {string[] | true} messageTypes
- * @param {function} callback
- * @param {number | true} repeat
- */
-Chat.addListener = function (id, rooms, messageTypes, repeat, callback) {
-	if (Chat.listeners[id]) debug(`Overwriting existing listener: '${id}'`);
-	Chat.listeners[id] = {rooms, messageTypes, callback, repeat};
-	return id;
-};
-/**
- * @param {string} id
- */
-Chat.removeListener = function (id) {
-	if (!Chat.listeners[id]) return false;
-	delete Chat.listeners[id];
-	return true;
-};
 /**
  * Takes a parsed regex of [message, user, group] and updates auth
  * @param {Room} room
@@ -293,6 +297,16 @@ function parsePM(from, message) {
 function parseChatPage(pageid, messageType, parts) {
 	debug(`Viewing chat page '${pageid}'`);
 }
+/**
+* @param {Room?} room
+* @param {string} message
+*/
+Chat.strong = function (room, message) {
+	if (!room) return `/wall ${message}`;
+	const auth = room.auth.get(toId(Config.nick));
+	if (auth === ' ' || auth === '+') return `**${message}**`;
+	return `/wall ${message}`;
+};
 
 class ChatParser {
 	/**
@@ -363,6 +377,12 @@ class ChatParser {
 	}
 
 	/**
+	 * @param {string} message
+	 */
+	strong(message) {
+		return Chat.strong(this.room, message);
+	}
+	/**
 	 * @param {string} userid
 	 * @returns {string?}
 	 */
@@ -410,4 +430,4 @@ class ChatParser {
 Chat.ChatParser = ChatParser;
 
 const Client = require('./client.js');
-Chat.client = new Client(parse);
+Chat.client = new Client(parse, parseChatPage);

@@ -18,11 +18,18 @@ function quickToRoomid(roomid) {
  * @param {string[]} parts
  */
 
+/**
+ * @typedef {function} PageParserCallback
+ * @param {string} roomid
+ * @param {string} body
+ */
+
 class Client {
 	/**
 	 * @param {ParserCallback} parser
+	 * @param {PageParserCallback} pageParser
 	 */
-	constructor(parser) {
+	constructor(parser, pageParser) {
 		this.connected = false;
 		this.closed = false;
 		/** @type {WebSocketClient?} */
@@ -43,6 +50,8 @@ class Client {
 		 */
 		/** @type {ParserCallback} */
 		this.messageCallback = parser;
+		/** @type {PageParserCallback} */
+		this.pageCallback = pageParser;
 	}
 
 	connect() {
@@ -108,8 +117,6 @@ class Client {
 		}, 600);
 	}
 
-	// Borrowed from sirDonovan's Cassius because it's actually the right way
-	// to parse all incoming messages.
 	/**
 	 * @param {object} message
 	 */
@@ -120,6 +127,9 @@ class Client {
 
 		let lines = message.utf8Data.split('\n');
 		if (lines[0].charAt(0) === '>') roomid = quickToRoomid(lines.shift());
+
+		// Cheap hack
+		if (roomid.startsWith('view-')) return this.pageCallback(roomid, lines.join('\n'));
 
 		for (let i = 0; i < lines.length; i++) {
 			if (lines[i].startsWith('|init|')) {
@@ -170,7 +180,7 @@ class Client {
 					'Content-Length': loginQuerystring.length,
 				};
 			}
-			debug(`Sending login to ${reqOptions.path}`);
+			debug(`Sending login to ${reqOptions.hostname}`);
 
 			const req = https.request(reqOptions, res => {
 				res.setEncoding('utf8');

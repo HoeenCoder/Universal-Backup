@@ -110,7 +110,7 @@ class MafiaCooldown extends Rooms.RoomGame {
 			reply = `There is ${Tools.toDurationString(remaining, {precision: 2})} left on the cooldown timer.`;
 		}
 		if (Date.now() > (this.lastBroadcast + BROADCAST_COOLDOWN)) {
-			this.sendRoom(reply);
+			this.sendRoom(Chat.strong(this.room, reply));
 			this.lastBroadcast = Date.now();
 		} else {
 			Chat.sendPM(user, reply);
@@ -137,7 +137,7 @@ class MafiaCooldown extends Rooms.RoomGame {
 		if (this.enabled && this.state !== 'pregame' && toId(by) !== toId(Config.nick)) {
 			this.sendRoom(`Cooldown ended early by ${by}.`);
 		}
-		this.sendRoom(`Themes on cooldown: ${this.themeHistory.join(', ')}`);
+		this.sendRoom(Chat.strong(this.room, `Themes on cooldown: ${this.themeHistory.join(', ')}`));
 		this.state = 'signups';
 		this.curHost = user;
 	}
@@ -238,7 +238,7 @@ const listeners = {
 const mafiaListeners = {
 	"mafia-cooldown": {
 		rooms: true,
-		messageTypes: ['host', 'setroles', 'gamestart', 'gameend'],
+		events: ['host', 'setroles', 'gamestart', 'gameend'],
 		repeat: true,
 		callback: parseEvent,
 	},
@@ -304,7 +304,7 @@ const commands = {
 		if (!room || !room.mafiaCooldown) return;
 		/** @type {MafiaCooldown} */
 		const cd = room.mafiaCooldown;
-		this.reply(`Themes on cooldown: ${cd.theme ? `(${cd.theme})` : ''}${cd.themeHistory.join(', ')}`);
+		this.reply(this.strong(`Themes on cooldown: ${cd.theme ? `(${cd.theme})` : ''}${cd.themeHistory.join(', ')}`));
 	},
 	addtheme: function (target) {
 		if (!this.can('games')) return false;

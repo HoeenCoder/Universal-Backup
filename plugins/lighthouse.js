@@ -44,7 +44,7 @@ class Lighthouse extends Rooms.RoomGame {
 			this.checkLog.push(log);
 			return;
 		}
-		if (/mafiasignup/.test(message)) {
+		if (/\bmafiasignup\b/i.test(message)) {
 			debug(`Lighthouse tried to say HL word: ${log}`);
 			this.checkLog.push(log);
 			return;
@@ -154,11 +154,18 @@ exports.commands = {
 	lynches: function (target, room, user) {
 		if (!room || !room.game || room.game.gameid !== 'lighthouse') return;
 		if (!this.can('games')) return;
-		// blind assume we have bot because i havent implemented a proper roomperms system
+
+		const auth = room.auth.get(toId(Config.nick));
+		if (auth === ' ') return this.reply(`Can't broadcast`);
+		const html = auth === '*';
 		let lynches = Object.entries(room.game.lynches).map(([k, v]) => {
 			if (!v.length) return '';
-			return `<div>${k} (${v.length}): ${v.join(', ')}</div>`;
+			return `${k} (${v.length}): ${v.join(', ')}`;
 		});
-		room.send(`/addhtmlbox ${lynches.join('')}`);
+		if (html) {
+			room.send(`/addhtmlbox <div>${lynches.join('</div><div>')}</div>`);
+		} else {
+			room.send(`!code Lynches:\n${lynches.join('\n')}`);
+		}
 	},
 };
