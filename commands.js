@@ -47,7 +47,7 @@ const commands = {
 		if (!this.can('eval')) return;
 		let result = '';
 		try {
-			result = String(require('child_process').execSync('git merge origin master'));
+			result = String(require('child_process').execSync('git fetch origin master && git merge origin master'));
 		} catch (e) {
 			this.replyHTMLPM(e.replace(/\n/g, '<br/>'));
 		}
