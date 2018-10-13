@@ -8,7 +8,7 @@ const BROADCAST_COOLDOWN = 90 * 1000;
 
 /** @type {{[k: string]: string | true}} */
 let Themes = loadFile(THEMES_FILE) || {};
-/** @type {{[k: string]: {[k: string]: number}}} */
+/** @type {{[k: string]: number}}} */
 let PlayHistory = loadFile(THEMECOUNT_FILE) || {};
 /**
  * @param {string} path
@@ -37,6 +37,7 @@ function findTheme(name) {
 	let theme = Themes[name];
 	if (theme) return (theme === true ? name : theme);
 
+	/** @type {{[k: string]: number}} */
 	let themeDistances = {};
 	for (const entry of Object.keys(Themes)) {
 		themeDistances[entry] = Tools.levenshtein(name, entry);
@@ -94,8 +95,6 @@ class MafiaCooldown extends Rooms.RoomGame {
 		/** @type {string[]} */
 		this.themeHistory = [];
 		this.themeHistoryLength = 2;
-		// Current theme, to be written when the next game starts
-		this.theme = '';
 	}
 
 	/**
@@ -121,15 +120,6 @@ class MafiaCooldown extends Rooms.RoomGame {
      * @param {string} by
      */
 	onHost(user, by) {
-		if (this.theme) {
-			this.themeHistory.unshift(this.theme);
-			if (this.themeHistory.length > this.themeHistoryLength) this.themeHistory.pop();
-			if (!PlayHistory[this.theme]) PlayHistory[this.theme] = 0;
-			PlayHistory[this.theme]++;
-			writeFile(THEMECOUNT_FILE, PlayHistory);
-			this.theme = '';
-		}
-
 		if (this.timer) {
 			clearTimeout(this.timer);
 			this.cooldownStart = 0;
@@ -154,7 +144,6 @@ class MafiaCooldown extends Rooms.RoomGame {
 		} else {
 			this.state = 'pregame';
 			this.sendRoom(`No game was properly started - A new user can be hosted anytime`);
-			this.theme = '';
 			this.curHost = null;
 		}
 	}
@@ -296,15 +285,18 @@ const commands = {
 				return;
 			}
 		}
-		cd.theme = theme;
-		this.replyPM(`Set the current theme to ${theme}.`);
+		cd.themeHistory.unshift(theme);
+		if (cd.themeHistory.length > cd.themeHistoryLength) cd.themeHistory.pop();
+		if (!PlayHistory[theme]) PlayHistory[theme] = 0;
+		PlayHistory[theme]++;
+		this.replyPM(`Added ${theme} to the play history..`);
 		return;
 	},
 	t: function (target, room) {
 		if (!room || !room.mafiaCooldown) return;
 		/** @type {MafiaCooldown} */
 		const cd = room.mafiaCooldown;
-		this.reply(this.strong(`Themes on cooldown: ${cd.theme ? `(${cd.theme})` : ''}${cd.themeHistory.join(', ')}`));
+		this.reply(this.strong(`Themes on cooldown: ${cd.themeHistory.join(', ')}`));
 	},
 	addtheme: function (target) {
 		if (!this.can('games')) return false;

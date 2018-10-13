@@ -221,12 +221,19 @@ function parse(roomid, messageType, parts) {
 	default:
 		debug(`[parser.js.parse] Unhandled message: [${roomid}|${messageType}|${parts.join(',')}]`);
 	}
-
+	emitEvent(normalisedType, roomid, parts);
+}
+/**
+ * @param {string} type
+ * @param {string} roomid
+ * @param {string[]} parts
+ */
+function emitEvent(type, roomid, parts) {
 	for (const id in Chat.listeners) {
 		const listener = Chat.listeners[id];
-		if (listener.messagesTypes !== true && !listener.messageTypes.includes(normalisedType)) continue;
+		if (listener.messagesTypes !== true && !listener.messageTypes.includes(type)) continue;
 		if (listener.rooms !== true && !listener.rooms.includes(roomid)) continue;
-		const result = listener.callback(normalisedType, roomid, parts);
+		const result = listener.callback(type, roomid, parts);
 		// true decrememnts the count and continues, null drops the message, false continues as if nothing happened
 		if (result === true) {
 			if (listener.repeat !== true) listener.repeat--;
@@ -345,7 +352,11 @@ class ChatParser {
 		let command = Chat.Commands[this.cmd];
 		if (typeof command === 'string') command = Chat.Commands[command];
 		if (typeof command !== 'function') {
-			if (typeof command !== 'undefined') debug(`[ChatParser#parse] Expected ${this.cmd} command to be a function, instead received ${typeof command}`);
+			if (typeof command !== 'undefined') {
+				debug(`[ChatParser#parse] Expected ${this.cmd} command to be a function, instead received ${typeof command}`);
+			} else {
+				emitEvent('command', room && room.roomid || '', target);
+			}
 			return;
 		}
 		debug(`[Commands.${this.cmd}] target = '${this.target}' | room = ${room ? room.roomid : 'PMs'} | user = ${user} | group = '${this.group}'`);
