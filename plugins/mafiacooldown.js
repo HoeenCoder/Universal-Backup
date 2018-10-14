@@ -289,7 +289,7 @@ const commands = {
 		if (cd.themeHistory.length > cd.themeHistoryLength) cd.themeHistory.pop();
 		if (!PlayHistory[theme]) PlayHistory[theme] = 0;
 		PlayHistory[theme]++;
-		this.replyPM(`Added ${theme} to the play history..`);
+		this.replyPM(`Added ${theme} to the play history.`);
 		return;
 	},
 	t: function (target, room) {

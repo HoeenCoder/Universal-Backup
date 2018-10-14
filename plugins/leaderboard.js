@@ -8,7 +8,7 @@ const MVPLADDER_PATH = './config/lb_mvpladder.json';
 const WIN_POINTS = 5;
 const MVP_POINTS = 5;
 
-const REGS_SHOWN = 25;
+const REGS_SHOWN = 5;
 /**
  * @param {string} path
  */
@@ -25,9 +25,44 @@ let LADDER = loadFile(LADDER_PATH);
 /** @type {{[k: string]: number}} */
 let MVPLADDER = loadFile(MVPLADDER_PATH);
 
-function writePoints() {
-	fs.writeFileSync(LADDER_PATH, JSON.stringify(LADDER, null, 2));
-	fs.writeFileSync(MVPLADDER_PATH, JSON.stringify(MVPLADDER, null, 2));
+/** @type {[string, number][] | null} */
+let LADDERCACHE;
+/** @type {[string, number][] | null} */
+let MVPCACHE;
+
+function writePoints(mvp = false) {
+	if (mvp) {
+		fs.writeFileSync(MVPLADDER_PATH, JSON.stringify(MVPLADDER, null, 2));
+		MVPCACHE = null;
+	} else {
+		fs.writeFileSync(LADDER_PATH, JSON.stringify(LADDER, null, 2));
+		LADDERCACHE = null;
+	}
+}
+
+/**
+ * @param {boolean} mvp
+ */
+function getLadder(mvp = false) {
+	let totalPoints;
+	if (mvp) {
+		if (MVPCACHE) return MVPCACHE;
+		totalPoints = MVPLADDER;
+	} else {
+		if (LADDERCACHE) return LADDERCACHE;
+		totalPoints = Object.assign({}, LADDER);
+		for (const userid in MVPLADDER) {
+			if (!totalPoints[userid]) totalPoints[userid] = 0;
+			totalPoints[userid] += MVPLADDER[userid] * (Config.MVPPoints || MVP_POINTS);
+		}
+	}
+	const res = Object.entries(totalPoints).sort((a, b) => b[1] - a[1]);
+	if (mvp) {
+		MVPCACHE = res;
+	} else {
+		LADDERCACHE = res;
+	}
+	return res;
 }
 
 /** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
@@ -37,23 +72,27 @@ function writePoints() {
 const commands = {
 	mvpladder: 'ladder',
 	ladder: function (target, room, user, cmd) {
-		/** @type {{[k: string]: number}} */
-		let totalPoints = {};
-		if (cmd === 'mvpladder') {
-			totalPoints = MVPLADDER;
-		} else {
-			totalPoints = Object.assign({}, LADDER);
-			for (const userid in MVPLADDER) {
-				if (!totalPoints[userid]) totalPoints[userid] = 0;
-				totalPoints[userid] += MVPLADDER[userid] * (Config.MVPPoints || MVP_POINTS);
-			}
-		}
+		let mvp = cmd === 'mvpladder';
+		const points = getLadder(mvp);
+
 		let buf = `<details><summary>${cmd === 'mvpladder' ? 'MVP Ladder' : 'Ladder'}</summary><table><th>Userid</th><th>${cmd === 'mvpladder' ? 'MVPs' : 'Points'}</th>`;
 		const MainRoom = Rooms(Config.primaryRoom);
-		buf += Object.entries(totalPoints).sort((a, b) => b[1] - a[1]).map(([userid, points], i) => {
-			if (MainRoom && MainRoom.auth.get(userid)) return '';
-			const it = i <= REGS_SHOWN;
-			return `<tr><td>${it ? '<em>' : ''}${userid}${it ? '</em>' : ''}</td><td>${points}</td></tr>`;
+
+		let regsShown = 0;
+		const showAuth = !!target;
+		buf += points.map(([userid, points], i) => {
+			let it = false;
+			if (MainRoom && MainRoom.auth.get(userid)) {
+				if (!showAuth) {
+					return '';
+				} else {
+					it = true;
+				}
+			} else {
+				regsShown++;
+			}
+			const bold = regsShown <= REGS_SHOWN;
+			return `<tr><td>${it ? '<em>' : ''}${bold ? '<strong>' : ''}${userid}${bold ? '</strong>' : ''}${it ? '</em>' : ''}</td><td>${points}</td></tr>`;
 		}).join('');
 		buf += `</table></details>`;
 		if (room && this.can('broadcast', null, room)) {
@@ -61,6 +100,28 @@ const commands = {
 		} else {
 			this.replyHTMLPM(buf);
 		}
+	},
+
+	position: function (target, room, user) {
+		if (room) return this.replyPM(`Please use this command in PMs :)`);
+		const userid = toId(target) || toId(user);
+		if (userid === 'target') return this.replyPM(`nice try`);
+		if (!(userid in LADDER || userid in MVPLADDER)) return this.replyPM(`${userid} doesn't have any points.`);
+
+		const ladder = getLadder();
+		const MainRoom = Rooms(Config.primaryRoom);
+
+		let usersAhead = 0;
+		let points = 0;
+		for (const [u, p] of ladder) {
+			if (u === userid) {
+				points = p;
+				break;
+			}
+			if (!MainRoom || !MainRoom.auth.get(u)) usersAhead++;
+		}
+		if (usersAhead < 0) return this.replyPM(`something messed up bad, tell a staff member`);
+		this.replyPM(`${userid} has ${usersAhead} reg${usersAhead !== 1 ? 's' : ''} in front of them, with ${points} points!`);
 	},
 
 	mvp: 'win',
@@ -85,8 +146,8 @@ const commands = {
 			targetLadder[user] += points;
 			if (!targetLadder[user]) delete targetLadder[user];
 		}
-		writePoints();
-		this.reply(`Gave ${points}${mvp ? ' MVP' : ''} points to ${targets.length} user${targets.length > 1 ? 's' : ''}.`);
+		writePoints(mvp);
+		this.reply(`Gave ${points}${mvp ? ' MVP' : ''} point${points !== 1 ? 's' : ''} to ${targets.length} user${targets.length > 1 ? 's' : ''}.`);
 	},
 };
 
