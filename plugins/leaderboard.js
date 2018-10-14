@@ -72,7 +72,7 @@ const commands = {
 		let points = parseInt(pointsArg);
 		const mvp = cmd.includes('mvp');
 		if (!points || isNaN(points)) {
-			points = mvp ? 1 : WIN_POINTS;
+			points = mvp ? 1 : (Config.WinPoints || WIN_POINTS);
 			targets.push(pointsArg);
 		}
 		targets = targets.map(toId);

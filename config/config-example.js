@@ -49,6 +49,10 @@ exports.mafiaAutostart = 2;
 // Developers have access to everything, and are the only ones that can use eval
 exports.developers = ['jumbowhales', 'hoeenhero'];
 
+// for the lb tracking
+exports.MVPPoints = 10;
+exports.WinPoints = 10;
+
 /**
  * Permissions by rank
  *
