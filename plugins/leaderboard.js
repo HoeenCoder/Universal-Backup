@@ -80,8 +80,10 @@ const commands = {
 
 		const targetLadder = (mvp ? MVPLADDER : LADDER);
 		for (const user of targets) {
+			if (!user) continue;
 			if (!targetLadder[user]) targetLadder[user] = 0;
 			targetLadder[user] += points;
+			if (!targetLadder[user]) delete targetLadder[user];
 		}
 		writePoints();
 		this.reply(`Gave ${points}${mvp ? ' MVP' : ''} points to ${targets.length} user${targets.length > 1 ? 's' : ''}.`);
