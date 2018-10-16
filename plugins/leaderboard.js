@@ -8,7 +8,7 @@ const MVPLADDER_PATH = './config/lb_mvpladder.json';
 const WIN_POINTS = 5;
 const MVP_POINTS = 5;
 
-const REGS_SHOWN = 5;
+const REGS_SHOWN = 25;
 /**
  * @param {string} path
  */
@@ -103,10 +103,10 @@ const commands = {
 	},
 
 	position: function (target, room, user) {
-		if (room) return this.replyPM(`Please use this command in PMs :)`);
+		if (room && !this.can('broadcast', null, room)) return this.replyPM(`Please use this command in PMs :)`);
 		const userid = toId(target) || toId(user);
-		if (userid === 'target') return this.replyPM(`nice try`);
-		if (!(userid in LADDER || userid in MVPLADDER)) return this.replyPM(`${userid} doesn't have any points.`);
+		if (userid === 'target') return this.reply(`nice try`);
+		if (!(userid in LADDER || userid in MVPLADDER)) return this.reply(`${userid} doesn't have any points.`);
 
 		const ladder = getLadder();
 		const MainRoom = Rooms(Config.primaryRoom);
@@ -120,8 +120,7 @@ const commands = {
 			}
 			if (!MainRoom || !MainRoom.auth.get(u)) usersAhead++;
 		}
-		if (usersAhead < 0) return this.replyPM(`something messed up bad, tell a staff member`);
-		this.replyPM(`${userid} has ${usersAhead} reg${usersAhead !== 1 ? 's' : ''} in front of them, with ${points} points!`);
+		this.reply(`${userid} has ${usersAhead} reg${usersAhead !== 1 ? 's' : ''} in front of them, with ${points} points!`);
 	},
 
 	mvp: 'win',
