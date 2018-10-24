@@ -207,6 +207,9 @@ function parseEvent(type, roomid, details, message = '') {
 	case 'setroles':
 		if (cooldown.curHost) Chat.sendPM(cooldown.curHost, `${cooldown.curHost}, please add your theme to the cooldown queue with \`\`${Config.commandTokens[0]}theme [theme]\`\`. Adding the wrong theme can result in a hostban.`);
 		break;
+	case 'subhost':
+		if (toId(cooldown.curHost) === details[1]) cooldown.curHost = details[0];
+		break;
 	case 'gamestart':
 		cooldown.onStart();
 		break;
@@ -227,7 +230,7 @@ const listeners = {
 const mafiaListeners = {
 	"mafia-cooldown": {
 		rooms: true,
-		events: ['host', 'setroles', 'gamestart', 'gameend'],
+		events: ['host', 'setroles', 'gamestart', 'gameend', 'subhost'],
 		repeat: true,
 		callback: parseEvent,
 	},

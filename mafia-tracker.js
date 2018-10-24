@@ -84,44 +84,47 @@ function parseHTML(messageType, roomid, parts) {
 	if (message === '<div class="broadcast-blue">The game of Mafia is starting!</div>') return emitEvent(roomid, 'gamestart', [], message);
 	if (message === 'mafia|<div class="infobox">The game of Mafia has ended.</div>') return emitEvent(roomid, 'gameend', [], message);
 
-	const night = /^<div class="broadcast-blue">Night (\d+). PM the host your action, or idle\.<\/div>$/.exec(message);
-	if (night) return emitEvent(roomid, 'night', [night[1]], message);
-	const day = /^<div class="broadcast-blue">Day (\d+)\. The hammer count is set at (\d+)<\/div>$/.exec(message);
-	if (day) return emitEvent(roomid, 'day', day.slice(1, 3), message);
+	let event = /^<div class="broadcast-blue">Night (\d+). PM the host your action, or idle\.<\/div>$/.exec(message);
+	if (event) return emitEvent(roomid, 'night', [event[1]], message);
+	event = /^<div class="broadcast-blue">Day (\d+)\. The hammer count is set at (\d+)<\/div>$/.exec(message);
+	if (event) return emitEvent(roomid, 'day', event.slice(1, 3), message);
 
-	let kill = /^<div class="broadcast-blue">(.+) was kicked from the game!<\/div>$/.exec(message);
-	if (kill) return emitEvent(roomid, 'kill', ['kick', kill[1]], message);
-	kill = /^<div class="broadcast-blue">(.+) has been treestumped!<\/div>$/.exec(message);
-	if (kill) return emitEvent(roomid, 'kill', ['treestump', kill[1]], message);
-	kill = /^<div class="broadcast-blue">(.+) became a restless spirit!<\/div>$/.exec(message);
-	if (kill) return emitEvent(roomid, 'kill', ['spirit', kill[1]], message);
-	kill = /^<div class="broadcast-blue">(.+) became a restless treestump!<\/div>$/.exec(message);
-	if (kill) return emitEvent(roomid, 'kill', ['spiritstump', kill[1]], message);
+	event = /^<div class="broadcast-blue">(.+) was kicked from the game!<\/div>$/.exec(message);
+	if (event) return emitEvent(roomid, 'kill', ['kick', event[1]], message);
+	event = /^<div class="broadcast-blue">(.+) has been treestumped!<\/div>$/.exec(message);
+	if (event) return emitEvent(roomid, 'kill', ['treestump', event[1]], message);
+	event = /^<div class="broadcast-blue">(.+) became a restless spirit!<\/div>$/.exec(message);
+	if (event) return emitEvent(roomid, 'kill', ['spirit', event[1]], message);
+	event = /^<div class="broadcast-blue">(.+) became a restless treestump!<\/div>$/.exec(message);
+	if (event) return emitEvent(roomid, 'kill', ['spiritstump', event[1]], message);
 
-	kill = /^<div class="broadcast-blue">(.+) was eliminated! .+'s role was <span style="font-weight:bold;color:(.+)">(.+)<\/span>\.<\/div>$/.exec(message);
-	if (kill) return emitEvent(roomid, 'kill', ['kill', kill[1], kill[3], kill[2]], message); // player, role, color
+	event = /^<div class="broadcast-blue">(.+) was eliminated! .+'s role was <span style="font-weight:bold;color:(.+)">(.+)<\/span>\.<\/div>$/.exec(message);
+	if (event) return emitEvent(roomid, 'kill', ['kill', event[1], event[3], event[2]], message); // player, role, color
 
-	kill = /^<div class="broadcast-blue">(.+) was revived!<\/div>$/.exec(message);
-	if (kill) return emitEvent(roomid, 'revive', [kill[1]], message);
+	event = /^<div class="broadcast-blue">(.+) was revived!<\/div>$/.exec(message);
+	if (event) return emitEvent(roomid, 'revive', [event[1]], message);
 
-	kill = /^<div class="broadcast-blue">(.+) has been added to the game by (.+)!<\/div>$/.exec(message);
-	if (kill) return emitEvent(roomid, 'add', kill.slice(1, 3), message);
+	event = /^<div class="broadcast-blue">(.+) has been added to the game by (.+)!<\/div>$/.exec(message);
+	if (event) return emitEvent(roomid, 'add', event.slice(1, 3), message);
 
-	kill = /^<div class="broadcast-blue">Hammer! (.+) was lynched!<\/div>$/.exec(message);
-	if (kill) return emitEvent(roomid, 'hammer', [kill[1]], message);
+	event = /^<div class="broadcast-blue">Hammer! (.+) was lynched!<\/div>$/.exec(message);
+	if (event) return emitEvent(roomid, 'hammer', [event[1]], message);
 
-	const sub = /^<div class="broadcast-blue">(.*) has been subbed out\. (.*) has joined the game\.<\/div>$/.exec(message);
-	if (sub) return emitEvent(roomid, 'sub', [sub[1], sub[2]], message);
+	event = /^<div class="broadcast-blue">(.*) has been subbed out\. (.*) has joined the game\.<\/div>$/.exec(message);
+	if (event) return emitEvent(roomid, 'sub', [event[1], event[2]], message);
 
-	let hammer = /^<div class="broadcast-blue">The hammer count has been set at (\d+), and lynches have been reset\.<\/div>$/.exec(message);
-	if (hammer) return emitEvent(roomid, 'sethammer', ['reset', hammer[1]], message);
-	hammer = /^<div class="broadcast-blue">The hammer count has been shifted to (\d+)\. Lynches have not been reset\.<\/div>$/.exec(message);
-	if (hammer) return emitEvent(roomid, 'sethammer', ['shift', hammer[1]], message);
+	event = /<div class="broadcast-blue">(.*) has been substituted as the new host, replacing (.*)\.<\/div>/.exec(message);
+	if (event) return emitEvent(roomid, 'subhost', [event[1], event[2]], message);
 
-	let deadline = /^<strong>The deadline has been set for (\d+) minutes\.<\/strong>$/.exec(message);
-	if (deadline) return emitEvent(roomid, 'deadlineset', [deadline[1]], message);
-	deadline = /^<strong>Time is up!<\/strong>$/.exec(message);
-	if (deadline) return emitEvent(roomid, 'deadline', [], message);
+	event = /^<div class="broadcast-blue">The hammer count has been set at (\d+), and lynches have been reset\.<\/div>$/.exec(message);
+	if (event) return emitEvent(roomid, 'sethammer', ['reset', event[1]], message);
+	event = /^<div class="broadcast-blue">The hammer count has been shifted to (\d+)\. Lynches have not been reset\.<\/div>$/.exec(message);
+	if (event) return emitEvent(roomid, 'sethammer', ['shift', event[1]], message);
+
+	event = /^<strong>The deadline has been set for (\d+) minutes\.<\/strong>$/.exec(message);
+	if (event) return emitEvent(roomid, 'deadlineset', [event[1]], message);
+	event = /^<strong>Time is up!<\/strong>$/.exec(message);
+	if (event) return emitEvent(roomid, 'deadline', [], message);
 }
 /**
  * @param {string} messageType
@@ -285,6 +288,16 @@ class MafiaTracker extends Rooms.RoomGame {
 	}
 
 	/**
+	 * @param {string} newName
+	 * @param {string} oldId
+	 */
+	subHost(newName, oldId) {
+		if (this.hostid !== oldId) return this.sendRoom(`Subhost desync - "${this.hostid}"/"${this.host}" not ${oldId}`);
+		this.hostid = toId(newName);
+		this.host = newName;
+	}
+
+	/**
 	 * @param {string} author
 	 * @param {string} message
 	 */
@@ -433,6 +446,9 @@ function onEvent(event, roomid, details, message) {
 		break;
 	case 'night':
 		tracker.onNight();
+		break;
+	case 'subhost':
+		tracker.subHost(details[0], details[1]);
 		break;
 	case 'gamestart':
 		tracker.onStart();
