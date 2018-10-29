@@ -1,28 +1,25 @@
 'use strict';
-// @ts-nocheck rewriting this soon
 
 class Lighthouse extends Rooms.RoomGame {
 	constructor(room) {
 		super(room);
 		this.gameid = 'lighthouse';
 
-		this.players = [];
+		/** @type {{[k: string]: number}} */
 		this.lynches = {}; // player -> lynches
+		/** @type {{[k: string]: string[]}} */
 		this.lynching = {}; // player -> lynch
-		this.hammerCount = 0;
 		// stores the messages by user, goes public postgame
+		/** @type {string[]} */
 		this.log = [];
+		/** @type {string[]} */
 		this.checkLog = []; // messages from users not ingame, messages trying to use commands
 		this.enabled = true;
 		// this object should get recreated after each game. it's not like iso
-
 		this.listenerId = Chat.addListener(`lighthouse-${room.roomid}`, true, ['pm'], true, (t, u, m) => this.onMessage(t, u, m));
-		this.mafiaListenerId = Mafia.addMafiaListener(`lighthouse-${room.roomid}`, [room.roomid], ['players', 'gameend'], true, (e, r, d) => {
-			if (e === 'players') return this.parsePlayerList(e, r, d);
-			this.end();
-		});
+		this.mafiaListenerId = Mafia.addMafiaListener(`lighthouse-${room.roomid}`, [room.roomid], ['gameend'], true, () => this.end());
 		this.sendRoom(`Darkness falls across the land...`);
-		this.sendRoom(`!mafia players`);
+		if (!room.mafiaTracker) this.sendRoom(`Panic! - no mafia game running`);
 	}
 	onMessage(type, user, message) {
 		if (!this.enabled) return;
@@ -38,8 +35,8 @@ class Lighthouse extends Rooms.RoomGame {
 			this.checkLog.push(log);
 			return;
 		}
-		if (firstChar === '.') return;
-		if (!this.players.includes(toId(user))) {
+		if (Config.commandTokens.includes(firstChar)) return;
+		if (!this.room.mafiaTracker.players[toId(user)] || this.room.mafiaTracker.players[toId(user)].dead) {
 			debug(`Lighthouse message from user not ingame: ${log}`);
 			this.checkLog.push(log);
 			return;
@@ -49,7 +46,7 @@ class Lighthouse extends Rooms.RoomGame {
 			this.checkLog.push(log);
 			return;
 		}
-		message = message.replace(/(\*\*)+/g, '*');
+		message = message.replace(/\*+/g, '*');
 		this.sendRoom(message);
 		this.log.push(log);
 	}
@@ -60,20 +57,20 @@ class Lighthouse extends Rooms.RoomGame {
 		const userid = toId(user);
 		let targetid = toId(target);
 		if (userid === targetid) return;
-		if (!this.players.includes(userid)) return;
-		if (!this.players.includes(targetid)) {
+		if (!this.room.mafiaTracker.players[userid]) return;
+		if (!this.room.mafiaTracker.players[targetid]) {
 			if (targetid === 'nolynch' || targetid === 'nl') {
 				targetid = 'No lynch';
 			} else {
 				return;
 			}
 		}
-		if (this.lynching[userid]) return sendPM(userid, `You are already lynching someone`);
+		if (this.lynching[userid]) return Chat.sendPM(userid, `You are already lynching someone`);
 
 		this.lynching[userid] = targetid;
 		if (!this.lynches[targetid]) this.lynches[targetid] = [];
 		this.lynches[targetid].push(userid);
-		if (this.lynches[targetid].length >= this.hammerCount) {
+		if (this.lynches[targetid].length >= Math.floor(this.room.mafiaTracker.aliveCount / 2) + 1) {
 			this.sendRoom(`**${targetid} was hammered!**`);
 			this.stop();
 			return;
@@ -87,7 +84,7 @@ class Lighthouse extends Rooms.RoomGame {
 		if (!this.enabled) return;
 
 		const userid = toId(user);
-		if (!this.players.includes(userid)) return;
+		if (!this.room.mafiaTracker.players[userid]) return;
 		if (!this.lynching[userid]) return sendPM(userid, `You are not lynching anyone`);
 
 		this.lynches[this.lynching[userid]].splice(this.lynches[this.lynching[userid]].indexOf(userid), 1);
@@ -97,10 +94,6 @@ class Lighthouse extends Rooms.RoomGame {
 		return;
 	}
 
-	parsePlayerList(event, roomid, details) {
-		this.players = details[0].split(',').map(toId);
-		this.hammerCount = Math.floor(this.players.length / 2) + 1;
-	}
 	stop() {
 		this.enabled = false;
 		this.sendRoom(`Light returns, for now...`);
@@ -113,10 +106,11 @@ class Lighthouse extends Rooms.RoomGame {
 	}
 
 	end() {
-		this.sendRoom(`The lighthouse session has ended`);
+		this.sendRoom(`The lighthouse game has ended`);
 		this.sendRoom(`!code Logs:\n${this.log.join('\n')}`);
 		Chat.removeListener(this.listenerId);
 		Mafia.removeMafiaListener(this.mafiaListenerId);
+		this.destroy();
 	}
 }
 
@@ -151,21 +145,30 @@ exports.commands = {
 		if (!lighthouseRoom) return;
 		lighthouseRoom.game.unlynch(user, target);
 	},
-	lynches: function (target, room, user) {
+	modlynches: 'lynches',
+	lynches: function (target, room, user, cmd) {
 		if (!room || !room.game || room.game.gameid !== 'lighthouse') return;
 		if (!this.can('games')) return;
 
+		const m = cmd === 'modlynches';
 		const auth = room.auth.get(toId(Config.nick));
 		if (auth === ' ') return this.reply(`Can't broadcast`);
-		const html = auth === '*';
+		const html = auth === '*' || auth === '#';
 		let lynches = Object.entries(room.game.lynches).map(([k, v]) => {
 			if (!v.length) return '';
-			return `${k} (${v.length}): ${v.join(', ')}`;
+			return `${k}: (${v.length})${m ? `: ${v.join(', ')}` : ''}`;
 		});
 		if (html) {
 			room.send(`/addhtmlbox <div>${lynches.join('</div><div>')}</div>`);
 		} else {
 			room.send(`!code Lynches:\n${lynches.join('\n')}`);
 		}
+	},
+	logs: function (target, room, user) {
+		const lighthouseRoom = [...Rooms.rooms.values()].find(r => r.game && r.game.gameid === 'lighthouse');
+		if (!lighthouseRoom) return;
+		if (!this.can('games', null, lighthouseRoom)) return;
+		this.replyHTMLPM(lighthouseRoom.game.log.join('<br/>') + '<br/>Blocked Messages<br/>' + lighthouseRoom.game.checkLog.join('<br/>'));
+		lighthouseRoom.game.log.push(`${user} is looking at logs!`);
 	},
 };
