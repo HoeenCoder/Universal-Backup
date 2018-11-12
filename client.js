@@ -2,6 +2,7 @@
 
 const WebSocketClient = require('websocket').client;
 const https = require('https');
+const EventEmitter = require('events');
 
 /**
  * @param {string} roomid
@@ -11,25 +12,13 @@ function quickToRoomid(roomid) {
 	return roomid.toLowerCase().replace(/[^a-z0-9-]+/g, '');
 }
 
-/**
- * @typedef {function} ParserCallback
- * @param {string} roomid
- * @param {string} messageType
- * @param {string[]} parts
- */
-
-/**
- * @typedef {function} PageParserCallback
- * @param {string} roomid
- * @param {string} body
- */
-
-class Client {
+class Client extends EventEmitter {
 	/**
-	 * @param {ParserCallback} parser
-	 * @param {PageParserCallback} pageParser
+	 * @param {Object} options
 	 */
-	constructor(parser, pageParser) {
+	constructor(options) {
+		super();
+
 		this.connected = false;
 		this.closed = false;
 		/** @type {WebSocketClient?} */
@@ -48,10 +37,9 @@ class Client {
 		 * @param {string} messageType
 		 * @param {string[]} parts
 		 */
-		/** @type {ParserCallback} */
-		this.messageCallback = parser;
-		/** @type {PageParserCallback} */
-		this.pageCallback = pageParser;
+
+		this.options = Object.assign({}, Config, options);
+		console.log(`Init client with name ${this.options.nick}`)
 	}
 
 	connect() {
@@ -61,31 +49,35 @@ class Client {
 		});
 		this.socket.on('connect', (/** @type {object} */connection) => {
 			console.log(`Connected!`);
+			this.emit('connected');
 			this.connected = true;
 			this.connection = connection;
 
 			connection.on('close', () => {
 				console.log(`Connection closed`);
-				if (Config.reconnectTime) {
-					console.log(`Retrying in ${Config.reconnectTime} seconds...`);
-					setTimeout(() => this.connect(), Config.reconnectTime * 1000);
+				if (this.options.reconnectTime) {
+					console.log(`Retrying in ${this.options.reconnectTime} seconds...`);
+					setTimeout(() => this.connect(), this.options.reconnectTime * 1000);
 				}
+				this.emit('cfailed');
 			});
 			connection.on('message', (/** @type {object }*/message) => this.onMessage(message));
 		});
 		this.socket.on('error', (/** @type {string} */e) => {
 			console.log(`Error with connection: ${e}`);
+			this.emit('cfailed');
 		});
 		this.socket.on('connectFailed', (/** @type {string} */e) => {
 			console.log(`Connection failed: ${e}`);
-			if (Config.reconnectTime) {
-				console.log(`Retrying in ${Config.reconnectTime} seconds...`);
-				setTimeout(() => this.connect(), Config.reconnectTime * 1000);
+			if (this.options.reconnectTime) {
+				console.log(`Retrying in ${this.options.reconnectTime} seconds...`);
+				setTimeout(() => this.connect(), this.options.reconnectTime * 1000);
+				this.emit('cfailed');
 			}
 		});
 		this.closed = false;
-		const conStr = `ws://${Config.server}:${Config.port}/showdown/websocket`;
-		console.log(`Connecting to ${Config.server}:${Config.port}...`);
+		const conStr = `ws://${this.options.server}:${this.options.port}/showdown/websocket`;
+		console.log(`Connecting to ${this.options.server}:${this.options.port}...`);
 		this.socket.connect(conStr);
 	}
 
@@ -129,7 +121,7 @@ class Client {
 		if (lines[0].charAt(0) === '>') roomid = quickToRoomid(lines.shift());
 
 		// Cheap hack
-		if (roomid.startsWith('view-')) return this.pageCallback(roomid, lines.join('\n'));
+		if (roomid.startsWith('view-')) return this.emit('page', roomid, lines.join('\n'));
 
 		for (let i = 0; i < lines.length; i++) {
 			if (lines[i].startsWith('|init|')) {
@@ -169,18 +161,18 @@ class Client {
 			};
 
 			let loginQuerystring;
-			if (!Config.pass) {
+			if (!this.options.pass) {
 				reqOptions.method = 'GET';
-				reqOptions.path += `?act=getassertion&userid=${toId(Config.nick)}&challstr=${this.challstr}`;
+				reqOptions.path += `?act=getassertion&userid=${toId(this.options.nick)}&challstr=${this.challstr}`;
 			} else {
 				reqOptions.method = 'POST';
-				loginQuerystring = `act=login&name=${toId(Config.nick)}&pass=${Config.pass}&challstr=${this.challstr}`;
+				loginQuerystring = `act=login&name=${toId(this.options.nick)}&pass=${this.options.pass}&challstr=${this.challstr}`;
 				reqOptions.headers = {
 					'Content-Type': 'application/x-www-form-urlencoded',
 					'Content-Length': loginQuerystring.length,
 				};
 			}
-			debug(`Sending login to ${reqOptions.hostname}`);
+			debug(`Sending login to ${reqOptions.hostname}: ${loginQuerystring || reqOptions.path}`);
 
 			const req = https.request(reqOptions, res => {
 				res.setEncoding('utf8');
@@ -190,7 +182,7 @@ class Client {
 				});
 				res.on('end', () => {
 					if (data === ';') {
-						console.log(`LOGIN FAILED - The name ${Config.nick} is registered and ${Config.pass ? 'an invalid' : 'no'} password was provided.`);
+						console.log(`LOGIN FAILED - The name ${this.options.nick} is registered and ${this.options.pass ? 'an invalid' : 'no'} password was provided.`);
 						process.exit(1);
 					}
 					if (data.length < 50) {
@@ -214,12 +206,12 @@ class Client {
 					// eleven rooms can be autojoined at a time, leave any extras to
 					// be joined manually. (This allows the server to remember the first
 					// eleven if you happen to cut back on rooms)
-					if (Config.autojoin.length) {
-						const [autojoin, extra] = [Config.autojoin.slice(0, 11), Config.autojoin.slice(11)];
+					if (this.options.autojoin.length) {
+						const [autojoin, extra] = [this.options.autojoin.slice(0, 11), this.options.autojoin.slice(11)];
 						this.send(`|/autojoin ${autojoin.join(',')}`);
 						if (extra.length) this.extraJoin = extra;
 					}
-					this.send(`|/trn ${Config.nick},0,${data}`);
+					this.send(`|/trn ${this.options.nick},0,${data}`);
 				});
 			});
 			req.on('error', e => {
@@ -238,27 +230,28 @@ class Client {
 			// '0' (guest user) or '1' (actually logged in). We only want the latter so we can actually
 			// do stuff.
 			const [serverName, loginStatus] = parts;
-			if (serverName !== Config.nick) return;
+			if (serverName !== this.options.nick) return;
 			if (loginStatus !== '1') {
 				console.log("UPDATEUSER - failed to log in, still a guest");
-				process.exit(1);
+				this.emit('loginfailed');
 			}
-			if (Config.avatar) this.send(`|/avatar ${Config.avatar}`);
+			if (this.options.avatar) this.send(`|/avatar ${this.options.avatar}`);
 
 			// Since autojoining happened before sending /trn, now we can join any extra rooms.
 			if (this.extraJoin) this.send(this.extraJoin.map(roomid => `|/join ${roomid}`));
+			this.emit('login');
 			break;
 		}
 		case 'nametaken': {
 			if (parts[1].includes('inappropriate')) {
-				console.log(`FORCE-RENAMED - A global staff member considered this bot's username (${Config.nick}) inappropriate\nPlease rename the bot to something more appropriate`);
+				console.log(`FORCE-RENAMED - A global staff member considered this bot's username (${this.options.nick}) inappropriate\nPlease rename the bot to something more appropriate`);
 				process.exit(1);
 			}
 			debug(`NAMETAKEN: ${JSON.stringify(parts)}`);
 			break;
 		}
 		default:
-			this.messageCallback(roomid, messageType, parts);
+			this.emit('message', roomid, messageType, parts);
 		}
 	}
 }

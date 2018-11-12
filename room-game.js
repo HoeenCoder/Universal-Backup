@@ -7,7 +7,7 @@ class RoomGame {
 	constructor(room) {
 		/** @type {Room | null} */
 		this.room = room;
-		this.id = '';
+		this.gameid = '';
 	}
 
 	/**

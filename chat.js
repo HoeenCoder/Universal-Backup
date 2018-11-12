@@ -441,4 +441,11 @@ class ChatParser {
 Chat.ChatParser = ChatParser;
 
 const Client = require('./client.js');
-Chat.client = new Client(parse, parseChatPage);
+Chat.client = new Client({});
+Chat.client.on('message', parse);
+Chat.client.on('page', parseChatPage);
+
+const Slaves = require('./slaves.js');
+Chat.Slaves = Slaves;
+
+
