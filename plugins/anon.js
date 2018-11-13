@@ -1,4 +1,5 @@
 'use strict';
+
 const HOST_CHAR = '#';
 const COMMAND_CHAR = '>';
 const SCUMCHAT_CHAR = ';';
@@ -7,21 +8,29 @@ class AnonSlave extends Chat.Slaves.SlaveClient {
 	/**
 	 * @param {Object} credentials
 	 * @param {string} roomid
-	 * @param {string} owner
+	 * @param {string[]} owners
 	 * @param {string} hostid
 	 */
-	constructor(credentials, roomid, owner, hostid) {
+	constructor(credentials, roomid, owners, hostid) {
 		super(credentials, [roomid]);
-		this.owner = owner;
-		this.ownerid = toId(owner);
+		this.owners = owners;
 		this.room = roomid;
 		this.host = hostid;
 		/** @type {string[]} */
 		this.partners = [];
-		this.client.on('message', (/**@type {string}*/r,/**@type {string}*/m,/**@type {string[]}*/p) => this.messageCallback(r,m,p));
+		this.client.on('message', (/**@type {string}*/r, /**@type {string}*/m, /**@type {string[]}*/p) => this.messageCallback(r, m, p));
 		this.client.on('login', () => {
-			this.client.send(`|/pm ${this.ownerid}, Hi!`);
+			this.sendOwners(`Hi!`);
 		});
+	}
+
+	/**
+	 * @param {string} m
+	 */
+	sendOwners(m) {
+		for (const owner of this.owners) {
+			this.client.send(`|/pm ${owner},${m}`);
+		}
 	}
 
 	/**
@@ -35,7 +44,7 @@ class AnonSlave extends Chat.Slaves.SlaveClient {
 			const message = parts.slice(2).join('|');
 			if (senderid === this.userid) return;
 
-			if (senderid === this.ownerid) {
+			if (this.owners.includes(senderid)) {
 				switch (message.charAt(0)) {
 				case HOST_CHAR:
 					this.client.send(`|/pm ${this.host},${message}`);
@@ -55,14 +64,14 @@ class AnonSlave extends Chat.Slaves.SlaveClient {
 					this.client.send(`${this.room}|/${message.slice(1)}`);
 					break;
 				default:
+					if (message.startsWith('/') || message.startsWith('!')) return;
 					this.client.send(`${this.room}|${sanitise(message)}`);
 				}
 			} else if (senderid === this.host) {
-				this.client.send(`|/pm ${this.ownerid},/wall ${message}`);
+				this.sendOwners(`/wall ${message}`);
 			}
 		}
 	}
-
 }
 
 /**
@@ -73,7 +82,7 @@ function sanitise(message) {
 }
 
 class AnonController extends Rooms.RoomGame {
-	/** 
+	/**
 	 * @param {Room} room
 	 */
 	constructor(room) {
@@ -86,34 +95,52 @@ class AnonController extends Rooms.RoomGame {
 		if (!this.room || !this.room.mafiaTracker) {
 			this.sendRoom(`Panic! - no mafia game running`);
 		} else {
+			this.sendRoom(`/mafia forcecohost ${Config.nick}`);
+			this.sendRoom(`/mafia close`);
 			for (const player of Tools.lazyShuffle(Object.keys(this.room.mafiaTracker.players))) {
-				this.addPlayer(player);
+				this.addPlayer([toId(player)]);
 			}
+			let buf = '';
+			for (const playerid in this.slaves) {
+				buf += `<br/>${playerid}: ${this.slaves[playerid].name}`;
+			}
+			const pmRoom = Rooms.canPMInfobox(toId(this.room.mafiaTracker.hostid));
+			if (!pmRoom) {
+				Chat.sendPM(this.room.mafiaTracker.hostid, `Can't send you HTML, make sure that I have the bot rank in a room you're in.`);
+			} else {
+				sendMessage(pmRoom, `/pminfobox ${this.room.mafiaTracker.hostid}, ${buf}`);
+			}
+
 			this.listeners.push(Mafia.addMafiaListener(`anon-${this.room.roomid}-subhost`, [this.room.roomid], ['subhost'], true,
-								(/** @type {string} */p) => this.subhost(p[0])
+				(/** @type {string} */p) => this.subhost(p[0])
 			));
 			this.listeners.push(Mafia.addMafiaListener(`anon-${this.room.roomid}-gameend`, [this.room.roomid], ['gameend'], true,
-			(/** @type {string} */p) => this.destroy()
+				(/** @type {string} */p) => this.destroy()
+			));
+			this.listeners.push(Mafia.addMafiaListener(`anon-${this.room.roomid}-playerroles`, [this.room.roomid], ['playerroles'], true,
+				() => this.sendPlayerRoles()
 			));
 		}
 	}
 
 	/**
-	 * @param {string} owner
+	 * @param {string[]} owners
 	 */
-	addPlayer(owner) {
-		const ownerid = toId(owner);
-		if (this.slaves[ownerid]) return this.slaves[ownerid];
+	addPlayer(owners) {
+		const ownerids = owners.sort().join('');
+		if (this.slaves[ownerids]) return this.slaves[ownerids];
 		const credentials = Chat.Slaves.getCredentials();
 		if (!credentials) return this.sendRoom(`Panic! - no available credentials`);
 		const room = this.room || {};
-		this.slaves[ownerid] = new AnonSlave(credentials, room.roomid, ownerid, room.mafiaTracker && room.mafiaTracker.hostid);
-		this.slaves[ownerid].client.on('login', () => {
+		this.slaves[ownerids] = new AnonSlave(credentials, room.roomid, owners, room.mafiaTracker && room.mafiaTracker.hostid);
+		this.slaves[ownerids].client.on('login', () => {
 			this.waitingConnect--;
 			if (!this.waitingConnect) this.addSlaves();
 		});
 		this.waitingConnect++;
-		Chat.sendPM(owner, `Use ${credentials.nick} to talk.`);
+		for (const owner of owners) {
+			Chat.sendPM(owner, `Use ${credentials.nick} to talk.`);
+		}
 	}
 
 	addSlaves() {
@@ -121,6 +148,13 @@ class AnonController extends Rooms.RoomGame {
 		let slaves = Tools.lazyShuffle(Object.keys(this.slaves));
 		for (const slave of Tools.lazyShuffle(Object.values(this.slaves))) {
 			this.sendRoom(`/mafia forcesub ${slaves.next().value}, ${slave.name}`);
+		}
+	}
+
+	sendPlayerRoles() {
+		if (!this.room || !this.room.mafiaTracker) return;
+		for (const slave of Object.values(this.slaves)) {
+			slave.sendOwners(`Your role is: ${this.room.mafiaTracker.players[slave.userid].role}`);
 		}
 	}
 
@@ -185,12 +219,12 @@ const commands = {
 		room.game = new AnonController(room);
 	},
 	ag: function (target, room, user) {
-		const anonRoom = [...Rooms.rooms.values()].find(r => !!(r.game && r.game.gameid === 'lighthouse'));
+		const anonRoom = [...Rooms.rooms.values()].find(r => !!(r.game && r.game.gameid === 'anon'));
 		if (!anonRoom) return;
 		const game = /** @type {AnonController} */ (anonRoom.game);
 		game.addScumGroup(target.split(',').map(toId));
-	}
-}
+	},
+};
 
 exports.commands = commands;
 

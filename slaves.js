@@ -15,7 +15,7 @@ try {
 
 class SlaveClient {
 	/**
-	 * @param {Object} credentials 
+	 * @param {Object} credentials
 	 * @param {string[]} rooms
 	 */
 	constructor(credentials, rooms) {
@@ -33,17 +33,10 @@ class SlaveClient {
 	}
 }
 
-const crypto = require('crypto');
-
-/** 
+/**
  * @param {string} preferredName
  */
 function getCredentials(preferredName = '') {
-	let nick = '';
-	do {
-		nick = crypto.randomBytes(3).toString('hex')
-	} while (nick in NamesUsed);
-	return {nick};
 	const prefId = toId(preferredName);
 	if (prefId && !NamesUsed[prefId] && Credentials[prefId]) return Credentials[prefId];
 
@@ -59,6 +52,5 @@ function getCredentials(preferredName = '') {
 module.exports = {
 	SlaveClient,
 	getCredentials,
-	NamesUsed
+	NamesUsed,
 };
-

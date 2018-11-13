@@ -384,7 +384,7 @@ class ChatParser {
 	replyHTMLPM(message) {
 		const pmRoom = Rooms.canPMInfobox(toId(this.user));
 		if (!pmRoom) return this.replyPM(`Can't send you HTML, make sure that I have the bot rank in a room you're in.`);
-		sendMessage(pmRoom, `/pminfobox ${this.user}, ${message}`);
+		Chat.sendMessage(pmRoom, `/pminfobox ${this.user}, ${message}`);
 	}
 
 	/**
@@ -447,5 +447,4 @@ Chat.client.on('page', parseChatPage);
 
 const Slaves = require('./slaves.js');
 Chat.Slaves = Slaves;
-
 

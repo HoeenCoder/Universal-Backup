@@ -113,8 +113,13 @@ function parseHTML(messageType, roomid, parts) {
 	event = /^<div class="broadcast-blue">(.*) has been subbed out\. (.*) has joined the game\.<\/div>$/.exec(message);
 	if (event) return emitEvent(roomid, 'sub', [event[1], event[2]], message);
 
-	event = /<div class="broadcast-blue">(.*) has been substituted as the new host, replacing (.*)\.<\/div>/.exec(message);
+	event = /^<div class="broadcast-blue">(.*) has been substituted as the new host, replacing (.*)\.<\/div>$/.exec(message);
 	if (event) return emitEvent(roomid, 'subhost', [event[1], event[2]], message);
+
+	event = /^<div class="broadcast-blue">(.*) has been added as a cohost by (.*)<\/div>$/.exec(message);
+	if (event) return emitEvent(roomid, 'cohost', [event[1], event[2]], message);
+	event = /^<div class="broadcast-blue">(.*) was removed as a cohost by (.*)<\/div>$/.exec(message);
+	if (event) return emitEvent(roomid, 'uncohost', [event[1], event[2]], message);
 
 	event = /^<div class="broadcast-blue">The hammer count has been set at (\d+), and lynches have been reset\.<\/div>$/.exec(message);
 	if (event) return emitEvent(roomid, 'sethammer', ['reset', event[1]], message);
@@ -193,6 +198,8 @@ class MafiaTracker extends Rooms.RoomGame {
 
 		this.host = host;
 		this.hostid = toId(host);
+		/** @type {string[]} */
+		this.cohosts = [];
 		/** @type {"signups" | "locked" | "IDEApicking" | "IDEAlocked" | "day" | "night"} */
 		// locked doesnt get used cause it's a pain to detect and also not relevent
 		this.phase = "signups";
@@ -241,7 +248,7 @@ class MafiaTracker extends Rooms.RoomGame {
 		this.deadCount--;
 	}
 	onStart() {
-		if (this.hostid === toId(Config.nick)) this.findRoles();
+		if (this.hostid === toId(Config.nick) || this.cohosts.includes(toId(Config.nick))) this.findRoles();
 	}
 	onDay() {
 		this.phase = 'day';
@@ -298,6 +305,19 @@ class MafiaTracker extends Rooms.RoomGame {
 	}
 
 	/**
+	 * @param {string} name
+	 */
+	addCohost(name) {
+		this.cohosts.push(toId(name));
+	}
+	/**
+	 * @param {string} name
+	 */
+	removeCohost(name) {
+		this.cohosts.splice(this.cohosts.indexOf(toId(name)), 1);
+	}
+
+	/**
 	 * @param {string} author
 	 * @param {string} message
 	 */
@@ -324,6 +344,7 @@ class MafiaTracker extends Rooms.RoomGame {
 				}
 				this.log(`found player roles`);
 
+				emitEvent(r, 'playerroles', [], '');
 				if (this.game && this.game.triggers.playerRoles) this.game.triggers.playerRoles.call(this);
 				return true;
 			});
@@ -449,6 +470,12 @@ function onEvent(event, roomid, details, message) {
 		break;
 	case 'subhost':
 		tracker.subHost(details[0], details[1]);
+		break;
+	case 'cohost':
+		tracker.addCohost(details[0]);
+		break;
+	case 'uncohost':
+		tracker.removeCohost(details[1]);
 		break;
 	case 'gamestart':
 		tracker.onStart();

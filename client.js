@@ -39,7 +39,7 @@ class Client extends EventEmitter {
 		 */
 
 		this.options = Object.assign({}, Config, options);
-		console.log(`Init client with name ${this.options.nick}`)
+		console.log(`Init client with name ${this.options.nick}`);
 	}
 
 	connect() {
