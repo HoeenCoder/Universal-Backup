@@ -53,6 +53,7 @@ exports.developers = ['jumbowhales', 'hoeenhero'];
 exports.MVPPoints = 10;
 exports.WinPoints = 10;
 
+exports.leaversEnabled = true;
 /**
  * Permissions by rank
  *
