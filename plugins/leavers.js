@@ -16,7 +16,9 @@ function writeLeavers() {
 	fs.writeFileSync(LEAVER_FILE, JSON.stringify(Leavers));
 }
 
-const listeners = {
+let official = false;
+
+const mafiaListeners = {
 	"leaver-sub": {
 		rooms: ['mafia'],
 		events: ['sub'],
@@ -28,6 +30,15 @@ const listeners = {
 		events: ['gameend'],
 		repeat: true,
 		callback: onEnd,
+	},
+};
+
+const listeners = {
+	"leaver-official": {
+		rooms: ['mafia'],
+		messageTypes: ['chat'],
+		repeat: true,
+		callback: parseChat,
 	},
 };
 
@@ -50,7 +61,11 @@ function onSub(event, roomid, details) {
  * @param {string[]} details
  */
 function onEnd(event, room, details) {
-	if (!Config.leaversEnabled) return false;
+	if (!official) {
+		pendingLeavers = {};
+		return;
+	}
+	official = false;
 	/** @type {string[]} */
 	let given = [];
 	let didSomething;
@@ -63,7 +78,7 @@ function onEnd(event, room, details) {
 			Leavers[leaver] = now;
 			didSomething = true;
 		} else {
-			Chat.sendMessage(room, `/mafia win -${LEAVER_POINTS}, ${leaver}`);
+			Chat.sendMessage(room, `mafia win -${LEAVER_POINTS}, ${leaver}`);
 			given.push(leaver);
 		}
 	}
@@ -72,4 +87,33 @@ function onEnd(event, room, details) {
 	pendingLeavers = {};
 }
 
-exports.mafiaListeners = listeners;
+/**
+ * @param {string} event
+ * @param {string} roomid
+ * @param {string[]} details
+ */
+function parseChat(event, roomid, details) {
+	if (details[1].toLowerCase().startsWith('/announce official')) {
+		if (!official) Chat.sendPM(details[0], `Marked the current game as an official. Use ${Config.commandTokens[0]}notofficial to remove.`);
+		official = true;
+	}
+}
+
+/** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
+/** @typedef {{[k: string]: string | ChatCommand}} ChatCommands */
+
+/** @type {ChatCommands} */
+const commands = {
+	notofficial: 'official',
+	official: function (target, room, user, cmd) {
+		if (!this.can('games', null, room)) return;
+		//if (!room || room.roomid !== 'mafia') return this.reply(`Not valid in this room.`);
+		official = !cmd.includes('not');
+		this.replyPM(`Marked the current game as ${official ? '' : 'not '}an official.`);
+	},
+};
+module.exports = {
+	commands,
+	listeners,
+	mafiaListeners,
+};
