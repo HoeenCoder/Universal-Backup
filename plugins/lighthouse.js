@@ -117,19 +117,19 @@ class Lighthouse extends Rooms.RoomGame {
 exports.commands = {
 	lighthouse: function (target, room, user) {
 		if (!room) return;
-		if (!this.can('roommanagement')) return false;
+		if (!this.can('games')) return false;
 		if (room.game) return;
 		room.game = new Lighthouse(room);
 	},
 	lhstop: function (target, room, user) {
 		if (!room) return;
-		if (!this.can('roommanagement')) return false;
+		if (!this.can('games')) return false;
 		if (!room.game || room.game.gameid !== 'lighthouse') return;
 		room.game.stop();
 	},
 	lhresume: function (target, room, user) {
 		if (!room) return;
-		if (!this.can('roommanagement')) return false;
+		if (!this.can('games')) return false;
 		if (!room.game || room.game.gameid !== 'lighthouse') return;
 		room.game.resume();
 	},
