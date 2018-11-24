@@ -111,6 +111,24 @@ const commands = {
 		official = !cmd.includes('not');
 		this.replyPM(`Marked the current game as ${official ? '' : 'not '}an official.`);
 	},
+	leaver: 'unleaver',
+	unleaver: function (target, room, user, cmd) {
+		if (!this.can('games')) return;
+		target = toId(target);
+		const apply = !cmd.startsWith('un');
+		if (!!pendingLeavers[target] === apply) return this.replyPM(`${target} is ${apply ? 'already' : 'not'} marked as a pending leaver.`);
+		pendingLeavers[target] = apply;
+		return this.replyPM(`${target} was ${apply ? '' : 'un'}marked as a leaver.`);
+	},
+
+	clearleaver: function (target) {
+		if (!this.can('games')) return;
+		target = toId(target);
+		if (Leavers[target] !== (new Date().getMonth())) return this.replyPM(`${target} has not left any games this month.`);
+		delete Leavers[target];
+		writeLeavers();
+		return this.replyPM(`${target}'s grace leaver was reset.`);
+	},
 };
 module.exports = {
 	commands,
