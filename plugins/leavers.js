@@ -78,7 +78,7 @@ function onEnd(event, room, details) {
 			Leavers[leaver] = now;
 			didSomething = true;
 		} else {
-			Chat.sendMessage(room, `mafia win -${LEAVER_POINTS}, ${leaver}`);
+			Chat.sendMessage(room, `/mafia win -${LEAVER_POINTS}, ${leaver}`);
 			given.push(leaver);
 		}
 	}
