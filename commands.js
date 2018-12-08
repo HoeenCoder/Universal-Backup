@@ -36,7 +36,7 @@ const commands = {
 		debug('HOTPATCHING');
 		try {
 			Chat.listeners = {};
-			global.Mafia = require('./mafia-tracker');
+			global.Mafia = require('./mafia');
 			Chat.loadCommands();
 		} catch (e) {
 			this.replyPM(e);

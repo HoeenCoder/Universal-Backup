@@ -26,6 +26,7 @@
 	],
 	"dependencies": {
 		"@types/websocket": "0.0.40",
+		"jsdom": "^13.0.0",
 		"websocket": "^1.0.26"
 	},
 	"devDependencies": {

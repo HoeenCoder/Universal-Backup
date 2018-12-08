@@ -3,7 +3,7 @@ import * as ChatType from './chat'
 import * as ConfigType from './config/config-example'
 import * as ToolsType from './tools'
 import * as RoomsType from './rooms'
-import * as MafiaType from './mafia-tracker'
+import * as MafiaType from './mafia'
 
 declare global {
     const Chat: typeof ChatType

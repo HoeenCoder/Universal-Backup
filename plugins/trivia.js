@@ -154,16 +154,16 @@ class AnswerTrivia extends Trivia {
 /** @type {{[k: string]: string | string[]}} */
 let Themes = {};
 function loadThemes() {
-	const theme_data = require('../mafia-data').themes;
-	for (const theme in theme_data) {
-		if (typeof theme_data[theme] === 'string') {
-			Themes[theme] = theme_data[theme];
+	const themeData = Mafia.data.themes;
+	for (const theme in themeData) {
+		if (typeof themeData[theme] === 'string') {
+			Themes[theme] = themeData[theme];
 		} else {
 			/** @type {string[]} */
 			let entries = [];
-			for (const key in theme_data[theme]) {
+			for (const key in themeData[theme]) {
 				if (!isNaN(parseInt(key))) {
-					entries.push(theme_data[theme][key]);
+					entries.push(themeData[theme][key]);
 				}
 			}
 			Themes[theme] = entries;

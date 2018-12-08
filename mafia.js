@@ -3,13 +3,20 @@
 const fs = require('fs');
 
 let Mafia = module.exports;
+
+Mafia.data = require('./mafia-data');
+
+/** @typedef {(event: string, roomid: string, details: string[], message: string) => (true | void)} MafiaEventCallback */
+
+
+/** @type {{[k: string]: {rooms: string[] | true, events: string[] | true, callback: MafiaEventCallback, repeat: number | true}}} */
 Mafia.listeners = {};
 
 /**
  * @param {string} id
  * @param {string[] | true} rooms
  * @param {string[] | true} events
- * @param {function} callback
+ * @param {MafiaEventCallback} callback
  * @param {number | true} repeat
  */
 Mafia.addMafiaListener = function (id, rooms, events, repeat, callback) {
@@ -151,13 +158,6 @@ Chat.addListener("mafia-events-chat", true, ['chat'], true, parseChat);
 Chat.addListener("mafia-events-html", true, ['html', 'uhtml'], true, parseHTML);
 Chat.addListener("mafia-events-raw", true, ['raw'], true, parseRaw);
 /**
- * @typedef {function} MafiaCallback
- * @param {string[]} details
- * @param {string?} message
- * @returns {void}
- */
-
-/**
  * @typedef {object} MafiaTrackerOptions
  * @property {"night" | "day"} [phase]
  * @property {boolean} [end]
@@ -192,6 +192,7 @@ class MafiaTracker extends Rooms.RoomGame {
 	constructor(room, host) {
 		super(room);
 
+		/** @type {{[k: string]: MafiaPlayer}} */
 		this.players = {};
 		this.aliveCount = 0;
 		this.deadCount = 0;
@@ -200,7 +201,7 @@ class MafiaTracker extends Rooms.RoomGame {
 		this.hostid = toId(host);
 		/** @type {string[]} */
 		this.cohosts = [];
-		/** @type {"signups" | "locked" | "IDEApicking" | "IDEAlocked" | "day" | "night"} */
+		/** @type {"signups" | "locked" | "IDEApicking" | "IDEAlocked" | "day" | "night" | "ended"} */
 		// locked doesnt get used cause it's a pain to detect and also not relevent
 		this.phase = "signups";
 
@@ -481,8 +482,7 @@ function onEvent(event, roomid, details, message) {
 		tracker.onStart();
 		break;
 	case 'gameend':
-		tracker.destroy();
-		room.mafiaTracker = null;
+		tracker.phase = 'ended';
 		break;
 	}
 	if (tracker.game) {

@@ -24,8 +24,6 @@ function isValidHangman(word, hint) {
 	return true;
 }
 
-const MAFIA_DATA = require('../mafia-data');
-
 const commands = {
 	/**
      * @param {string} target
@@ -38,7 +36,7 @@ const commands = {
 		let hint = '';
 		if (!target) target = ['theme', 'modifier', 'role'][~~(3 * Math.random())];
 		if (/theme/.test(target)) {
-			const themes = Object.values(MAFIA_DATA.themes);
+			const themes = Object.values(Mafia.data.themes);
 			do {
 				const theme = themes[~~(themes.length * Math.random())];
 				if (typeof theme !== 'object') continue;
@@ -46,7 +44,7 @@ const commands = {
 				hint = theme.desc.split(':').slice(1).join(':');
 			} while (!isValidHangman(word, hint));
 		} else if (/modifier/.test(target)) {
-			const modifiers = Object.values(MAFIA_DATA.modifiers);
+			const modifiers = Object.values(Mafia.data.modifiers);
 			do {
 				const modifier = modifiers[~~(modifiers.length * Math.random())];
 				if (typeof modifier !== 'object') continue;
@@ -54,7 +52,7 @@ const commands = {
 				hint = modifier.memo.map((/** @type {string} */s) => s.split(':').slice(1).join(':')).join(', ');
 			} while (!isValidHangman(word, hint));
 		} else if (/role/.test(target)) {
-			const roles = Object.values(MAFIA_DATA.roles);
+			const roles = Object.values(Mafia.data.roles);
 			do {
 				const role = roles[~~(roles.length * Math.random())];
 				if (typeof role !== 'object') continue;

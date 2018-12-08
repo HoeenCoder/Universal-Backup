@@ -60,7 +60,7 @@ global.log = log;
 
 global.Rooms = require('./rooms.js');
 global.Chat = require('./chat.js'); // handles the connection too
-global.Mafia = require('./mafia-tracker.js');
+global.Mafia = require('./mafia.js');
 Chat.loadCommands();
 
 global.sendMessage = Chat.sendMessage;
