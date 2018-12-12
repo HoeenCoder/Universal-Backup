@@ -25,8 +25,9 @@
 		}
 	],
 	"dependencies": {
+		"@types/cheerio": "^0.22.10",
 		"@types/websocket": "0.0.40",
-		"jsdom": "^13.0.0",
+		"cheerio": "^1.0.0-rc.2",
 		"websocket": "^1.0.26"
 	},
 	"devDependencies": {

@@ -121,7 +121,7 @@ class Client extends EventEmitter {
 		if (lines[0].charAt(0) === '>') roomid = quickToRoomid(lines.shift());
 
 		// Cheap hack
-		if (roomid.startsWith('view-')) return this.emit('page', roomid, lines.join('\n'));
+		if (roomid.startsWith('view-')) return this.emit('page', roomid, lines);
 
 		for (let i = 0; i < lines.length; i++) {
 			if (lines[i].startsWith('|init|')) {

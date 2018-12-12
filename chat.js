@@ -305,10 +305,9 @@ function parsePM(from, message) {
 
 /**
  * @param {string} pageid
- * @param {string} messageType
  * @param {string[]} parts
  */
-function parseChatPage(pageid, messageType, parts) {
+function parseChatPage(pageid, parts) {
 	debug(`Viewing chat page '${pageid}'`);
 	emitEvent('chatpage', pageid, parts);
 }
