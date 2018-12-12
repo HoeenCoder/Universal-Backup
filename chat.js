@@ -1,4 +1,8 @@
 'use strict';
+// i'm sorry, gods, but typescript doesn't allow breaking this line up
+// the type is called "MessageType", the only special thing is "chatpage"
+/** @typedef {'chatpage' | 'chat' | 'html' | 'raw' | 'join' | 'leave' | 'name' | 'uhtml' | 'pm' | 'init' | 'title' | 'pagehtml' | 'users' | 'deinit' | 'noinit' | 'popup' | 'error' | 'unlink' | 'notify' | 'formats' | 'tour' | 'updatesearch' | 'updatechallenges' | 'battle' | 'b' | 'usercount' | ':' | 'customgroups' | 'queryresponse'} MessageType */
+
 
 let Chat = module.exports;
 const fs = require('fs');
@@ -44,7 +48,7 @@ Chat.loadCommands = function () {
 /**
  * @param {string} id
  * @param {string[] | true} rooms
- * @param {string[] | true} messageTypes
+ * @param {MessageType[] | true} messageTypes
  * @param {function} callback
  * @param {number | true} repeat
  */
@@ -146,6 +150,7 @@ function parse(roomid, messageType, parts) {
 		if (room) room.setTitle(parts[0]);
 		break;
 	case 'pagehtml':
+		// this never actually gets hit because client code gives the message to parseChatPage before this point
 		debug(`Recieved chat page html for ${roomid}`);
 		break;
 	case 'users':
@@ -224,6 +229,8 @@ function parse(roomid, messageType, parts) {
 	emitEvent(normalisedType, roomid, parts);
 }
 /**
+ * I'm not type checking the message type because it's a massive pain, just try not to do anything stupid with it.
+ * THE ONLY CUSTOM TYPE ALLOWED IS CHATPAGE
  * @param {string} type
  * @param {string} roomid
  * @param {string[]} parts
@@ -303,6 +310,7 @@ function parsePM(from, message) {
  */
 function parseChatPage(pageid, messageType, parts) {
 	debug(`Viewing chat page '${pageid}'`);
+	emitEvent('chatpage', pageid, parts);
 }
 /**
 * @param {Room?} room

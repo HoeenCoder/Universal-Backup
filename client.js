@@ -158,6 +158,8 @@ class Client extends EventEmitter {
 				hostname: "play.pokemonshowdown.com",
 				path: "/~~showdown/action.php",
 				agent: false,
+				method: '',
+				headers: {},
 			};
 
 			let loginQuerystring;

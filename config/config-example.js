@@ -80,6 +80,7 @@ exports.leaversEnabled = true;
  * roommanagement - This group lets user manage the bot's settings for the room.
  *
  */
+/** @type {{[k: string]: {[k: string]: any}}} "good enough" */
 exports.groups = {
 	'~': {
 		name: 'Administrator',
