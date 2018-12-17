@@ -3,7 +3,10 @@
 const HOST_CHAR = '#';
 const COMMAND_CHAR = '>';
 const SCUMCHAT_CHAR = ';';
+const HYDRA_CHAR = '<';
 const EVAL_CHAR = '&';
+
+const ANON_GAMES = ['anon', 'hydra'];
 
 class AnonSlave extends Chat.Slaves.SlaveClient {
 	/**
@@ -66,10 +69,21 @@ class AnonSlave extends Chat.Slaves.SlaveClient {
 				case SCUMCHAT_CHAR:
 					if (this.partners.length) {
 						for (const p of this.partners) {
+							if (p === this.userid) continue;
 							this.client.send(`|/pm ${p},${message}`);
+						}
+						for (const p of this.owners) {
+							if (p === senderid) continue;
+							this.client.send(`|/pm ${p},(to partner)${message}`);
 						}
 					} else {
 						this.client.send(`|/pm ${senderid},You don't have any partners to send to...`);
+					}
+					break;
+				case HYDRA_CHAR:
+					for (const p of this.owners) {
+						if (p === senderid) continue;
+						this.client.send(`|/pm ${p},(from head)${message}`);
 					}
 					break;
 				case COMMAND_CHAR:
@@ -82,6 +96,8 @@ class AnonSlave extends Chat.Slaves.SlaveClient {
 					this.client.send(`${this.room}|${sanitise(message)}`);
 					this.logs.push(`${this.name} (${senderid}): ${message}`);
 				}
+			} else if (this.partners.includes(senderid)) {
+				this.sendOwners(message);
 			} else if (senderid === this.host) {
 				this.sendOwners(`/wall ${message}`);
 			}
@@ -104,15 +120,32 @@ class AnonController extends Rooms.RoomGame {
 		super(room);
 		this.gameid = 'anon';
 		this.waitingConnect = 0;
+		/** @type {{[k: string]: AnonSlave}} */
 		this.slaves = {};
 		/** @type {string[]} */
 		this.logs = [];
 		/** @type {string[]} */
 		this.listeners = [];
+		this.setupPlayers();
+
 		if (!this.room || !this.room.mafiaTracker) {
 			this.sendRoom(`Panic! - no mafia game running`);
 		} else {
 			this.sendRoom(`/mafia forcecohost ${Config.nick}`);
+			this.listeners.push(Mafia.addMafiaListener(`anon-${this.room.roomid}-subhost`, [this.room.roomid], ['subhost'], true,
+				(/** @type {string} */p) => this.subhost(p[0])
+			));
+			this.listeners.push(Mafia.addMafiaListener(`anon-${this.room.roomid}-gameend`, [this.room.roomid], ['gameend'], true,
+				(/** @type {string} */p) => this.destroy()
+			));
+			this.listeners.push(Mafia.addMafiaListener(`anon-${this.room.roomid}-playerroles`, [this.room.roomid], ['playerroles'], true,
+				() => this.sendPlayerRoles()
+			));
+		}
+	}
+
+	setupPlayers() {
+		if (this.room && this.room.mafiaTracker) {
 			this.sendRoom(`/mafia close`);
 			for (const player of Tools.lazyShuffle(Object.keys(this.room.mafiaTracker.players))) {
 				this.addPlayer([toId(player)]);
@@ -127,19 +160,8 @@ class AnonController extends Rooms.RoomGame {
 			} else {
 				sendMessage(pmRoom, `/pminfobox ${this.room.mafiaTracker.hostid}, ${buf}`);
 			}
-
-			this.listeners.push(Mafia.addMafiaListener(`anon-${this.room.roomid}-subhost`, [this.room.roomid], ['subhost'], true,
-				(/** @type {string} */p) => this.subhost(p[0])
-			));
-			this.listeners.push(Mafia.addMafiaListener(`anon-${this.room.roomid}-gameend`, [this.room.roomid], ['gameend'], true,
-				(/** @type {string} */p) => this.destroy()
-			));
-			this.listeners.push(Mafia.addMafiaListener(`anon-${this.room.roomid}-playerroles`, [this.room.roomid], ['playerroles'], true,
-				() => this.sendPlayerRoles()
-			));
 		}
 	}
-
 	/**
 	 * @param {string[]} owners
 	 */
@@ -149,10 +171,10 @@ class AnonController extends Rooms.RoomGame {
 		const credentials = Chat.Slaves.getCredentials();
 		if (!credentials) return this.sendRoom(`Panic! - no available credentials`);
 		const room = this.room || {};
-		this.slaves[ownerids] = new AnonSlave(credentials, room.roomid, owners, room.mafiaTracker && room.mafiaTracker.hostid, this.logs);
+		// @ts-ignore
+		this.slaves[ownerids] = new AnonSlave(credentials, room.roomid || '', owners, (room.mafiaTracker && room.mafiaTracker.hostid) || '', this.logs);
 		this.slaves[ownerids].client.on('login', () => {
-			this.waitingConnect--;
-			if (!this.waitingConnect) this.addSlaves();
+			this.onConnect(ownerids);
 		});
 		this.waitingConnect++;
 		for (const owner of owners) {
@@ -160,6 +182,13 @@ class AnonController extends Rooms.RoomGame {
 		}
 	}
 
+	/**
+	 * @param {string} slaveid
+	 */
+	onConnect(slaveid) {
+		this.waitingConnect--;
+		if (!this.waitingConnect) this.addSlaves();
+	}
 	addSlaves() {
 		this.sendRoom(`Adding slave clients...`);
 		let slaves = Tools.lazyShuffle(Object.keys(this.slaves));
@@ -180,21 +209,14 @@ class AnonController extends Rooms.RoomGame {
 	 */
 	addScumGroup(members) {
 		let failed = [];
-		let slaves = [];
-		let slaveids = [];
 		for (const member of members) {
-			let slave = this.slaves[member];
-			if (!slave) {
+			for (const slaveid in this.slaves) {
+				if (members.includes(this.slaves[slaveid].userid)) {
+					this.slaves[slaveid].partners = members;
+					continue;
+				}
 				failed.push(member);
-			} else {
-				slaves.push(slave);
-				slaveids.push(member);
 			}
-		}
-		for (const [i, slave] of slaves.entries()) {
-			const partners = slaveids.slice();
-			partners.splice(i, 1); // FUCK JS
-			slave.partners = partners;
 		}
 		if (failed.length) return `Failed to add ${failed.join(', ')}`;
 		return `All adds successful`;
@@ -225,6 +247,32 @@ class AnonController extends Rooms.RoomGame {
 	}
 }
 
+class HydraController extends AnonController {
+	/**
+	 * @param {Room} room
+	 */
+	constructor(room) {
+		super(room);
+		this.gameid = 'hydra';
+		this.sendRoom(`A new hydra game has started! Add players with the \`\`head\`\` command!`);
+	}
+
+	/**
+	 * @param {string} slaveid
+	 */
+	onConnect(slaveid) {
+		if (!this.room) return;
+		this.room.send(`/mafia forceadd ${this.slaves[slaveid].userid}`);
+	}
+	setupPlayers() {
+		if (this.room && this.room.mafiaTracker && this.room.mafiaTracker.aliveCount) {
+			Chat.sendPM(this.room.roomid, 'Players should be added through the ``head`` command.');
+		}
+	}
+
+	// noop
+	addSlaves() {}
+}
 
 /** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
 /** @typedef {{[k: string]: string | ChatCommand}} ChatCommands */
@@ -233,14 +281,29 @@ class AnonController extends Rooms.RoomGame {
 const commands = {
 	an: function (target, room, user) {
 		if (!room) return;
-		if (!this.can('games')) return;
+		if (!this.can('eval')) return;
 		room.game = new AnonController(room);
 	},
 	ag: function (target, room, user) {
-		const anonRoom = [...Rooms.rooms.values()].find(r => !!(r.game && r.game.gameid === 'anon'));
+		const anonRoom = [...Rooms.rooms.values()].find(r => !!(r.game && ANON_GAMES.includes(r.game.gameid)));
 		if (!anonRoom) return;
+		if (!this.can('eval')) return;
 		const game = /** @type {AnonController} */ (anonRoom.game);
-		game.addScumGroup(target.split(',').map(toId));
+		const reply = game.addScumGroup(target.split(',').map(toId));
+		if (reply) this.reply(reply);
+	},
+	hydra: function (target, room, user) {
+		if (!room) return;
+		if (!this.can('eval')) return;
+		room.game = new HydraController(room);
+	},
+	head: function (target, room, user) {
+		const hydraRoom = [...Rooms.rooms.values()].find(r => !!(r.game && r.game.gameid === 'hydra'));
+		if (!hydraRoom) return;
+		if (!this.can('eval')) return;
+		const players = target.split(',').map(toId);
+		const game = /** @type {HydraController} */(hydraRoom.game);
+		game.addPlayer(players);
 	},
 };
 

@@ -19,7 +19,7 @@ class Lighthouse extends Rooms.RoomGame {
 		this.listenerId = Chat.addListener(`lighthouse-${room.roomid}`, true, ['pm'], true, (t, u, m) => this.onMessage(t, u, m));
 		this.mafiaListenerId = Mafia.addMafiaListener(`lighthouse-${room.roomid}`, [room.roomid], ['gameend'], true, () => this.end());
 		this.sendRoom(`Darkness falls across the land...`);
-		if (!room.mafiaTracker) this.sendRoom(`Panic! - no mafia game running`);
+		if (!room.mafiaTracker || room.mafiaTracker.phase === 'ended') this.sendRoom(`Panic! - no mafia game running`);
 	}
 	onMessage(type, user, message) {
 		if (!this.enabled) return;

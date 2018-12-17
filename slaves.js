@@ -19,9 +19,9 @@ class SlaveClient {
 	 * @param {string[]} rooms
 	 */
 	constructor(credentials, rooms) {
-		NamesUsed[this.userid] = true;
 		this.name = credentials.nick;
 		this.userid = toId(credentials.nick);
+		NamesUsed[this.userid] = true;
 		this.client = new Client({nick: credentials.nick, pass: credentials.pass, autojoin: rooms, reconnectTime: 0});
 		this.client.connect();
 		return this;
