@@ -127,7 +127,7 @@ const commands = {
 		for (const p in game.players) {
 			if (game.players[p].alignment === target) winners.push(p);
 		}
-		this.reply(`.addpoints ${Points(Object.keys(room.mafiaTracker.players).length, 'play')} ${winners.join(', ')}`);
+		this.reply(`.addpoints ${Points(Object.keys(room.mafiaTracker.players).length, 'play')}, ${winners.join(', ')}`);
 	},
 	mvp: function (target, room, user) {
 		if (!room || !room.mafiaTracker || !this.can('mute', null, room)) return;
