@@ -82,6 +82,7 @@ function onEvent(t, r, d) {
 		const mafiaTracker = room.mafiaTracker;
 		if (!mafiaTracker) return Chat.sendMessage('mafia', 'desync');
 		Chat.sendMessage('mafia', `.addpoints ${Points(Object.keys(mafiaTracker.players).length, 'host')}, ${mafiaTracker.hostid}`);
+		Chat.sendPM(mafiaTracker.hostid, 'Remember to add points with ``.winfaction <faction>`` in chat.')
 	}
 }
 
@@ -119,7 +120,7 @@ const commands = {
 	winfaction: function (target, room, user) {
 		target = toId(target);
 		if (!validAlignments.includes(target)) return this.reply(`Not a valid alignment.`);
-		if (!room || !room.mafiaTracker || (room.mafiaTracker.hostid !== toId(user) && !this.can('mute', null, room))) return;
+		if (!room || !room.mafiaTracker || (room.mafiaTracker.hostid !== toId(user) && !this.can('games'))) return;
 		if (room.roomid !== 'mafia') return;
 		if (!UGMTrackerEnabled) return this.reply('disabled');
 		const game = room.mafiaTracker;
@@ -130,7 +131,7 @@ const commands = {
 		this.reply(`.addpoints ${Points(Object.keys(room.mafiaTracker.players).length, 'play')}, ${winners.join(', ')}`);
 	},
 	mvp: function (target, room, user) {
-		if (!room || !room.mafiaTracker || !this.can('mute', null, room)) return;
+		if (!room || !room.mafiaTracker || !this.can('games')) return;
 		if (room.roomid !== 'mafia') return;
 		if (!UGMTrackerEnabled) return this.reply('disabled');
 		this.reply(`.addpoints ${Points(Object.keys(room.mafiaTracker.players).length, 'mvp')}, ${target}`);
