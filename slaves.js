@@ -21,7 +21,6 @@ class SlaveClient {
 	constructor(credentials, rooms) {
 		this.name = credentials.nick;
 		this.userid = toId(credentials.nick);
-		NamesUsed[this.userid] = true;
 		this.client = new Client({nick: credentials.nick, pass: credentials.pass, autojoin: rooms, reconnectTime: 0});
 		this.client.connect();
 		return this;
@@ -42,6 +41,7 @@ function getCredentials(preferredName = '') {
 
 	for (const id of Tools.lazyShuffle(Object.keys(Credentials))) {
 		if (NamesUsed[id]) continue;
+		NamesUsed[id] = true;
 		return Credentials[id];
 	}
 	// no credentials available - panic!

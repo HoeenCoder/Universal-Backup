@@ -60,9 +60,11 @@ class AnonSlave extends Chat.Slaves.SlaveClient {
 
 	/**
 	 * @param {string} m
+	 * @param {string} except
 	 */
-	sendOwners(m) {
+	sendOwners(m, except = '') {
 		for (const owner of this.owners) {
+			if (owner === except) continue;
 			this.client.send(`|/pm ${owner},${m}`);
 		}
 	}
@@ -93,6 +95,7 @@ class AnonSlave extends Chat.Slaves.SlaveClient {
 				switch (message.charAt(0)) {
 				case HOST_CHAR:
 					this.client.send(pm(this.host, message));
+					this.sendOwners("(to host)" + message, senderid);
 					break;
 				case SCUMCHAT_CHAR:
 					if (this.partners.length) {
@@ -102,7 +105,7 @@ class AnonSlave extends Chat.Slaves.SlaveClient {
 						}
 						for (const p of this.owners) {
 							if (p === senderid) continue;
-							this.client.send(pm(p, '(to partner)' + message));
+							this.client.send(pm(p, "(to partner)" + message));
 						}
 					} else {
 						this.client.send(pm(senderid, "You don't have any partners to send to..."));
@@ -225,9 +228,12 @@ class AnonController extends Rooms.RoomGame {
 	 */
 	addPlayer(owners) {
 		const ownerids = owners.sort().join('');
-		if (this.slaves[ownerids]) return this.slaves[ownerids];
+		if (this.slaves[ownerids]) return;
 		const credentials = Chat.Slaves.getCredentials();
-		if (!credentials) return this.sendRoom(`Panic! - no available credentials`);
+		if (!credentials) {
+			this.sendRoom(`Panic! - no available credentials`);
+			return;
+		}
 		const room = this.room || {};
 		// @ts-ignore
 		this.slaves[ownerids] = new AnonSlave(credentials, room.roomid || '', owners, (room.mafiaTracker && room.mafiaTracker.hostid) || '', this.logs);
@@ -289,6 +295,16 @@ class AnonController extends Rooms.RoomGame {
 		}
 	}
 
+	/**
+	 *
+	 * @param {string} id
+	 */
+	findSlave(id) {
+		for (const [ownerid, slave] of Object.entries(this.slaves)) {
+			if (slave.userid === id) return ownerid;
+		}
+	}
+
 	destroy() {
 		for (const id in this.slaves) {
 			this.slaves[id].kill();
@@ -328,6 +344,19 @@ class HydraController extends AnonController {
 		}
 	}
 
+	/**
+	 * @param {string[]} owners
+	 */
+	addPlayer(owners) {
+		if (this.room) {
+			for (const owner of owners) {
+				if (!this.room.users.has(owner)) {
+					return `${owner} is not in the room`;
+				}
+			}
+		}
+		return super.addPlayer(owners);
+	}
 	// noop
 	addSlaves() {}
 }
@@ -339,29 +368,39 @@ class HydraController extends AnonController {
 const commands = {
 	an: function (target, room, user) {
 		if (!room) return;
-		if (!this.can('eval')) return;
+		if (!this.can('games')) return;
 		room.game = new AnonController(room);
 	},
 	ag: function (target, room, user) {
 		const anonRoom = [...Rooms.rooms.values()].find(r => !!(r.game && ANON_GAMES.includes(r.game.gameid)));
 		if (!anonRoom) return;
-		if (!this.can('eval')) return;
+		if (!this.can('games')) return;
 		const game = /** @type {AnonController} */ (anonRoom.game);
 		const reply = game.addScumGroup(target.split(',').map(toId));
 		if (reply) this.reply(reply);
 	},
 	hydra: function (target, room, user) {
 		if (!room) return;
-		if (!this.can('eval')) return;
+		if (!this.can('games')) return;
 		room.game = new HydraController(room);
 	},
 	head: function (target, room, user) {
 		const hydraRoom = [...Rooms.rooms.values()].find(r => !!(r.game && r.game.gameid === 'hydra'));
 		if (!hydraRoom) return;
-		if (!this.can('eval')) return;
+		if (!this.can('games')) return;
 		const players = target.split(',').map(toId);
-		const game = /** @type {HydraController} */(hydraRoom.game);
-		game.addPlayer(players);
+		const game = /** @type {HydraController} */ (hydraRoom.game);
+		const res = game.addPlayer(players);
+		if (res) this.reply(res);
+	},
+	killslave: function (target, room, user) {
+		if (!this.can('games')) return;
+		if (!room || !room.game || !ANON_GAMES.includes(room.game.gameid)) return;
+		const game = /** @type {AnonController | HydraController} */ (room.game);
+		const slaveid = game.findSlave(toId(target));
+		if (!slaveid) return this.reply(`Invalid target`);
+		game.slaves[slaveid].kill();
+		delete game.slaves[slaveid];
 	},
 };
 
