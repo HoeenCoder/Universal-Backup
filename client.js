@@ -2,6 +2,7 @@
 
 const WebSocketClient = require('websocket').client;
 const https = require('https');
+const qs = require('querystring');
 const EventEmitter = require('events');
 
 /**
@@ -168,7 +169,7 @@ class Client extends EventEmitter {
 				reqOptions.path += `?act=getassertion&userid=${toId(this.options.nick)}&challstr=${this.challstr}`;
 			} else {
 				reqOptions.method = 'POST';
-				loginQuerystring = `act=login&name=${toId(this.options.nick)}&pass=${this.options.pass}&challstr=${this.challstr}`;
+				loginQuerystring = qs.stringify({act: 'login', name: toId(this.options.nick), pass: this.options.pass, challstr: this.challstr});
 				reqOptions.headers = {
 					'Content-Type': 'application/x-www-form-urlencoded',
 					'Content-Length': loginQuerystring.length,
