@@ -82,7 +82,7 @@ function onEvent(t, r, d) {
 		const mafiaTracker = room.mafiaTracker;
 		if (!mafiaTracker) return Chat.sendMessage('mafia', 'desync');
 		Chat.sendMessage('mafia', `.addpoints ${Points(Object.keys(mafiaTracker.players).length, 'host')}, ${mafiaTracker.hostid}`);
-		Chat.sendPM(mafiaTracker.hostid, 'Remember to add points with ``.winfaction <faction>`` in chat.')
+		Chat.sendPM(mafiaTracker.hostid, 'Remember to add points with ``.winfaction <faction>`` in chat.');
 	}
 }
 

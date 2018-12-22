@@ -8,6 +8,33 @@ const EVAL_CHAR = '&';
 
 const ANON_GAMES = ['anon', 'hydra'];
 
+const MAFIA_COMMANDS = [
+	'l',
+	'lynch',
+	'ul',
+	'unl',
+	'unnolynch',
+	'unlynch',
+	'nl',
+	'nolynch',
+];
+
+const INFO_MESSAGE = `
+<h3>Hydra/Anon guide:</h3>
+PM your bot to send messages to the room anonymously
+<br />
+<strong>Prefixes:</strong>
+<dl>
+	<dt>#</dt>
+	<dd> - message the host. Messages from the host will be <span class="message-announce">walled</span></dd>
+	<dt>&gt;</dt>
+	<dd> - use mafia commands. For example, <code>&gt;lynch hoeenhero</code></dd>
+	<dt>&semi;</dt>
+	<dd> - message your scumpartners. Messages from your scumpartners will just have the message.</dd>
+	<dt>&lt;</dt>
+	<dd> - message the other members of your hydra. Messages from other hydra members will be prefixed with <code>(from head)</code>. Does not work in anon games, obviously.</dd>
+</dl>`.replace(/\n/g, '');
+
 class AnonSlave extends Chat.Slaves.SlaveClient {
 	/**
 	 * @param {Object} credentials
@@ -58,43 +85,58 @@ class AnonSlave extends Chat.Slaves.SlaveClient {
 					} catch (e) {
 						res = e.message;
 					}
-					return this.client.send(`|/pm ${senderid}, ${res}`);
+					return this.client.send(pm(senderid, res));
 				}
 			}
 			if (this.owners.includes(senderid)) {
+				this.logs.push(`${this.name} (${senderid}): ${message}`);
 				switch (message.charAt(0)) {
 				case HOST_CHAR:
-					this.client.send(`|/pm ${this.host},${message}`);
+					this.client.send(pm(this.host, message));
 					break;
 				case SCUMCHAT_CHAR:
 					if (this.partners.length) {
 						for (const p of this.partners) {
 							if (p === this.userid) continue;
-							this.client.send(`|/pm ${p},${message}`);
+							this.client.send(pm(p, message));
 						}
 						for (const p of this.owners) {
 							if (p === senderid) continue;
-							this.client.send(`|/pm ${p},(to partner)${message}`);
+							this.client.send(pm(p, '(to partner)' + message));
 						}
 					} else {
-						this.client.send(`|/pm ${senderid},You don't have any partners to send to...`);
+						this.client.send(pm(senderid, "You don't have any partners to send to..."));
 					}
 					break;
 				case HYDRA_CHAR:
 					for (const p of this.owners) {
 						if (p === senderid) continue;
-						this.client.send(`|/pm ${p},(from head)${message}`);
+						this.client.send(pm(p, "(from head)" + message));
 					}
 					break;
 				case COMMAND_CHAR:
-					parts = parts.map(toId);
-					if (message.substr(1, 5) !== 'mafia') return;
-					this.client.send(`${this.room}|/${message.slice(1)}`);
+					const spaceIndex = message.indexOf(' ');
+					let command = '';
+					let target = '';
+					if (spaceIndex < 0) {
+						command = toId(message);
+					} else {
+						command = toId(message.substr(0, spaceIndex));
+						target = toId(message.substr(spaceIndex + 1));
+					}
+					if (command === 'mafia') {
+						this.client.send(pm(senderid, "Don't include 'mafia' in your command"));
+						return;
+					}
+					if (!MAFIA_COMMANDS.includes(command)) {
+						this.client.send(pm(senderid, `${command} is not a valid command`));
+						return;
+					}
+					this.client.send(sendRoom(this.room, `/mafia ${command} ${target}`));
 					break;
 				default:
 					if (message.startsWith('/') || message.startsWith('!')) return;
-					this.client.send(`${this.room}|${sanitise(message)}`);
-					this.logs.push(`${this.name} (${senderid}): ${message}`);
+					this.client.send(sendRoom(this.room, sanitise(message)));
 				}
 			} else if (this.partners.includes(senderid)) {
 				this.sendOwners(message);
@@ -106,10 +148,25 @@ class AnonSlave extends Chat.Slaves.SlaveClient {
 }
 
 /**
+ * @param {string} room
+ * @param {string} message
+ */
+function sendRoom(room, message) {
+	return `${room}|${message}`;
+}
+/**
+ * @param {string} user
+ * @param {string} message
+ */
+function pm(user, message) {
+	return `|/pm ${user},${message}`;
+}
+
+/**
  * @param {string} message
  */
 function sanitise(message) {
-	return message.replace(/\*+/g, '*');
+	return message.replace(/\*+/g, '*').replace(/^[/!]+/, '');
 }
 
 class AnonController extends Rooms.RoomGame {
@@ -141,6 +198,7 @@ class AnonController extends Rooms.RoomGame {
 			this.listeners.push(Mafia.addMafiaListener(`anon-${this.room.roomid}-playerroles`, [this.room.roomid], ['playerroles'], true,
 				() => this.sendPlayerRoles()
 			));
+			this.sendRoom(`!htmlbox ${INFO_MESSAGE}`);
 		}
 	}
 
