@@ -264,7 +264,7 @@ class AnonController extends Rooms.RoomGame {
 	sendPlayerRoles() {
 		if (!this.room || !this.room.mafiaTracker) return;
 		for (const slave of Object.values(this.slaves)) {
-			slave.sendOwners(`Your role is: ${this.room.mafiaTracker.players[slave.userid].role}`);
+			slave.sendOwners(`/wall Your role is: ${this.room.mafiaTracker.players[slave.userid].role}`);
 		}
 	}
 
@@ -272,17 +272,15 @@ class AnonController extends Rooms.RoomGame {
 	 * @param {string[]} members
 	 */
 	addScumGroup(members) {
-		let failed = [];
+		let memberids = [];
 		for (const member of members) {
-			for (const slaveid in this.slaves) {
-				if (members.includes(this.slaves[slaveid].userid)) {
-					this.slaves[slaveid].partners = members;
-					continue;
-				}
-				failed.push(member);
-			}
+			const memberid = this.findSlave(member);
+			if (!memberid) return `Invalid slave ${member}`;
+			memberids.push(memberid);
 		}
-		if (failed.length) return `Failed to add ${failed.join(', ')}`;
+		for (const member of memberids) {
+			this.slaves[member].partners = members;
+		}
 		return `All adds successful`;
 	}
 
