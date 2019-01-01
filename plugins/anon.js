@@ -94,7 +94,7 @@ class AnonSlave extends Chat.Slaves.SlaveClient {
 				this.logs.push(`${this.name} (${senderid}): ${message}`);
 				switch (message.charAt(0)) {
 				case HOST_CHAR:
-					this.client.send(pm(this.host, message));
+					this.client.send(pm(this.host, `(${senderid})${message}`));
 					this.sendOwners("(to host)" + message, senderid);
 					break;
 				case SCUMCHAT_CHAR:
@@ -138,7 +138,6 @@ class AnonSlave extends Chat.Slaves.SlaveClient {
 					this.client.send(sendRoom(this.room, `/mafia ${command} ${target}`));
 					break;
 				default:
-					if (message.startsWith('/') || message.startsWith('!')) return;
 					this.client.send(sendRoom(this.room, sanitise(message)));
 				}
 			} else if (this.partners.includes(senderid)) {
@@ -169,7 +168,7 @@ function pm(user, message) {
  * @param {string} message
  */
 function sanitise(message) {
-	return message.replace(/\*+/g, '*').replace(/^[/!]+/, '');
+	return message.trim().replace(/\*+/g, '*').replace(/^[/!]+/, '');
 }
 
 class AnonController extends Rooms.RoomGame {
@@ -280,6 +279,7 @@ class AnonController extends Rooms.RoomGame {
 		}
 		for (const member of memberids) {
 			this.slaves[member].partners = members;
+			this.slaves[member].sendOwners(`/wall You are in a scum group containing ${members.join(', ')}`);
 		}
 		return `All adds successful`;
 	}

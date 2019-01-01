@@ -21,7 +21,13 @@ class SlaveClient {
 	constructor(credentials, rooms) {
 		this.name = credentials.nick;
 		this.userid = toId(credentials.nick);
-		this.client = new Client({nick: credentials.nick, pass: credentials.pass, autojoin: rooms, reconnectTime: 0});
+		this.client = new Client({
+			nick: credentials.nick,
+			pass: credentials.pass,
+			autojoin: rooms,
+			reconnectTime: 0,
+			avatar: Math.floor(Math.random() * 100),
+		});
 		this.client.connect();
 		return this;
 	}
