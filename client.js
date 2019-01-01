@@ -233,7 +233,12 @@ class Client extends EventEmitter {
 			// '0' (guest user) or '1' (actually logged in). We only want the latter so we can actually
 			// do stuff.
 			const [serverName, loginStatus] = parts;
-			if (serverName !== this.options.nick) return;
+			if (serverName !== this.options.nick) {
+				if (toId(serverName) === toId(this.options.nick)) {
+					this.send(`|/trn ${this.options.nick}`);
+				}
+				return;
+			}
 			if (loginStatus !== '1') {
 				console.log("UPDATEUSER - failed to log in, still a guest");
 				this.emit('loginfailed');

@@ -33,6 +33,7 @@ class SlaveClient {
 	}
 
 	kill() {
+		this.client.send('|/logout');
 		this.client.disconnect();
 		NamesUsed[this.userid] = false;
 	}
