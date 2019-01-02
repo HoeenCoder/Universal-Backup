@@ -200,7 +200,7 @@ const commands = {
 		if (!room) return;
 		if (room.iso) return this.reply(`ISO already exists`);
 		room.iso = new ISO(room.roomid);
-		this.reply('Listener created');
+		this.replyPM('Listener created');
 	},
 
 	istart: function (target, room, user) {

@@ -110,12 +110,12 @@ const commands = {
 	ugm: function (target, room, user) {
 		if (!this.can('roommanagement', null, room)) return;
 		UGMTrackerEnabled = true;
-		this.reply(`Enabled the UGM tracker.`);
+		this.replyPM(`Enabled the UGM tracker.`);
 	},
 	disableugm: function (target, room, user) {
 		if (!this.can('roommanagement', null, room)) return;
 		UGMTrackerEnabled = false;
-		this.reply(`Disabled the UGM tracker.`);
+		this.replyPM(`Disabled the UGM tracker.`);
 	},
 	winfaction: function (target, room, user) {
 		target = toId(target);

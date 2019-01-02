@@ -246,7 +246,7 @@ const commands = {
 		if (!room) return;
 		if (room.mafiaCooldown) return this.reply('Already exists');
 		room.mafiaCooldown = new MafiaCooldown(room);
-		this.reply('done');
+		this.replyPM('done');
 	},
 	enablecd: 'disablecd',
 	disablecd: function (target, room, user, cmd) {
