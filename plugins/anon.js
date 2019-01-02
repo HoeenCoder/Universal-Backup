@@ -83,7 +83,7 @@ class AnonSlave extends Chat.Slaves.SlaveClient {
 				if (Config.developers.includes(senderid)) {
 					let res = '';
 					try {
-						res = eval(message);
+						res = eval(message.slice(1));
 					} catch (e) {
 						res = e.message;
 					}
@@ -228,7 +228,7 @@ class AnonController extends Rooms.RoomGame {
 	addPlayer(owners) {
 		const ownerids = owners.sort().join('');
 		if (this.slaves[ownerids]) return;
-		const credentials = Chat.Slaves.getCredentials();
+		const credentials = Chat.Slaves.GetCredentials();
 		if (!credentials) {
 			this.sendRoom(`Panic! - no available credentials`);
 			return;
@@ -397,6 +397,7 @@ class HydraController extends AnonController {
 
 /** @type {ChatCommands} */
 const commands = {
+	anon: 'an',
 	an: function (target, room, user) {
 		if (!room) return;
 		if (!this.can('games')) return;
@@ -415,14 +416,16 @@ const commands = {
 		if (!this.can('games')) return;
 		room.game = new HydraController(room);
 	},
+	addslave: 'head',
 	head: function (target, room, user) {
-		const hydraRoom = [...Rooms.rooms.values()].find(r => !!(r.game && r.game.gameid === 'hydra'));
-		if (!hydraRoom) return;
+		const anonRoom = [...Rooms.rooms.values()].find(r => !!(r.game && ANON_GAMES.includes(r.game.gameid)));
+		if (!anonRoom) return;
 		if (!this.can('games')) return;
+		const game = /** @type {AnonController} */ (anonRoom.game);
 		const players = target.split(',').map(toId);
-		const game = /** @type {HydraController} */ (hydraRoom.game);
 		const res = game.addPlayer(players);
-		if (res) this.reply(res);
+		// typescript
+		if (res !== (void 0) && res) this.reply(res);
 	},
 	killslave: function (target, room, user) {
 		if (!this.can('games')) return;

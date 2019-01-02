@@ -53,6 +53,11 @@ const commands = {
 		}
 		this.replyHTMLPM(result.replace(/\n/g, '<br/>'));
 	},
+	loadcredentials: function (target, room) {
+		if (!this.can('eval')) return false;
+		Chat.Slaves.LoadCredentials();
+		this.reply(`Reloaded credentials. ${Chat.Slaves.AvailableNames} accounts are available.`);
+	},
 };
 
 exports.commands = commands;
