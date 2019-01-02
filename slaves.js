@@ -9,15 +9,16 @@ const Client = require('./client.js');
 let NamesUsed = {};
 /** @type {{[k: string]: {nick: string, pass: string}}} */
 let Credentials = {};
-let AvailableNames;
 function LoadCredentials() {
 	Credentials = {};
 	try {
 		Credentials = JSON.parse(fs.readFileSync('./config/credentials.json').toString());
-		AvailableNames = Object.keys(Credentials).length;
 	} catch (e) {}
 }
 LoadCredentials();
+function CountCredentials() {
+	return Object.keys(Credentials).length;
+}
 class SlaveClient {
 	/**
 	 * @param {Object} credentials
@@ -66,5 +67,5 @@ module.exports = {
 	GetCredentials,
 	NamesUsed,
 	LoadCredentials,
-	AvailableNames,
+	CountCredentials,
 };

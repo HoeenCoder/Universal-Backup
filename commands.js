@@ -56,7 +56,7 @@ const commands = {
 	loadcredentials: function (target, room) {
 		if (!this.can('eval')) return false;
 		Chat.Slaves.LoadCredentials();
-		this.reply(`Reloaded credentials. ${Chat.Slaves.AvailableNames} accounts are available.`);
+		this.reply(`Reloaded credentials. ${Chat.Slaves.CountCredentials()} accounts are available.`);
 	},
 };
 
