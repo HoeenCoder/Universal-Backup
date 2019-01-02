@@ -246,11 +246,44 @@ class AnonController extends Rooms.RoomGame {
 	}
 
 	/**
+	 * @param {string} slaveId
+	 * @param {string} prev
+	 * @param {string} next
+	 */
+	substitute(slaveId, prev, next) {
+		if (!this.findSlave(slaveId)) return `${slaveId} is not a valid account.`;
+		if (!this.removeOwner(slaveId, prev)) return `${prev} is not an owner of ${slaveId}`;
+		return this.addOwner(slaveId, next);
+	}
+	/**
+	 * @param {string} slaveId
+	 * @param {string} owner
+	 */
+	addOwner(slaveId, owner) {
+		const slave = this.findSlave(slaveId);
+		if (!slave) return `${slaveId} is not a valid slave account.`;
+		this.slaves[slave].owners.push(toId(owner));
+		return `Added ${owner} to ${slaveId}`;
+	}
+	/**
+	 * @param {string} slaveId
+	 * @param {string} owner
+	 */
+	removeOwner(slaveId, owner) {
+		const slave = this.findSlave(slaveId);
+		if (!slave) return null;
+		const ownerIndex = this.slaves[slave].owners.indexOf(owner);
+		if (ownerIndex < 0) return false;
+		this.slaves[slave].owners.splice(ownerIndex, 1);
+		return true;
+	}
+
+	/**
 	 * @param {string} slaveid
 	 */
 	onConnect(slaveid) {
 		this.waitingConnect--;
-		if (!this.waitingConnect) this.addSlaves();
+		if (this.waitingConnect === 0) this.addSlaves();
 	}
 	addSlaves() {
 		this.sendRoom(`Adding slave clients...`);
@@ -399,6 +432,31 @@ const commands = {
 		if (!slaveid) return this.reply(`Invalid target`);
 		game.slaves[slaveid].kill();
 		delete game.slaves[slaveid];
+	},
+	addowner: 'sub',
+	removeowner: 'sub',
+	sub: function (target, room, user, cmd) {
+		const anonRoom = [...Rooms.rooms.values()].find(r => !!(r.game && ANON_GAMES.includes(r.game.gameid)));
+		if (!anonRoom) return;
+		if (!this.can('games')) return;
+		const game = /** @type {AnonController} */ (anonRoom.game);
+		const [slaveId, targetId, target2Id] = target.split(',').map(toId);
+		if (!targetId || !slaveId) return this.reply('Invalid syntax.');
+		if (cmd === 'addowner') {
+			this.reply(game.addOwner(slaveId, targetId));
+		} else if (cmd === 'removeowner') {
+			const res = game.removeOwner(slaveId, targetId);
+			if (res === null) {
+				return this.reply(`${slaveId} is not a valid account.`);
+			} else if (res === false) {
+				this.reply(`${targetId} is not an owner of ${slaveId}`);
+			} else {
+				this.reply(`Successfully removed`);
+			}
+		} else {
+			if (!target2Id) return this.reply(`Invalid syntax.`);
+			return this.reply(game.substitute(slaveId, targetId, target2Id));
+		}
 	},
 };
 
