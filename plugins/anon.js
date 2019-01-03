@@ -90,6 +90,7 @@ class AnonSlave extends Chat.Slaves.SlaveClient {
 					return this.client.send(pm(senderid, res));
 				}
 			}
+			if (message.match(/^\/[A-Za-z\d]/)) return; // /raw messages and the like
 			if (this.owners.includes(senderid)) {
 				this.logs.push(`${this.name} (${senderid}): ${message}`);
 				switch (message.charAt(0)) {
@@ -401,6 +402,7 @@ const commands = {
 	an: function (target, room, user) {
 		if (!room) return;
 		if (!this.can('games')) return;
+		if (room.game) return this.reply(`A ${room.game.gameid} game is already running.`);
 		room.game = new AnonController(room);
 	},
 	ag: function (target, room, user) {
@@ -414,6 +416,7 @@ const commands = {
 	hydra: function (target, room, user) {
 		if (!room) return;
 		if (!this.can('games')) return;
+		if (room.game) return this.reply(`A ${room.game.gameid} game is already running.`);
 		room.game = new HydraController(room);
 	},
 	addslave: 'head',
