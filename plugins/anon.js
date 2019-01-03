@@ -464,6 +464,12 @@ const commands = {
 			return this.reply(game.substitute(slaveId, targetId, target2Id));
 		}
 	},
+	hydrahelp: 'anonhelp',
+	anonhelp: function (target, room) {
+		if (!room) return;
+		if (!this.can('games')) return;
+		this.reply(`!htmlbox ${INFO_MESSAGE}`);
+	},
 };
 
 exports.commands = commands;
