@@ -1,80 +1,7 @@
 'use strict';
-const fs = require('fs');
-
-const THEMES_FILE = `./config/themes.json`;
-const THEMECOUNT_FILE = `./config/themecount.json`;
 
 const BROADCAST_COOLDOWN = 90 * 1000;
 
-/** @type {{[k: string]: string | true}} */
-let Themes = loadFile(THEMES_FILE) || {};
-/** @type {{[k: string]: number}}} */
-let PlayHistory = loadFile(THEMECOUNT_FILE) || {};
-/**
- * @param {string} path
- */
-function loadFile(path) {
-	try {
-		const json = fs.readFileSync(path);
-		return (JSON.parse(json.toString()));
-	} catch (e) {
-		return false;
-	}
-}
-/**
- * @param {string} path
- * @param {any} data
- */
-function writeFile(path, data) {
-	fs.writeFileSync(path, JSON.stringify(data, null, 2));
-}
-
-/**
- * @param {string} name
- * @returns {string | string[]}
- */
-function findTheme(name) {
-	let theme = Themes[name];
-	if (theme) return (theme === true ? name : theme);
-
-	/** @type {{[k: string]: number}} */
-	let themeDistances = {};
-	for (const entry of Object.keys(Themes)) {
-		themeDistances[entry] = Tools.levenshtein(name, entry);
-	}
-	/** @type {string[]} */
-	let results = [];
-	let lowest = 100;
-
-	for (const [entry, distance] of Object.entries(themeDistances)) {
-		if (distance < lowest) {
-			lowest = distance;
-			results = [entry];
-		} else if (distance === lowest) {
-			results.push(entry);
-		}
-	}
-	return results;
-}
-/**
- * @param {string} name
- */
-function addTheme(name) {
-	if (Themes[toId(name)]) return false;
-	Themes[toId(name)] = true;
-	writeFile(THEMES_FILE, Themes);
-	return true;
-}
-/**
- * @param {string} name
- * @param {string} theme
- */
-function addAlias(name, theme) {
-	if (Themes[toId(theme)] !== true) return false;
-	Themes[toId(name)] = toId(theme);
-	writeFile(THEMES_FILE, Themes);
-	return true;
-}
 class MafiaCooldown extends Rooms.RoomGame {
 	/**
      * @param {Room} room
@@ -263,36 +190,17 @@ const commands = {
 		/** @type {MafiaCooldown} */
 		const cd = room.mafiaCooldown;
 		cd.status(user);
-		/*
-		let remaining = (cd.cooldownStart + cd.cooldown * 1000) - Date.now();
-		if (remaining < 1) return this.reply(`The cooldown timer is not running.`);
-		this.reply(`There is ${Tools.toDurationString(remaining, {precision: 2})} left on the cooldown timer.`);
-		*/
 	},
-	atheme: 'theme',
 	theme: function (target, room, user, cmd) {
 		if (!room || !room.mafiaCooldown) return;
 		/** @type {MafiaCooldown} */
 		const cd = room.mafiaCooldown;
 		if (!this.can('games') && toId(cd.curHost) !== toId(user)) return;
-		target = toId(target);
+		target = target.replace(/[^A-Za-z\s+&]/g, '');
 		if (!target) return;
-		let theme;
-		if (cmd === 'atheme') {
-			theme = target;
-			if (addTheme(target)) cd.sendRoom(`/mn ADDTHEME ${theme} by [${toId(user)}]`);
-		} else {
-			theme = findTheme(target);
-			if (Array.isArray(theme)) {
-				this.reply(`${target} not found. Did you mean \`\`${theme.join(', ')}\`\`? If you are certain, use \`\`${Config.commandTokens[0]}atheme ${target}\`\``);
-				return;
-			}
-		}
-		cd.themeHistory.unshift(theme);
+		cd.themeHistory.unshift(target);
 		if (cd.themeHistory.length > cd.themeHistoryLength) cd.themeHistory.pop();
-		if (!PlayHistory[theme]) PlayHistory[theme] = 0;
-		PlayHistory[theme]++;
-		this.replyPM(`Added ${theme} to the play history.`);
+		this.replyPM(`Added ${target} to the play history.`);
 		return;
 	},
 	t: function (target, room) {
@@ -300,37 +208,6 @@ const commands = {
 		/** @type {MafiaCooldown} */
 		const cd = room.mafiaCooldown;
 		this.reply(this.strong(`Themes on cooldown: ${cd.themeHistory.join(', ')}`));
-	},
-	addtheme: function (target) {
-		if (!this.can('games')) return false;
-		target = toId(target);
-		if (!target) return;
-		if (Themes[target]) return this.reply(`Already exists`);
-		addTheme(target);
-		this.reply(`Done`);
-	},
-	removetheme: function (target) {
-		if (!this.can('editroom')) return false;
-		target = toId(target);
-		if (!target) return;
-		delete Themes[target];
-		this.reply(`Done. remember to remove any pointing aliases`);
-		writeFile(THEMES_FILE, Themes);
-	},
-	addalias: function (target) {
-		if (!this.can('games')) return false;
-		const args = target.split(',').map(toId);
-		if (args.length !== 2) return this.reply(`Invalid syntax`);
-		if (addAlias(args[0], args[1])) return this.reply('Done');
-		this.reply(`Target is not a theme - make sure it's not pointing at an existing alias`);
-	},
-	playcounts: function (target) {
-		if (!this.can('games')) return;
-		const themes = `<details><summary>Theme playcounts: </summary>` +
-		Object.entries(PlayHistory).sort((a, b) => a[1] - b[1]).map(([k, v]) => `${k}: ${v}`).join('<br />') +
-		`</details>`;
-		if (this.room) return this.reply(`/addhtmlbox ${themes}`);
-		this.replyHTMLPM(themes);
 	},
 };
 module.exports = {
