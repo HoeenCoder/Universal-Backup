@@ -196,12 +196,11 @@ const commands = {
 		/** @type {MafiaCooldown} */
 		const cd = room.mafiaCooldown;
 		if (!this.can('games') && toId(cd.curHost) !== toId(user)) return;
-		target = target.replace(/[^A-Za-z\s+&]/g, '');
+		target = target.replace(/[^A-Za-z0-9\s+&]/g, '');
 		if (!target) return;
 		cd.themeHistory.unshift(target);
 		if (cd.themeHistory.length > cd.themeHistoryLength) cd.themeHistory.pop();
 		this.replyPM(`Added ${target} to the play history.`);
-		return;
 	},
 	t: function (target, room) {
 		if (!room || !room.mafiaCooldown) return;
