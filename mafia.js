@@ -8,7 +8,6 @@ Mafia.data = require('./mafia-data');
 
 /** @typedef {(event: string, roomid: string, details: string[], message: string) => (true | void)} MafiaEventCallback */
 
-
 /** @type {{[k: string]: {rooms: string[] | true, events: string[] | true, callback: MafiaEventCallback, repeat: number | true}}} */
 Mafia.listeners = {};
 
@@ -98,6 +97,8 @@ function parseHTML(messageType, roomid, parts) {
 
 	event = /^<div class="broadcast-blue">(.+) was kicked from the game!<\/div>$/.exec(message);
 	if (event) return emitEvent(roomid, 'kill', ['kick', event[1]], message);
+	event = /^<div class="broadcast-blue">(.+) was eliminated!\s?<\/div>$/.exec(message);
+	if (event) return emitEvent(roomid, 'kill', ['killnoreveal', event[1]], message);
 	event = /^<div class="broadcast-blue">(.+) has been treestumped!<\/div>$/.exec(message);
 	if (event) return emitEvent(roomid, 'kill', ['treestump', event[1]], message);
 	event = /^<div class="broadcast-blue">(.+) became a restless spirit!<\/div>$/.exec(message);
@@ -167,6 +168,8 @@ Chat.addListener("mafia-events-raw", true, ['raw'], true, parseRaw);
  * @property {boolean} [reveal]
  * @property {boolean} [nolynch]
  * @property {boolean | "hammer"} [selflynch]
+ * @property {number} [shifthammer]
+ * @property {number} [hammer]
  */
 
 class MafiaPlayer extends Rooms.RoomGamePlayer {
@@ -364,7 +367,7 @@ class MafiaTracker extends Rooms.RoomGame {
 	 * @param {object} game
 	 */
 	addGame(game) {
-		if (this.game) throw new Error('game already present');
+		if (this.game) return this.sendRoom('Game already exists.');
 		this.game = game;
 		this.data = game.data || {};
 		if (this.game.triggers.create) this.game.triggers.create.call(this);
@@ -393,7 +396,7 @@ class MafiaTracker extends Rooms.RoomGame {
 				this.sendRoom(`/mafia kill ${p}`);
 			}
 		}
-		if (options.add) this.sendRoom(`/mafia add ${options.add.join(',')}`);
+		if (options.add) this.sendRoom(`/mafia forceadd ${options.add.join(',')}`);
 		if (options.hasOwnProperty('selflynch')) {
 			if (options.selflynch === true) this.sendRoom(`/mafia enableself`);
 			if (options.selflynch === false) this.sendRoom(`/mafia disableself`);
@@ -402,6 +405,8 @@ class MafiaTracker extends Rooms.RoomGame {
 		if (options.hasOwnProperty('nolynch')) this.sendRoom(`/mafia ${options.nolynch ? 'enable' : 'disable'}nl`);
 		if (options.hasOwnProperty('reveal')) this.sendRoom(`/mafia reveal ${options.reveal ? 'on' : 'off'}`);
 		if (options.hasOwnProperty('deadline')) this.sendRoom(`/mafia dl ${options.deadline === false ? 'off' : options.deadline}`);
+		if (options.hasOwnProperty('shifthammer')) this.sendRoom(`/mafia shifthammer ${options.shifthammer}`);
+		if (options.hasOwnProperty('hammer')) this.sendRoom(`/mafia hammer ${options.hammer}`);
 	}
 }
 
