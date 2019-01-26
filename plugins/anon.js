@@ -346,6 +346,7 @@ class AnonController extends Rooms.RoomGame {
 			Mafia.removeMafiaListener(id);
 		}
 		if (this.logs.length) this.sendRoom(`!code ${this.logs.join('\n')}`);
+		super.destroy();
 	}
 
 	end() {
