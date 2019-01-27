@@ -314,6 +314,7 @@ class AnonController extends Rooms.RoomGame {
 		for (const member of memberids) {
 			this.slaves[member].partners = members;
 			this.slaves[member].sendOwners(`/wall You are in a scum group containing ${members.join(', ')}`);
+			this.slaves[member].sendOwners("To send a message to your scum group, prefix it with ``;``");
 		}
 		return `All adds successful`;
 	}

@@ -30,6 +30,7 @@ const ESun = {
 			this.sendRoom(`/mafia close\n/mafia setroles ${roleList}\n/mafia start`);
 			this.applyOption({reveal: false});
 
+			this.sendRoom("/wall To use your action, PM me ``.action <target>``");
 			this.data.used = {};
 			this.data.hasGun = '';
 			this.data.revived = '';
