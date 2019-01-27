@@ -243,7 +243,7 @@ function parse(roomid, messageType, parts) {
 function emitEvent(type, roomid, parts) {
 	for (const id in Chat.listeners) {
 		const listener = Chat.listeners[id];
-		if (listener.messagesTypes !== true && !listener.messageTypes.includes(type)) continue;
+		if (listener.messageTypes !== true && !listener.messageTypes.includes(type)) continue;
 		if (listener.rooms !== true && !listener.rooms.includes(roomid)) continue;
 		const result = listener.callback(type, roomid, parts);
 		// true decrememnts the count and continues, null drops the message, false continues as if nothing happened

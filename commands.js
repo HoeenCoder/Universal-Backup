@@ -31,7 +31,8 @@ const commands = {
 		if (!this.can('eval')) return;
 		Chat.uncacheDirectory('./plugins');
 		Chat.uncacheFile('./commands.js');
-		Chat.uncacheFile('./mafia-tracker.js');
+		Chat.uncacheFile('./mafia.js');
+		Chat.uncacheFile('./mafia-data.js');
 
 		debug('HOTPATCHING');
 		try {
