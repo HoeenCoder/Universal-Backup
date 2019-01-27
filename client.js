@@ -27,7 +27,7 @@ class Client extends EventEmitter {
 		/** @type {any?} */ // not sure what this would be called
 		this.connection = null;
 		this.challstr = '';
-		/** @type {string[]} */
+		/** @type {(string | true)[]} */
 		this.sendQueue = [];
 		/** @type {NodeJS.Timer?} */
 		this.sendTimeout = null;
@@ -88,7 +88,8 @@ class Client extends EventEmitter {
 	}
 
 	/**
-	 * @param {string | string[]} data
+	 *
+	 * @param {string | string[] | true} data
 	 */
 	send(data) {
 		if (!(data && this.connection && this.connection.connected)) {
@@ -102,11 +103,11 @@ class Client extends EventEmitter {
 			this.sendQueue.push(data);
 			return;
 		}
-		this.connection.send(data);
+		if (data !== true) this.connection.send(data);
 		this.sendTimeout = setTimeout(() => {
 			this.sendTimeout = null;
 			const toSend = this.sendQueue.shift();
-			if (toSend) this.send(toSend);
+			if (toSend !== undefined) this.send(toSend);
 		}, 600);
 	}
 

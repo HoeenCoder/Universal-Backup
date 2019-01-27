@@ -124,29 +124,29 @@ const ESun = {
 				this.data.hasGun = true;
 				this.log(`Dropping gun off dead player`);
 			}
-			// always wait the full time so players cant find how many coros are left
-			setTimeout(() => {
-				if (player.role.includes('Janitor')) this.data.janitorsAlive--;
-				if (!this.data.janitorsAlive) this.sendRoom(message);
-	
-				let town = [];
-				let mafia = [];
-				let deadMafia = [];
-				for (const player of Object.values(this.players)) {
-					if (player.dead) {
-						if (player.role.includes('Mafia')) deadMafia.push(player.user);
-						continue;
-					}
-					if (player.role.includes('Mafia')) {
-						mafia.push(player.user);
-					} else {
-						town.push(player.user);
-					}
+			if (player.role.includes('Janitor')) this.data.janitorsAlive--;
+			if (!this.data.janitorsAlive) this.sendRoom(message);
+
+			let town = [];
+			let mafia = [];
+			let deadMafia = [];
+			for (const player of Object.values(this.players)) {
+				if (player.dead) {
+					if (player.role.includes('Mafia')) deadMafia.push(player.user);
+					continue;
 				}
-				if (mafia.length === 0) return this.destroy("All mafia are dead - Town wins!");
-				if (mafia.length === town.length) return this.destroy(`Mafia have 50% - ${[...mafia, ...deadMafia].join(', ')} wins!`);
-				this.applyOption({shifthammer: Math.floor(this.aliveCount / 2) + 1});	
-			}, 0.6 * coroCount);
+				if (player.role.includes('Mafia')) {
+					mafia.push(player.user);
+				} else {
+					town.push(player.user);
+				}
+			}
+			if (mafia.length === 0) return this.destroy("All mafia are dead - Town wins!");
+			if (mafia.length === town.length) return this.destroy(`Mafia have 50% - ${[...mafia, ...deadMafia].join(', ')} wins!`);
+
+			// wait so that players can't determine how many coros are left
+			Chat.wait(coroCount);
+			this.applyOption({shifthammer: Math.floor(this.aliveCount / 2) + 1});
 		},
 		revive: function () {
 			this.applyOption({shifthammer: Math.floor(this.aliveCount / 2) + 1});

@@ -25,7 +25,12 @@ Chat.sendPM = function (target, message) {
 	if (message.length > 300 && !['/', '!'].includes(message.charAt(0))) message = message.slice(0, 296) + '...';
 	Chat.client.send("|/pm " + target + "," + message);
 };
-
+/**
+ * @param {number} duration
+ */
+Chat.wait = function (duration) {
+	Chat.client.send((new Array(duration).fill(true)));
+};
 Chat.commands = {};
 Chat.listeners = {};
 
