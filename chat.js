@@ -89,7 +89,7 @@ Chat.uncacheFile = function (file) {
  * @param {string[]} parts
  */
 function parse(roomid, messageType, parts) {
-	if (roomid.startsWith('view-')) return parseChatPage(roomid, messageType, parts);
+	if (roomid.startsWith('view-')) return parseChatPage(roomid, parts);
 	let normalisedType = messageType;
 	const room = Rooms(roomid);
 	switch (messageType) {
