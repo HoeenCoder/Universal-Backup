@@ -73,7 +73,7 @@ const ESun = {
 
 			if (this.data.used[action]) return `You have already used your action${action.includes('OS') ? '' : ' today'}.`;
 			this.data.used[action] = true;
-			if (action !== 'gun' && this.data.revived === player.user) return "You were revived and lost your action.";
+			if (action !== 'gun' && action !== 'Mafia' && this.data.revived === player.user) return "You were revived and lost your action.";
 
 			if (action.includes('Mafia')) {
 				this.applyOption({kill: [targetPlayer.user], deadline: 5});
