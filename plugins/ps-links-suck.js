@@ -4,7 +4,7 @@
 // mafiascum loves ending their themenames with links
 const https = require('https');
 
-const MAFISCUM_REGEX = /((?:https?:\/\/)?wiki\.mafiascum\.net\/index\.php\?title=.*\S)/i;
+const MAFISCUM_REGEX = /((?:https?:\/\/)?wiki\.mafiascum\.net\/index\.php\?title=.*[^\sA-Za-z])/i;
 
 let cooldownTime = 10 * 1000;
 
