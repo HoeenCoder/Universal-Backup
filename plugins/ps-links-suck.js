@@ -5,7 +5,7 @@
 const https = require('https');
 const cheerio = require('cheerio');
 
-const MAFISCUM_REGEX = /(?:\b|(?!\w))((?:https?:\/\/)?wiki\.mafiascum\.net\/index\.php\?title=.*[^\sa-z])(?:\b|\B(?!\w))/i;
+const MAFIASCUM_REGEX = /(?:^|\s)((?:https?:\/\/)?wiki\.mafiascum\.net\/index\.php\?title=.*[^\sa-z])(?:$|\s)/i;
 
 let cooldownTime = 10 * 1000;
 
@@ -49,7 +49,7 @@ async function getLink(url) {
 					title = $('title')[0].children[0].data;
 				} catch (e) {}
 				if (!title) title = url;
-				if (title === 'Bad Title - MafiaWiki') {
+				if (title === 'Bad title - MafiaWiki') {
 					setupCache[url] = false;
 					return resolve(false);
 				}
@@ -70,12 +70,12 @@ async function getLink(url) {
  * @param {string[]} parts
  */
 function parseChat(type, roomid, parts) {
-	const message = parts.join('|');
+	const message = parts.slice(1).join('|');
 	if (message.includes('[[') && message.includes(']]')) return; // probably already has a link;
-	const match = message.match(MAFISCUM_REGEX);
+	const match = MAFIASCUM_REGEX.exec(message);
 	if (match) {
-		if (!toBroadcast(match[0])) return;
-		getLink(match[0]).then(result => {
+		if (!toBroadcast(match[1])) return;
+		getLink(match[1]).then(result => {
 			if (result) {
 				Chat.sendMessage(roomid, result);
 			}
