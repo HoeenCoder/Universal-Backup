@@ -27,6 +27,9 @@ const commands = {
 	git: function () {
 		this.replyPM(`https://github.com/HoeenCoder/Universal-Backup/`);
 	},
+	help: function () {
+		this.replyPM(`https://github.com/HoeenCoder/Universal-Backup/blob/master/docs.md`);
+	},
 	hotpatch: function (target) {
 		if (!this.can('eval')) return;
 		Chat.uncacheDirectory('./plugins');

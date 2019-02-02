@@ -1,7 +1,7 @@
 "use strict";
 
 // PS formatter doesn't include trailing punctuation on links
-// mafiascum loves ending their themenames with links
+// mafiascum loves ending their themenames with punctuation
 const https = require('https');
 const cheerio = require('cheerio');
 
