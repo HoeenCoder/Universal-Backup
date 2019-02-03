@@ -48,7 +48,7 @@ const AitC = {
 			if (this.phase === 'signups') return;
 			if (!role) return this.sendRoom(`Panic! - no role found`);
 			if (role === "Goo Assassin") {
-				this.destroy(`Assassin is dead - Royalty wins`);
+				this.destroy();
 			} else {
 				this.applyOption({phase: "day"});
 			}

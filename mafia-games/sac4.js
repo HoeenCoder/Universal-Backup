@@ -10,6 +10,8 @@ const Sacrifice4 = {
 			if (this.aliveCount > 4) {
 				this.sendRoom(`Too many players - aborting`);
 				this.removeGame();
+			} else if (this.aliveCount === 4) {
+				this.game.triggers.events.join.call(this);
 			}
 			this.log(`created with playercount ${this.aliveCount}`);
 		},
@@ -29,14 +31,7 @@ const Sacrifice4 = {
 			}
 		},
 		add: function () {
-			this.log(`joined`);
-			if (this.aliveCount === 4) {
-				this.sendRoom(`/mafia close\n/mafia setroles sacrifice\n/mafia start`);
-				this.applyOption({nolynch: false, selflynch: "hammer"});
-				this.sendRoom(`The game of sacrifice is starting!`);
-				this.data.confirmedTown = '';
-				this.data.deadMafia = false;
-			}
+			this.game.triggers.events.join.call(this);
 		},
 		kill: function (type, user, role) {
 			const userid = toId(user);

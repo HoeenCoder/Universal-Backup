@@ -34,7 +34,7 @@ async function getLink(url) {
 	return new Promise((resolve, reject) => {
 		if (url in setupCache) return resolve(setupCache[url]);
 		const req = https.get(url, (res) => {
-			if (res.statusCode === 404) {
+			if (res.statusCode !== 200) {
 				setupCache[url] = false;
 				return resolve(false);
 			}
@@ -49,10 +49,6 @@ async function getLink(url) {
 					title = $('title')[0].children[0].data;
 				} catch (e) {}
 				if (!title) title = url;
-				if (title === 'Bad title - MafiaWiki') {
-					setupCache[url] = false;
-					return resolve(false);
-				}
 				setupCache[url] = `[[${title} <${decodeURI(url)}>]]`;
 				return resolve(setupCache[url]);
 			});
