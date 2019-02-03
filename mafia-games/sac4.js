@@ -11,7 +11,7 @@ const Sacrifice4 = {
 				this.sendRoom(`Too many players - aborting`);
 				this.removeGame();
 			} else if (this.aliveCount === 4) {
-				this.game.triggers.join.call(this);
+				this.game.events.join.call(this);
 			}
 			this.log(`created with playercount ${this.aliveCount}`);
 		},
@@ -31,7 +31,7 @@ const Sacrifice4 = {
 			}
 		},
 		add: function () {
-			this.game.triggers.join.call(this);
+			this.game.events.join.call(this);
 		},
 		kill: function (type, user, role) {
 			const userid = toId(user);
