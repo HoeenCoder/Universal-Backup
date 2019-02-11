@@ -9,7 +9,7 @@ const AitC = {
 		start: function () {
 			if (this.aliveCount < 4) return this.sendRoom(`Not enough players`);
 			const roleList = ["King", "Goo Assassin", ...Array(this.aliveCount - 2).fill("Guard")];
-			this.sendRoom(`/mafia close\n/mafia setroles ${roleList.join(',')}\n/mafia start`);
+			this.sendRoom(`/mafia start ${roleList.join(',')}`);
 			this.applyOption({phase: "night", nolynch: false});
 			this.sendRoom(`The game of AitC is starting. Assassin, bold \`\`SHOOT <player>\`\` to shoot. The day will start once king PMs have been sent.`);
 		},

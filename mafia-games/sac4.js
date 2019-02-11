@@ -23,7 +23,7 @@ const Sacrifice4 = {
 		join: function () {
 			this.log(`joined`);
 			if (this.aliveCount === 4) {
-				this.sendRoom(`/mafia close\n/mafia setroles sacrifice\n/mafia start`);
+				this.sendRoom(`/mafia start sacrifice`);
 				this.applyOption({nolynch: false, selflynch: "hammer"});
 				this.sendRoom(`The game of sacrifice is starting!`);
 				this.data.confirmedTown = '';

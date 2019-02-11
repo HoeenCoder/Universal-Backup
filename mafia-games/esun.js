@@ -1,33 +1,11 @@
 "use strict";
 
-/** @type {{[k: number]: string}} */
-const ESUN_ROLELIST = {
-	5: 'Mafia Compulsive Janitor, OS Gunsmith, VT, VT, VT',
-	6: 'Mafia Compulsive Janitor, Mafia, OS Gunsmith, OS Reviver, VT, VT',
-	7: 'Mafia Compulsive Janitor, Mafia Coroner, Coroner, OS Gunsmith, VT, VT, VT',
-	8: 'Mafia Compulsive Janitor, Mafia Coroner, Coroner, OS Gunsmith, VT, VT, VT, VT',
-	9: 'Mafia Compulsive Janitor, Mafia Coroner, Coroner, OS Gunsmith, VT, VT, VT, VT, VT',
-	10: 'Mafia Compulsive Janitor, Mafia Coroner, Mafia, Coroner, One-Shot Gunsmith, One-Shot Reviver, VT, VT, VT, VT',
-	11: 'Mafia Compulsive Janitor, Mafia Coroner, Mafia, Coroner, One-Shot Gunsmith, One-Shot Reviver, VT, VT, VT, VT, VT',
-	12: 'Mafia Compulsive Janitor, Mafia Coroner, Mafia, Coroner, One-Shot Gunsmith, One-Shot Reviver, VT, VT, VT, VT, VT, VT',
-	13: 'Mafia Compulsive Janitor, Mafia Coroner, Mafia, Mafia, Coroner, Coroner, Gunsmith, One-Shot Reviver, VT, VT, VT, VT, VT',
-	14: 'Mafia Compulsive Janitor, Mafia Coroner, Mafia, Mafia, Coroner, Coroner, Gunsmith, One-Shot Reviver, VT, VT, VT, VT, VT, VT',
-	15: 'Mafia Compulsive Janitor, Mafia Coroner, Mafia Coroner, Mafia, Coroner, Coroner, Gunsmith, One-Shot Reviver, VT, VT, VT, VT, VT, VT, VT',
-	16: 'Mafia Compulsive Janitor, Mafia Coroner, Mafia Coroner, Mafia, Coroner, Coroner, Gunsmith, One-Shot Reviver, VT, VT, VT, VT, VT, VT, VT, VT',
-	17: 'Mafia Compulsive Janitor, Mafia Coroner, Mafia Coroner, Mafia, Mafia, Coroner, Coroner, Coroner, Gunsmith, One-Shot Reviver, VT, VT, VT, VT, VT, VT, VT',
-	18: 'Mafia Compulsive Janitor, Mafia Coroner, Mafia Coroner, Mafia, Mafia, Coroner, Coroner, Coroner, Gunsmith, One-Shot Reviver, VT, VT, VT, VT, VT, VT, VT, VT',
-	19: 'Mafia Compulsive Janitor, Mafia Coroner, Mafia Coroner, Mafia, Mafia, Coroner, Coroner, Coroner, Gunsmith, One-Shot Reviver, VT, VT, VT, VT, VT, VT, VT, VT, VT',
-	20: 'Mafia Compulsive Janitor, Mafia Coroner, Mafia Coroner, Mafia, Mafia, Coroner, Coroner, Coroner, Gunsmith, One-Shot Reviver, VT, VT, VT, VT, VT, VT, VT, VT, VT, VT',
-};
-
 /** @type {{[k: string]: MafiaTriggers}} */
 const ESun = {
 	triggers: {
 		start: function () {
 			if (this.aliveCount < 5) return this.sendRoom('Not enough players.');
-			const roleList = ESUN_ROLELIST[this.aliveCount];
-			if (!roleList) return this.sendRoom(`No rolelist found for playercount ${this.aliveCount}`);
-			this.sendRoom(`/mafia close\n/mafia setroles ${roleList}\n/mafia start`);
+			this.sendRoom(`/mafia start eternal sun`);
 			this.applyOption({reveal: false});
 
 			this.sendRoom("/wall To use your action, PM me ``.action <target>``");
@@ -94,7 +72,8 @@ const ESun = {
 	},
 	events: {
 		day: function () {
-			this.applyOption({deadline: 6});
+			const dl = Math.ceil(this.aliveCount / 3) * 2;
+			this.applyOption({deadline: Math.max(dl, 6)});
 		},
 		plur: function (user) {
 			this.sendRoom(`${user} was lynched to plurality!`);
