@@ -16,9 +16,20 @@ function writeLeavers() {
 	fs.writeFileSync(LEAVER_FILE, JSON.stringify(Leavers));
 }
 
+const REMINDER_MESSAGE = "/wall " +
+						 "Don't PM any user who you don't completely know and trust about your role, role information, or the game, for any reason. " +
+						 "Be wary of users pretending to be other users. " +
+						 "Giving out information can get you banned.";
+
 let official = false;
 
 const mafiaListeners = {
+	"leaver-start": {
+		rooms: ['mafia'],
+		events: ['gamestart'],
+		repeat: true,
+		callback: onStart,
+	},
 	"leaver-sub": {
 		rooms: ['mafia'],
 		events: ['sub'],
@@ -41,6 +52,14 @@ const listeners = {
 		callback: parseChat,
 	},
 };
+
+/**
+ * @param {string} event
+ * @param {string} roomid
+ */
+function onStart(event, roomid) {
+	if (official) Chat.sendMessage(roomid, REMINDER_MESSAGE);
+}
 
 /**
  * @param {string} event
@@ -93,7 +112,8 @@ function onEnd(event, room, details) {
  * @param {string[]} details
  */
 function parseChat(event, roomid, details) {
-	if (details[1].toLowerCase().startsWith('/announce official')) {
+	const message = details[1].toLowerCase();
+	if (message.startsWith('/announce official') || message.startsWith('/announce fish')) {
 		if (!official) Chat.sendPM(details[0], `Marked the current game as an official. Use ${Config.commandTokens[0]}notofficial to remove.`);
 		official = true;
 	}
