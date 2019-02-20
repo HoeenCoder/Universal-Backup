@@ -5,7 +5,7 @@
 const https = require('https');
 const cheerio = require('cheerio');
 
-const MAFIASCUM_REGEX = /(?:^|\s)((?:https?:\/\/)?wiki\.mafiascum\.net\/index\.php\?title=.*[^\sa-z])(?:$|\s)/i;
+const MAFIASCUM_REGEX = /(?:^|\s)((?:https?:\/\/)?wiki\.mafiascum\.net\/index\.php\?title=.*[^\sa-z\d])(?:$|\s)/i;
 
 let cooldownTime = 10 * 1000;
 
