@@ -101,8 +101,8 @@ class AnonSlave extends Chat.Slaves.SlaveClient {
 				case SCUMCHAT_CHAR:
 					if (this.partners.length) {
 						for (const p of this.partners) {
-							if (p === this.userid) continue;
-							this.client.send(pm(p, message));
+							if (p === this.userid || this.room.mafiaTracker.players[p].dead) continue;
+							this.client.send(pm(p, `(${senderid})${message}`));
 						}
 						for (const p of this.owners) {
 							if (p === senderid) continue;
