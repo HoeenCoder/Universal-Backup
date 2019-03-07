@@ -100,12 +100,14 @@ class AnonSlave extends Chat.Slaves.SlaveClient {
 					break;
 				case SCUMCHAT_CHAR:
 					if (this.partners.length) {
+						const room = Rooms(this.room);
+						const players = room && room.mafiaTracker && room.mafiaTracker.players;
 						for (const p of this.partners) {
-							if (p === this.userid) continue;
+							if (p === this.userid || !players || !players[p] || players[p].dead) continue;
 							this.client.send(pm(p, message));
 						}
 						for (const p of this.owners) {
-							if (p === senderid) continue;
+							if (p === senderid || !players || !players[p] || players[p].dead) continue;
 							this.client.send(pm(p, "(to partner)" + message));
 						}
 					} else {
@@ -142,7 +144,7 @@ class AnonSlave extends Chat.Slaves.SlaveClient {
 					this.client.send(sendRoom(this.room, sanitise(message)));
 				}
 			} else if (this.partners.includes(senderid)) {
-				this.sendOwners(message);
+				this.sendOwners(`(${parts[0].replace('(Anon)', '').trim()}) ${message}`);
 			} else if (senderid === this.host) {
 				this.sendOwners(`/wall ${message}`);
 			}
