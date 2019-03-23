@@ -41,9 +41,10 @@ class AnonSlave extends Chat.Slaves.SlaveClient {
 	 * @param {string} roomid
 	 * @param {string[]} owners
 	 * @param {string} hostid
-	 * @param {string[]} logs
+	 * @param {string[]} log
+	 * @param {string[]} sketchyLog
 	 */
-	constructor(credentials, roomid, owners, hostid, logs) {
+	constructor(credentials, roomid, owners, hostid, log, sketchyLog) {
 		super(credentials, [roomid]);
 		this.owners = owners;
 		this.room = roomid;
@@ -55,7 +56,8 @@ class AnonSlave extends Chat.Slaves.SlaveClient {
 			this.sendOwners(`Hi!`);
 		});
 		// reference to a mutable array
-		this.logs = logs;
+		this.log = log;
+		this.sketchyLog = sketchyLog;
 	}
 
 	/**
@@ -92,7 +94,7 @@ class AnonSlave extends Chat.Slaves.SlaveClient {
 			}
 			if (message.match(/^\/[A-Za-z\d]/)) return; // /raw messages and the like
 			if (this.owners.includes(senderid)) {
-				this.logs.push(`${this.name} (${senderid}): ${message}`);
+				this.log.push(`${this.name} (${senderid}): ${message}`);
 				switch (message.charAt(0)) {
 				case HOST_CHAR:
 					this.client.send(pm(this.host, `(${senderid})${message}`));
@@ -141,7 +143,13 @@ class AnonSlave extends Chat.Slaves.SlaveClient {
 					this.client.send(sendRoom(this.room, `/mafia ${command} ${target}`));
 					break;
 				default:
-					this.client.send(sendRoom(this.room, sanitise(message)));
+					const safeMessage = Tools.sanitize(message);
+					if (!safeMessage) {
+						this.sketchyLog.push(`${this.name} (${senderid}): ${message}`);
+						this.log.pop();
+						return;
+					}
+					this.client.send(sendRoom(this.room, message));
 				}
 			} else if (this.partners.includes(senderid)) {
 				this.sendOwners(`(${parts[0].replace('(Anon)', '').trim()}) ${message}`);
@@ -167,13 +175,6 @@ function pm(user, message) {
 	return `|/pm ${user},${message}`;
 }
 
-/**
- * @param {string} message
- */
-function sanitise(message) {
-	return message.trim().replace(/\*+/g, '*').replace(/^[/!]+/, '');
-}
-
 class AnonController extends Rooms.RoomGame {
 	/**
 	 * @param {Room} room
@@ -185,7 +186,9 @@ class AnonController extends Rooms.RoomGame {
 		/** @type {{[k: string]: AnonSlave}} */
 		this.slaves = {};
 		/** @type {string[]} */
-		this.logs = [];
+		this.log = [];
+		/** @type {string[]} */
+		this.sketchyLog = [];
 		/** @type {string[]} */
 		this.listeners = [];
 		this.setupPlayers();
@@ -238,7 +241,7 @@ class AnonController extends Rooms.RoomGame {
 		}
 		const room = this.room || {};
 		// @ts-ignore
-		this.slaves[ownerids] = new AnonSlave(credentials, room.roomid || '', owners, (room.mafiaTracker && room.mafiaTracker.hostid) || '', this.logs);
+		this.slaves[ownerids] = new AnonSlave(credentials, room.roomid || '', owners, (room.mafiaTracker && room.mafiaTracker.hostid) || '', this.log, this.sketchyLog);
 		this.slaves[ownerids].client.on('login', () => {
 			this.onConnect(ownerids);
 		});
@@ -348,7 +351,10 @@ class AnonController extends Rooms.RoomGame {
 		for (const id of this.listeners) {
 			Mafia.removeMafiaListener(id);
 		}
-		if (this.logs.length) this.sendRoom(`!code ${this.logs.join('\n')}`);
+		if (this.log.length) this.sendRoom(`!code ${this.log.join('\n')}`);
+		if (this.sketchyLog.length) {
+			this.sendRoom(`/addrankhtmlbox, %, <b>Sketchy messages (only staff can see this):</b><br/>${this.sketchyLog.map(Tools.escapeHTML).join('<br/>')}`);
+		}
 		super.destroy();
 	}
 

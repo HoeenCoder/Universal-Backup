@@ -13,7 +13,7 @@ class Lighthouse extends Rooms.RoomGame {
 		/** @type {string[]} */
 		this.log = [];
 		/** @type {string[]} */
-		this.checkLog = []; // messages from users not ingame, messages trying to use commands
+		this.sketchyLog = []; // messages from users not ingame, messages trying to use commands
 		this.enabled = true;
 		// this object should get recreated after each game. it's not like iso
 		this.listenerId = Chat.addListener(`lighthouse-${room.roomid}`, true, ['pm'], true, (t, u, m) => this.onMessage(t, u, m));
@@ -30,23 +30,18 @@ class Lighthouse extends Rooms.RoomGame {
 
 		const log = `${user}: ${message}`;
 		const firstChar = message.charAt(0);
-		if (firstChar === '!' || firstChar === '/') {
-			debug(`Lighthouse attempted to use command: ${log}`);
-			this.checkLog.push(log);
-			return;
-		}
 		if (Config.commandTokens.includes(firstChar)) return;
 		if (!this.room.mafiaTracker.players[toId(user)] || this.room.mafiaTracker.players[toId(user)].dead) {
 			debug(`Lighthouse message from user not ingame: ${log}`);
-			this.checkLog.push(log);
+			this.sketchyLog.push(log);
 			return;
 		}
-		if (/\bmafiasignup\b/i.test(message)) {
-			debug(`Lighthouse tried to say HL word: ${log}`);
-			this.checkLog.push(log);
+		message = Tools.sanitize(message);
+		if (!message) {
+			debug(`Lighthouse message rejected by sanitizer: ${log}`);
+			this.sketchyLog.push(log);
 			return;
 		}
-		message = message.replace(/\*+/g, '*');
 		this.sendRoom(message);
 		this.log.push(log);
 	}
@@ -108,6 +103,9 @@ class Lighthouse extends Rooms.RoomGame {
 	end() {
 		this.sendRoom(`The lighthouse game has ended`);
 		this.sendRoom(`!code Logs:\n${this.log.join('\n')}`);
+		if (this.sketchyLog.length) {
+			this.sendRoom(`/addrankhtmlbox, %, <b>Sketchy messages (only staff can see this):</b><br/>${this.sketchyLog.map(Tools.escapeHTML).join('<br/>')}`);
+		}
 		Chat.removeListener(this.listenerId);
 		Mafia.removeMafiaListener(this.mafiaListenerId);
 		this.destroy();
@@ -168,7 +166,7 @@ exports.commands = {
 		const lighthouseRoom = [...Rooms.rooms.values()].find(r => r.game && r.game.gameid === 'lighthouse');
 		if (!lighthouseRoom) return;
 		if (!this.can('games', null, lighthouseRoom)) return;
-		this.replyHTMLPM(lighthouseRoom.game.log.join('<br/>') + '<br/>Blocked Messages<br/>' + lighthouseRoom.game.checkLog.join('<br/>'));
+		this.replyHTMLPM(lighthouseRoom.game.log.join('<br/>') + '<br/>Blocked Messages<br/>' + lighthouseRoom.game.sketchyLog.join('<br/>'));
 		lighthouseRoom.game.log.push(`${user} is looking at logs!`);
 	},
 };

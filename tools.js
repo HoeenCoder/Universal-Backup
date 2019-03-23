@@ -37,6 +37,16 @@ Tools.splitUser = function (user) {
 	return [user.charAt(0), user.slice(1)];
 };
 /**
+ * @param {string} message
+ */
+Tools.sanitize = function (message) {
+	const messageid = toId(message);
+	for (const phrase of Config.bannedWords) {
+		if (messageid.includes(phrase)) return false;
+	}
+	return message.trim().replace(/\*+/g, '*').replace(/^[/!]+/, '');
+};
+/**
  * @param {string} str
  */
 Tools.escapeHTML = function (str) {
