@@ -14,7 +14,7 @@ class Room {
 		/** @type {Map<string, string>} */
 		this.auth = new Map(); // userid->auth
 		// auth is strictly roomauth, gets updated on /roomauth and on (pro/de)mote messages
-		sendMessage(null, `/roomauth1 ${this.roomid}`); // need to use roomauth1 because it gives the roomname
+		sendMessage(null, `/cmd roominfo ${this.roomid}`); // need to use roomauth1 because it gives the roomname
 
 		/** @type {RoomGame | null}*/
 		this.game = null;

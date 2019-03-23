@@ -48,7 +48,7 @@ exports.MafiaCooldown = 60;
 exports.mafiaAutostart = 2;
 // Developers have access to everything, and are the only ones that can use eval
 exports.developers = ['jumbowhales', 'hoeenhero'];
-// Messages containing any of these words will be blocked by lighthouse/anon
+// Messages containing any of these words will be blocked by lighthouse/anon. Note that these all need to be IDs
 exports.bannedWords = ['mafiasignup'];
 
 // for the lb tracking

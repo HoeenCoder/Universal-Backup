@@ -9,7 +9,7 @@ class ISO {
 		this.room = roomid;
 
 		/** @type {string[][]} */
-		this.authors = [/* string[][] */]; // contains the authors for each index, system messages are ~. lines with multiple authors are from lynches
+		this.authors = []; // contains the authors for each index, system messages are ~. lines with multiple authors are from lynches
 		/** @type {string[]} */
 		this.log = []; // contains just the lines. lines should be able to be directly output
 		/** @type {string[]} */
@@ -241,6 +241,7 @@ const commands = {
 		const log = iso.htmllog;
 
 		args = [...args.map(toId), '~'];
+		/** @type {{[k: string]: number}} */
 		let foundNames = {};
 		let foundLog = [];
 		let countLine = 'System messages';

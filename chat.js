@@ -175,25 +175,6 @@ function parse(roomid, messageType, parts) {
 		break;
 	case 'popup':
 		let popup = parts.join('|');
-		const authRoom = /^To look up auth for a user, use \/userauth (.*)$/.exec(parts[parts.length - 1]);
-		if (authRoom) {
-			const roomid = authRoom[1];
-			const room = Rooms(roomid);
-			if (!room) return debug(`Recieved roomauth for invalid room: ${authRoom}`);
-			const lines = popup.split('||');
-			if (/(.*) room auth/.test(lines[0])) lines.splice(0, 2);
-			for (let i = 0; i < lines.length; i++) {
-				const line = lines[i];
-				const auth = /.* \((.)\)/.exec(line);
-				if (auth) {
-					const group = auth[1];
-					const users = lines[i + 1].split(',').map(toId);
-					for (const user of users) {
-						room.auth.set(user, group);
-					}
-				}
-			}
-		}
 		if (popup.includes('has banned you from the room')) {
 			const message = /<p>(.+) has banned you from the room ([^.]+)[.]<\/p><p>To appeal/.exec(popup);
 			if (!message) return;
@@ -215,17 +196,28 @@ function parse(roomid, messageType, parts) {
 	case 'customgroups': // might want to handle this
 		break; // not needed for the bot
 	case 'queryresponse':
-		if (parts[0] !== 'userdetails') break;
 		let details;
 		try {
 			details = JSON.parse(parts[1]);
 		} catch (e) {
-			console.error(`Error while parsing userdetails: ${e}\n`);
+			console.error(`Error while parsing queryresponse: ${e}\n`);
 			console.log(parts[1]);
 		}
-		if (details.userid === toId(Config.nick)) {
-			Chat.client.auth = details.group;
-			debug(`Setting self auth to "${details.group}"`);
+		if (!details) return;
+		if (parts[0] === 'userdetails') {
+			if (details.userid === toId(Config.nick)) {
+				Chat.client.auth = details.group;
+				debug(`Setting self auth to "${details.group}"`);
+			}
+		} else if (parts[0] === 'roominfo') {
+			details = details;
+			const room = Rooms(details.id || toId(details.title)); // this is a hack until ps starts sending roomid
+			if (!room) return false;
+			for (const [rank, users] of Object.entries(details.auth)) {
+				for (const user of users) {
+					room.auth.set(toId(user), rank);
+				}
+			}
 		}
 		break;
 	default:
