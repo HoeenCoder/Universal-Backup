@@ -1,5 +1,6 @@
 /config/*
 !/config/config-example.js
+/plugins/private.js
 /node_modules
 /eslint-cache
 .eslintcache
