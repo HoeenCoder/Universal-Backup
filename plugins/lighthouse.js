@@ -54,7 +54,7 @@ class Lighthouse extends Rooms.RoomGame {
 		let targetid = toId(target);
 		if (userid === targetid) return;
 		const players = this.room.mafiaTracker.players;
-		if (!players[userid] || (players[userid].dead && players[userid].spirit)) return;
+		if (!players[userid] || (players[userid].dead && !players[userid].spirit)) return;
 		if (!players[targetid] || players[targetid].dead) {
 			if (targetid === 'nolynch' || targetid === 'nl') {
 				targetid = 'No lynch';
