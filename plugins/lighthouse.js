@@ -18,7 +18,8 @@ class Lighthouse extends Rooms.RoomGame {
 		// this object should get recreated after each game. it's not like iso
 		this.listenerId = Chat.addListener(`lighthouse-${room.roomid}`, true, ['pm'], true, (t, u, m) => this.onMessage(t, u, m));
 		this.mafiaListenerId = Mafia.addMafiaListener(`lighthouse-${room.roomid}`, [room.roomid], ['gameend'], true, () => this.end());
-		this.sendRoom(`Darkness falls across the land...`);
+		this.sendRoom(`Darkness falls...`);
+		this.sendRoom(Chat.strong(this.room, "Players, PM me your messages to have them announced anonymously"));
 		if (!room.mafiaTracker || room.mafiaTracker.phase === 'ended') this.sendRoom(`Panic! - no mafia game running`);
 	}
 	onMessage(type, user, message) {
@@ -52,8 +53,9 @@ class Lighthouse extends Rooms.RoomGame {
 		const userid = toId(user);
 		let targetid = toId(target);
 		if (userid === targetid) return;
-		if (!this.room.mafiaTracker.players[userid]) return;
-		if (!this.room.mafiaTracker.players[targetid]) {
+		const players = this.room.mafiaTracker.players;
+		if (!players[userid] || (players[userid].dead && players[userid].spirit)) return;
+		if (!players[targetid] || players[targetid].dead) {
 			if (targetid === 'nolynch' || targetid === 'nl') {
 				targetid = 'No lynch';
 			} else {
@@ -66,11 +68,11 @@ class Lighthouse extends Rooms.RoomGame {
 		if (!this.lynches[targetid]) this.lynches[targetid] = [];
 		this.lynches[targetid].push(userid);
 		if (this.lynches[targetid].length >= Math.floor(this.room.mafiaTracker.aliveCount / 2) + 1) {
-			this.sendRoom(`**${targetid} was hammered!**`);
+			this.sendRoom(Chat.strong(this.room, `**${targetid} was hammered!**`));
 			this.stop();
 			return;
 		}
-		this.sendRoom(`**Someone lynched ${targetid}**`);
+		this.sendRoom(Chat.strong(this.room, `Someone lynched ${targetid}`));
 		this.log.push(`LYNCH: ${userid} -> ${target}`);
 		return;
 	}
@@ -91,13 +93,13 @@ class Lighthouse extends Rooms.RoomGame {
 
 	stop() {
 		this.enabled = false;
-		this.sendRoom(`Light returns, for now...`);
+		this.sendRoom(`Light returns...`);
 	}
 	resume() {
 		this.enabled = true;
 		this.lynches = {};
 		this.lynching = {};
-		this.sendRoom(`Darkness covers the land...`);
+		this.sendRoom(`Darkness falls...`);
 	}
 
 	end() {
