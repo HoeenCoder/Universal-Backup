@@ -210,7 +210,6 @@ function parse(roomid, messageType, parts) {
 				debug(`Setting self auth to "${details.group}"`);
 			}
 		} else if (parts[0] === 'roominfo') {
-			details = details;
 			const room = Rooms(details.id || toId(details.title)); // this is a hack until ps starts sending roomid
 			if (!room) return false;
 			for (const [rank, users] of Object.entries(details.auth)) {
