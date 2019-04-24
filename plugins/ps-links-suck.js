@@ -59,33 +59,16 @@ async function getLink(url) {
 	});
 }
 
-/**
- *
- * @param {string} type
- * @param {string} roomid
- * @param {string[]} parts
- */
-function parseChat(type, roomid, parts) {
-	const message = parts.slice(1).join('|');
+Chat.events.on('chat', (/** @type {Room} */room, /** @type {string[]} */details) => {
+	const message = details.slice(1).join('|');
 	if (message.includes('[[') && message.includes(']]')) return; // probably already has a link;
 	const match = MAFIASCUM_REGEX.exec(message);
 	if (match) {
 		if (!toBroadcast(match[1])) return;
 		getLink(match[1]).then(result => {
 			if (result) {
-				Chat.sendMessage(roomid, result);
+				room.send(result);
 			}
 		});
 	}
-}
-
-const listeners = {
-	"links-chat": {
-		rooms: true,
-		messageTypes: ['chat'],
-		callback: parseChat,
-		repeat: true,
-	},
-};
-
-exports.listeners = listeners;
+});

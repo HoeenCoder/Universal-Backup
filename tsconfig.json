@@ -16,6 +16,5 @@
 	},
 	"exclude": [
 		"config/config.js",
-		"plugins/lighthouse.js"
 	]
 }

@@ -107,61 +107,31 @@ class MafiaCooldown extends Rooms.RoomGame {
 	}
 }
 
-/**
- * @param {string} type
- * @param {string} roomid
- * @param {string[]} details
- * @param {string} message
- */
-function parseEvent(type, roomid, details, message = '') {
-	const room = Rooms(roomid);
-	if (!room) return;
-	/** @type {MafiaCooldown} */
-	const cooldown = room.mafiaCooldown;
-	if (!cooldown || !cooldown.enabled) return;
-	switch (type) {
-	case 'error':
-		if (details[0] === 'Nobody on the host queue could be hosted.' || details[0] === 'Nobody is on the host queue.') {
-			cooldown.onHostFail();
-		}
-		if (details[0].startsWith('There is already a game of')) {
-			cooldown.onHostFail(true);
-		}
-		break;
-	case 'host':
-		cooldown.onHost(details[0], details[1]);
-		break;
-	case 'setroles':
-		if (cooldown.curHost) Chat.sendPM(cooldown.curHost, `${cooldown.curHost}, please add your theme to the cooldown queue with \`\`${Config.commandTokens[0]}theme [theme]\`\`. Adding the wrong theme can result in a hostban.`);
-		break;
-	case 'subhost':
-		if (toId(cooldown.curHost) === details[1]) cooldown.curHost = details[0];
-		break;
-	case 'gamestart':
-		cooldown.onStart();
-		break;
-	case 'gameend':
-		cooldown.onEnd();
-		break;
+Chat.events.on('error', (/** @type {Room} */room, /** @type {string[]} */details) => {
+	if (!room.mafiaCooldown) return;
+	if (details[0] === 'Nobody on the host queue could be hosted.' || details[0] === 'Nobody is on the host queue.') {
+		room.mafiaCooldown.onHostFail();
 	}
-}
-
-const listeners = {
-	"mafia-cooldown": {
-		rooms: true,
-		messageTypes: ['error'],
-		repeat: true,
-		callback: parseEvent,
-	},
-};
-const mafiaListeners = {
-	"mafia-cooldown": {
-		rooms: true,
-		events: ['host', 'setroles', 'gamestart', 'gameend', 'subhost'],
-		repeat: true,
-		callback: parseEvent,
-	},
-};
+	if (details[0].startsWith('There is already a game of')) {
+		room.mafiaCooldown.onHostFail(true);
+	}
+});
+Mafia.events.on('host', (/** @type {MafiaTracker} */tracker, /** @type {string[]} */details) => {
+	if (tracker.room.mafiaCooldown) tracker.room.mafiaCooldown.onHost(details[0], details[1]);
+});
+Mafia.events.on('setroles', (/** @type {MafiaTracker} */tracker, /** @type {string[]} */details) => {
+	const cd = tracker.room.mafiaCooldown;
+	if (cd && cd.curHost) { Chat.sendPM(cd.curHost, `${cd.curHost}, please add your theme to the cooldown queue with \`\`${Config.commandTokens[0]}theme [theme]\`\`. Adding the wrong theme can result in a hostban.`); }
+});
+Mafia.events.on('subhost', (/** @type {MafiaTracker} */tracker, /** @type {string[]} */details) => {
+	if (tracker.room.mafiaCooldown) tracker.room.mafiaCooldown.curHost = details[0];
+});
+Mafia.events.on('gamestart', (/** @type {MafiaTracker} */tracker, /** @type {string[]} */details) => {
+	if (tracker.room.mafiaCooldown) tracker.room.mafiaCooldown.onStart();
+});
+Mafia.events.on('gameend', (/** @type {MafiaTracker} */tracker, /** @type {string[]} */details) => {
+	if (tracker.room.mafiaCooldown) tracker.room.mafiaCooldown.onEnd();
+});
 
 /** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
 /** @typedef {{[k: string]: string | ChatCommand}} ChatCommands */
@@ -209,8 +179,4 @@ const commands = {
 		this.reply(this.strong(`Themes on cooldown: ${cd.themeHistory.join(', ')}`));
 	},
 };
-module.exports = {
-	commands,
-	listeners,
-	mafiaListeners,
-};
+exports.commands = commands;

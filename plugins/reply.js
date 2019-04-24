@@ -8,6 +8,16 @@
 const fs = require('fs');
 const REPLY_FILE = './config/replies.json';
 
+const CODE_REGEX = new RegExp(
+	'<div class="infobox"><div class="chat">' +
+	'<code style="white-space: pre-wrap; display: table; tab-size: 3">(.+)<\\/code><\\/div>'
+);
+const CODE_ML_REGEX = new RegExp(
+	'<div class="infobox"><div class="chat"><details class="readmore code" style="white-space: pre-wrap; display: table; tab-size: 3">' +
+	'<summary>(.+)<\\/summary>' +
+	'(.+)<\\/details><\\/div><\\/div>'
+);
+
 // caching this cause it's probably expensive
 let ranks = Object.keys(Config.groups);
 
@@ -22,42 +32,17 @@ function writeReplies() {
 	fs.writeFileSync(REPLY_FILE, JSON.stringify(Replies));
 }
 
-let awaitingCode = {roomid: '', name: '', rank: ''};
-/**
- * @param {string} type
- * @param {string} roomid
- * @param {string[]} parts
- */
-function parseCode(type, roomid, parts) {
-	if (awaitingCode.roomid !== roomid) return;
-	const message = parts.join('|');
-	if (message.startsWith('<div class="infobox"><details><summary>See code...</summary><div class="chat"><code style="white-space: pre-wrap; display: table">') ||
-        message.startsWith('<div class="infobox"><div class="chat"><code style="white-space: pre-wrap; display: table">')) {
-		const code = message.slice(130, -29).replace(/<br \/>/g, '\n');
-		Replies[awaitingCode.name] = {rank: awaitingCode.rank, reply: code};
-		writeReplies();
-		Chat.sendMessage(roomid, `Added reply for name ${awaitingCode.name}`);
-		awaitingCode = {roomid: '', name: '', rank: ''};
-	}
-}
-/**
- * @param {string} type
- * @param {string} roomid
- * @param {string[]} parts
- */
-function parseChat(type, roomid, parts) {
-	const message = parts.slice(1).join('|');
-	if (Config.commandTokens.includes(message.charAt(0))) {
-		const cmd = toId(message.substr(0, message.indexOf(' ') + 1 || undefined));
-		const custom = Replies[cmd];
-		if (custom) {
-			const rank = parts[0].charAt(0);
-			if (ranks.indexOf(rank) <= ranks.indexOf(custom.rank) || Config.developers.includes(toId(parts[0]))) {
-				Chat.sendMessage(roomid, custom.reply);
-			}
+Chat.events.on('command', (/** @type {Room} */room, /** @type {string[]} */details) => {
+	const user = details[0];
+	const cmd = details[1];
+	const custom = Replies[cmd];
+	if (custom) {
+		const rank = user.charAt(0);
+		if (ranks.indexOf(rank) <= ranks.indexOf(custom.rank) || Config.developers.includes(toId(user))) {
+			room.send(custom.reply);
 		}
 	}
-}
+});
 
 const CODE_STRING = '!';
 
@@ -74,10 +59,26 @@ const commands = {
 		name = toId(name);
 		rank = rank.trim();
 		if (!rank || rank.length !== 1) return this.replyPM('Invalid rank.');
-		if (Replies[name]) return this.replyPM('A command with this name already exists');
+		if (Replies[name] || Chat.commands[name]) return this.replyPM('A command with this name already exists');
 		if (text.join(',') === CODE_STRING) {
 			if (!room) return this.replyPM(`You need to be in a room for this...`);
-			awaitingCode = {roomid: room.roomid, name, rank};
+
+			Chat.events.on('html', (/**@type {Room} */codeRoom, /**@type {string[]} */details) => {
+				if (codeRoom !== room) return false;
+				const message = details.join('|');
+				let res;
+				if ((res = message.match(CODE_REGEX))) {
+					Replies[name] = {rank, reply: res[1].replace(/<br \/>/g, '\n').trim()};
+				} else if ((res = message.match(CODE_ML_REGEX))) {
+					Replies[name] = {rank, reply: `${res[1].replace(/<br \/>/g, '\n')}\n${res[2].replace(/<br \/>/g, '\n')}`};
+				} else {
+					return false;
+				}
+				writeReplies();
+				this.reply(`Added command ${name}`);
+				return true;
+			}, true);
+
 			this.reply('Listening for the next !code');
 		} else {
 			Replies[name] = {rank, reply};
@@ -98,22 +99,5 @@ const commands = {
 		this.replyPM(Object.keys(Replies).join(', '));
 	},
 };
-const listeners = {
-	"customreply-code": {
-		rooms: true,
-		messageTypes: ['html'],
-		repeat: true,
-		callback: parseCode,
-	},
-	"customreply-chat": {
-		rooms: true,
-		messageTypes: ['chat'],
-		repeat: true,
-		callback: parseChat,
-	},
-};
 
-module.exports = {
-	commands,
-	listeners,
-};
+exports.commands = commands;

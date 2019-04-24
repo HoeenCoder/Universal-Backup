@@ -189,7 +189,7 @@ class AnonController extends Rooms.RoomGame {
 		this.log = [];
 		/** @type {string[]} */
 		this.sketchyLog = [];
-		/** @type {string[]} */
+		/** @type {object[]} */
 		this.listeners = [];
 		this.setupPlayers();
 
@@ -197,15 +197,12 @@ class AnonController extends Rooms.RoomGame {
 			this.sendRoom(`Panic! - no mafia game running`);
 		} else {
 			this.sendRoom(`/mafia forcecohost ${Config.nick}`);
-			this.listeners.push(Mafia.addMafiaListener(`anon-${this.room.roomid}-subhost`, [this.room.roomid], ['subhost'], true,
-				(/** @type {string} */p) => this.subhost(p[0])
-			));
-			this.listeners.push(Mafia.addMafiaListener(`anon-${this.room.roomid}-gameend`, [this.room.roomid], ['gameend'], true,
-				(/** @type {string} */p) => this.destroy()
-			));
-			this.listeners.push(Mafia.addMafiaListener(`anon-${this.room.roomid}-playerroles`, [this.room.roomid], ['playerroles'], true,
-				() => this.sendPlayerRoles()
-			));
+			this.room.mafiaTracker.addMafiaListener('subhost',
+				(/**@type {string[]}*/details) => this.subhost(details[0]));
+			this.room.mafiaTracker.addMafiaListener('gameend',
+				() => this.destroy());
+			this.room.mafiaTracker.addMafiaListener('playerroles',
+				() => this.sendPlayerRoles());
 			this.sendRoom(`!htmlbox ${INFO_MESSAGE}`);
 		}
 	}
@@ -348,9 +345,6 @@ class AnonController extends Rooms.RoomGame {
 			this.slaves[id].kill();
 		}
 		this.sendRoom(`Killed ${Object.keys(this.slaves).length}`);
-		for (const id of this.listeners) {
-			Mafia.removeMafiaListener(id);
-		}
 		if (this.log.length) this.sendRoom(`!code ${this.log.join('\n')}`);
 		if (this.sketchyLog.length) {
 			this.sendRoom(`/addrankhtmlbox, %, <b>Sketchy messages (only staff can see this):</b><br/>${this.sketchyLog.map(Tools.escapeHTML).join('<br/>')}`);

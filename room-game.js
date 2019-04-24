@@ -5,7 +5,7 @@ class RoomGame {
 	 * @param {Room} room
 	 */
 	constructor(room) {
-		/** @type {Room | null} */
+		/** @type {Room} */
 		this.room = room;
 		this.gameid = '';
 	}
@@ -21,7 +21,6 @@ class RoomGame {
 	destroy() {
 		if (!this.room) return;
 		this.room.game = null;
-		this.room = null;
 	}
 
 	/**

@@ -1,12 +1,16 @@
 'use strict';
 // i'm sorry, gods, but typescript doesn't allow breaking this line up
 // the type is called "MessageType", the only special thing is "chatpage"
-/** @typedef {'chatpage' | 'chat' | 'html' | 'raw' | 'join' | 'leave' | 'name' | 'uhtml' | 'pm' | 'init' | 'title' | 'pagehtml' | 'users' | 'deinit' | 'noinit' | 'popup' | 'error' | 'unlink' | 'notify' | 'formats' | 'tour' | 'updatesearch' | 'updatechallenges' | 'battle' | 'b' | 'usercount' | ':' | 'customgroups' | 'queryresponse'} MessageType */
+/** @typedef {'chatpage' | 'chat' | 'html' | 'raw' | 'join' | 'leave' | 'name' | 'pm' | 'init' | 'title' | 'pagehtml' | 'users' | 'deinit' | 'noinit' | 'popup' | 'error' | 'unlink' | 'notify' | 'formats' | 'tour' | 'updatesearch' | 'updatechallenges' | 'battle' | 'b' | 'usercount' | ':' | 'customgroups' | 'queryresponse'} MessageType */
 
 
 let Chat = module.exports;
+
 const fs = require('fs');
 const path = require('path');
+
+Chat.events = new Tools.Events();
+
 /**
  * @param {string | null} roomid
  * @param {string} message
@@ -31,8 +35,8 @@ Chat.sendPM = function (target, message) {
 Chat.wait = function (duration) {
 	Chat.client.send((new Array(duration).fill(true)));
 };
+/** @type {{[k: string]: function}} */
 Chat.commands = {};
-Chat.listeners = {};
 
 Chat.loadCommands = function () {
 	Chat.Commands = require('./commands.js').commands;
@@ -41,34 +45,8 @@ Chat.loadCommands = function () {
 		if (file.substr(-3) !== '.js') continue;
 		const plugin = require('./plugins/' + file);
 		Object.assign(Chat.Commands, plugin.commands);
-		Object.assign(Chat.listeners, plugin.listeners);
-		Object.assign(Mafia.listeners, plugin.mafiaListeners);
 	}
-	// Object.assign(Chat.Commands, Mafia.commands);
 	debug(`${Object.keys(Chat.Commands).length} commands/aliases loaded`);
-	debug(`${Object.keys(Chat.listeners).length} listeners loaded`);
-	debug(`${Object.keys(Mafia.listeners).length} mafia listeners loaded`);
-};
-
-/**
- * @param {string} id
- * @param {string[] | true} rooms
- * @param {MessageType[] | true} messageTypes
- * @param {function} callback
- * @param {number | true} repeat
- */
-Chat.addListener = function (id, rooms, messageTypes, repeat, callback) {
-	if (Chat.listeners[id]) debug(`Overwriting existing listener: '${id}'`);
-	Chat.listeners[id] = {rooms, messageTypes, callback, repeat};
-	return id;
-};
-/**
- * @param {string} id
- */
-Chat.removeListener = function (id) {
-	if (!Chat.listeners[id]) return false;
-	delete Chat.listeners[id];
-	return true;
 };
 
 /**
@@ -107,6 +85,8 @@ function parse(roomid, messageType, parts) {
 		normalisedType = 'chat';
 		break;
 	case 'raw':
+	case 'uhtml':
+	case 'uhtmlchange':
 	case 'html':
 		normalisedType = 'html';
 		break;
@@ -141,10 +121,6 @@ function parse(roomid, messageType, parts) {
 		normalisedType = 'name';
 		break;
 	}
-	case 'uhtml':
-	case 'uhtmlchange':
-		normalisedType = 'uhtml';
-		break;
 	case 'pm':
 		parsePM(parts[0], parts.slice(2).join('|'));
 		break;
@@ -210,7 +186,7 @@ function parse(roomid, messageType, parts) {
 				debug(`Setting self auth to "${details.group}"`);
 			}
 		} else if (parts[0] === 'roominfo') {
-			const room = Rooms(details.id || toId(details.title)); // this is a hack until ps starts sending roomid
+			const room = Rooms(details.id);
 			if (!room) return false;
 			for (const [rank, users] of Object.entries(details.auth)) {
 				for (const user of users) {
@@ -222,29 +198,7 @@ function parse(roomid, messageType, parts) {
 	default:
 		debug(`[parser.js.parse] Unhandled message: [${roomid}|${messageType}|${parts.join(',')}]`);
 	}
-	emitEvent(normalisedType, roomid, parts);
-}
-/**
- * I'm not type checking the message type because it's a massive pain, just try not to do anything stupid with it.
- * THE ONLY CUSTOM TYPE ALLOWED IS CHATPAGE
- * @param {string} type
- * @param {string} roomid
- * @param {string[]} parts
- */
-function emitEvent(type, roomid, parts) {
-	for (const id in Chat.listeners) {
-		const listener = Chat.listeners[id];
-		if (listener.messageTypes !== true && !listener.messageTypes.includes(type)) continue;
-		if (listener.rooms !== true && !listener.rooms.includes(roomid)) continue;
-		const result = listener.callback(type, roomid, parts);
-		// true decrememnts the count and continues, null drops the message, false continues as if nothing happened
-		if (result === true) {
-			if (listener.repeat !== true) listener.repeat--;
-			if (listener.repeat === 0) delete Chat.listeners[id];
-		} else if (result === null) {
-			return;
-		}
-	}
+	Chat.events.emit(normalisedType, room, parts);
 }
 
 /**
@@ -305,7 +259,7 @@ function parsePM(from, message) {
  */
 function parseChatPage(pageid, parts) {
 	debug(`Viewing chat page '${pageid}'`);
-	emitEvent('chatpage', pageid, parts);
+	Chat.events.emit('chatpage', pageid, parts);
 }
 /**
 * @param {Room?} room
@@ -358,7 +312,7 @@ class ChatParser {
 			if (typeof command !== 'undefined') {
 				debug(`[ChatParser#parse] Expected ${this.cmd} command to be a function, instead received ${typeof command}`);
 			} else {
-				emitEvent('command', room && room.roomid || '', target);
+				Chat.events.emit('command', room, [user, this.cmd, ...target]);
 			}
 			return;
 		}
@@ -450,4 +404,3 @@ Chat.client.on('page', parseChatPage);
 
 const Slaves = require('./slaves.js');
 Chat.Slaves = Slaves;
-

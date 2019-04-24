@@ -33,7 +33,7 @@ try {
 // Setup globals
 global.Tools = require('./tools.js');
 global.toId = Tools.toId;
-
+Config.nickid = toId(Config.nick);
 if (!toId(Config.nick)) {
 	console.log(`${Config.nick ? 'An invalid' : 'No'} nickname was provided, please edit the bot's username in config.js`);
 	process.exit(1);

@@ -1,13 +1,16 @@
 'use strict';
 
 class Lighthouse extends Rooms.RoomGame {
+	/**
+	 * @param {Room} room
+	 */
 	constructor(room) {
 		super(room);
 		this.gameid = 'lighthouse';
 
-		/** @type {{[k: string]: number}} */
-		this.lynches = {}; // player -> lynches
 		/** @type {{[k: string]: string[]}} */
+		this.lynches = {}; // player -> lynches
+		/** @type {{[k: string]: string}} */
 		this.lynching = {}; // player -> lynch
 		// stores the messages by user, goes public postgame
 		/** @type {string[]} */
@@ -15,28 +18,33 @@ class Lighthouse extends Rooms.RoomGame {
 		/** @type {string[]} */
 		this.sketchyLog = []; // messages from users not ingame, messages trying to use commands
 		this.enabled = true;
-		// this object should get recreated after each game. it's not like iso
-		this.listenerId = Chat.addListener(`lighthouse-${room.roomid}`, true, ['pm'], true, (t, u, m) => this.onMessage(t, u, m));
-		this.mafiaListenerId = Mafia.addMafiaListener(`lighthouse-${room.roomid}`, [room.roomid], ['gameend'], true, () => this.end());
+
 		this.sendRoom(`Darkness falls...`);
 		this.sendRoom(Chat.strong(this.room, "Players, PM me your messages to have them announced anonymously"));
-		if (!room.mafiaTracker || room.mafiaTracker.phase === 'ended') this.sendRoom(`Panic! - no mafia game running`);
+		if (!room.mafiaTracker || room.mafiaTracker.phase === 'ended') {
+			this.sendRoom(`Panic! - no mafia game running`);
+		} else {
+			room.mafiaTracker.chatListeners.push(
+				Chat.events.on('pm', (/** @type {any} */room, /** @type {string[]} */args) => this.onMessage(args))
+			);
+			room.mafiaTracker.addMafiaListener('gameend', () => this.end());
+		}
 	}
-	onMessage(type, user, message) {
+	/**
+	 * @param {string[]} details
+	 */
+	onMessage(details) {
 		if (!this.enabled) return;
 
-		user = toId(message[0]);
+		const user = toId(details[0]);
+		/** @type {string | false} */
+		let message = details.slice(2).join('|');
+		if (!this.room.mafiaTracker.players[user] || this.room.mafiaTracker.players[user].dead) return;
 		if (user === toId(Config.nick)) return;
-		message = message.slice(2).join('|').trim();
 
 		const log = `${user}: ${message}`;
 		const firstChar = message.charAt(0);
 		if (Config.commandTokens.includes(firstChar)) return;
-		if (!this.room.mafiaTracker.players[toId(user)] || this.room.mafiaTracker.players[toId(user)].dead) {
-			debug(`Lighthouse message from user not ingame: ${log}`);
-			this.sketchyLog.push(log);
-			return;
-		}
 		message = Tools.sanitize(message);
 		if (!message) {
 			debug(`Lighthouse message rejected by sanitizer: ${log}`);
@@ -47,6 +55,10 @@ class Lighthouse extends Rooms.RoomGame {
 		this.log.push(log);
 	}
 
+	/**
+	 * @param {string} user
+	 * @param {string} target
+	 */
 	lynch(user, target) {
 		if (!this.enabled) return;
 
@@ -77,6 +89,9 @@ class Lighthouse extends Rooms.RoomGame {
 		return;
 	}
 
+	/**
+	 * @param {string} user
+	 */
 	unlynch(user) {
 		if (!this.enabled) return;
 
@@ -103,18 +118,21 @@ class Lighthouse extends Rooms.RoomGame {
 	}
 
 	end() {
+		console.log('ENDING');
 		this.sendRoom(`The lighthouse game has ended`);
 		this.sendRoom(`!code Logs:\n${this.log.join('\n')}`);
 		if (this.sketchyLog.length) {
 			this.sendRoom(`/addrankhtmlbox, %, <b>Sketchy messages (only staff can see this):</b><br/>${this.sketchyLog.map(Tools.escapeHTML).join('<br/>')}`);
 		}
-		Chat.removeListener(this.listenerId);
-		Mafia.removeMafiaListener(this.mafiaListenerId);
 		this.destroy();
 	}
 }
 
-exports.commands = {
+/** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
+/** @typedef {{[k: string]: string | ChatCommand}} ChatCommands */
+
+/** @type {ChatCommands} */
+const commands = {
 	lighthouse: function (target, room, user) {
 		if (!room) return;
 		if (!this.can('games')) return false;
@@ -124,30 +142,30 @@ exports.commands = {
 	lhstop: function (target, room, user) {
 		if (!room) return;
 		if (!this.can('games')) return false;
-		if (!room.game || room.game.gameid !== 'lighthouse') return;
+		if (!room.game || !(room.game instanceof Lighthouse)) return;
 		room.game.stop();
 	},
 	lhresume: function (target, room, user) {
 		if (!room) return;
 		if (!this.can('games')) return false;
-		if (!room.game || room.game.gameid !== 'lighthouse') return;
+		if (!room.game || !(room.game instanceof Lighthouse)) return;
 		room.game.resume();
 	},
 	l: function (target, room, user) {
 		if (room) return;
-		const lighthouseRoom = [...Rooms.rooms.values()].find(r => r.game && r.game.gameid === 'lighthouse');
-		if (!lighthouseRoom) return;
+		const lighthouseRoom = [...Rooms.rooms.values()].find(r => !!(r.game && r.game instanceof Lighthouse));
+		if (!lighthouseRoom || !(lighthouseRoom.game instanceof Lighthouse)) return; // failsafe to make typescript happy
 		lighthouseRoom.game.lynch(user, target);
 	},
 	ul: function (target, room, user) {
 		if (room) return;
-		const lighthouseRoom = [...Rooms.rooms.values()].find(r => r.game && r.game.gameid === 'lighthouse');
-		if (!lighthouseRoom) return;
-		lighthouseRoom.game.unlynch(user, target);
+		const lighthouseRoom = [...Rooms.rooms.values()].find(r => !!(r.game && r.game instanceof Lighthouse));
+		if (!lighthouseRoom || !(lighthouseRoom.game instanceof Lighthouse)) return;
+		lighthouseRoom.game.unlynch(user);
 	},
 	modlynches: 'lynches',
 	lynches: function (target, room, user, cmd) {
-		if (!room || !room.game || room.game.gameid !== 'lighthouse') return;
+		if (!room || !room.game || !(room.game instanceof Lighthouse)) return;
 		if (!this.can('games')) return;
 
 		const m = cmd === 'modlynches';
@@ -165,10 +183,12 @@ exports.commands = {
 		}
 	},
 	logs: function (target, room, user) {
-		const lighthouseRoom = [...Rooms.rooms.values()].find(r => r.game && r.game.gameid === 'lighthouse');
-		if (!lighthouseRoom) return;
+		const lighthouseRoom = [...Rooms.rooms.values()].find(r => !!(r.game && r.game instanceof Lighthouse));
+		if (!lighthouseRoom || !(lighthouseRoom.game instanceof Lighthouse)) return;
 		if (!this.can('games', null, lighthouseRoom)) return;
 		this.replyHTMLPM(lighthouseRoom.game.log.join('<br/>') + '<br/>Blocked Messages<br/>' + lighthouseRoom.game.sketchyLog.join('<br/>'));
 		lighthouseRoom.game.log.push(`${user} is looking at logs!`);
 	},
 };
+
+exports.commands = commands;

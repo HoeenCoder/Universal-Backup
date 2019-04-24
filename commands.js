@@ -30,23 +30,6 @@ const commands = {
 	help: function () {
 		this.replyPM(`https://github.com/HoeenCoder/Universal-Backup/blob/master/docs.md`);
 	},
-	hotpatch: function (target) {
-		if (!this.can('eval')) return;
-		Chat.uncacheDirectory('./plugins');
-		Chat.uncacheFile('./commands.js');
-		Chat.uncacheFile('./mafia.js');
-		Chat.uncacheFile('./mafia-data.js');
-
-		debug('HOTPATCHING');
-		try {
-			Chat.listeners = {};
-			global.Mafia = require('./mafia');
-			Chat.loadCommands();
-		} catch (e) {
-			this.replyPM(e);
-		}
-		this.replyPM('done. remember to recreate cooldown/iso if they were modified');
-	},
 	update: function (target) {
 		if (!this.can('eval')) return;
 		let result = '';
@@ -63,5 +46,13 @@ const commands = {
 		this.reply(`Reloaded credentials. ${Chat.Slaves.CountCredentials()} accounts are available.`);
 	},
 };
+
+Chat.events.on('pm', (/**@type {any} */room, /** @type {string[]} */details) => {
+	if (Config.developers.includes(toId(details[0]))) {
+		if (details[2].startsWith('/invite ')) {
+			Chat.sendMessage(null, `/join ${details[2].slice(8)}`);
+		}
+	}
+});
 
 exports.commands = commands;

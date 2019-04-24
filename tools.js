@@ -5,6 +5,7 @@ const Tools = module.exports;
 const crypto = require('crypto');
 
 /**
+ * Taken from pokemon-showdown
  * @param {any} text
  * @return {string}
  */
@@ -17,6 +18,51 @@ Tools.toId = function (text) {
 	if (typeof text !== 'string' && typeof text !== 'number') return '';
 	return ('' + text).toLowerCase().replace(/[^a-z0-9]+/g, '');
 };
+
+/** @typedef {{event: string, once: boolean, callback: function}} EventHandler */
+
+class Emitter {
+	constructor() {
+		/** @type {{[k: string]: EventHandler[]}} */
+		this.events = {};
+	}
+	/**
+	 * @param {string} event
+	 * @param  {...any} params
+	 */
+	emit(event, ...params) {
+		const events = this.events[event];
+		if (!events || !events.length) return;
+		for (let idx = 0; idx < events.length; idx++) {
+			const res = events[idx].callback(...params);
+			if (events[idx].once && res) {
+				events.splice(idx, 1);
+				idx--;
+			}
+		}
+	}
+	/**
+	 * @param {string} event
+	 * @param {function} callback
+	 * @param {boolean} once
+	 */
+	on(event, callback, once = false) {
+		if (!this.events[event]) this.events[event] = [];
+		const eventHandler = {event, once, callback};
+		this.events[event].push(eventHandler);
+		return eventHandler;
+	}
+	/**
+	 * @param {EventHandler} handler
+	 */
+	remove(handler) {
+		const events = this.events[handler.event];
+		const index = events.findIndex(e => e === handler);
+		if (index < 0) return;
+		events.splice(index, 1);
+	}
+}
+Tools.Events = Emitter;
 
 /**
  * @param {any[]} arr
@@ -37,6 +83,7 @@ Tools.splitUser = function (user) {
 	return [user.charAt(0), ...user.slice(1).split('@')];
 };
 /**
+ * Taken from pokemon-showdown
  * @param {string} message
  */
 Tools.sanitize = function (message) {
@@ -47,6 +94,7 @@ Tools.sanitize = function (message) {
 	return message.trim().replace(/\*+/g, '*').replace(/^[/!]+/, '');
 };
 /**
+ * Taken from pokemon-showdown
  * @param {string} str
  */
 Tools.escapeHTML = function (str) {
@@ -54,6 +102,7 @@ Tools.escapeHTML = function (str) {
 	return ('' + str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;').replace(/\//g, '&#x2f;');
 };
 /**
+ * Adapted from pokemon-showdown
  * @param {string} str
  */
 Tools.unescapeHTML = function (str) {
@@ -61,6 +110,7 @@ Tools.unescapeHTML = function (str) {
 	return ('' + str).replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&#x2f;/g, '/');
 };
 /**
+ * Taken from pokemon-showdown
  * Strips HTML from a string.
  *
  * @param {string} html
@@ -71,8 +121,8 @@ Tools.stripHTML = function (html) {
 	return html.replace(/<[^>]*>/g, '');
 };
 /**
+ * Taken from pokemon-showdown
  * Visualizes eval output in a slightly more readable form
- * Borrowed from PS
  * @param {any} value
  */
 Tools.stringify = function (value, depth = 0) {
@@ -127,7 +177,7 @@ Tools.stringify = function (value, depth = 0) {
 };
 
 /**
- * From https://github.com/Zarel/Pokemon-Showdown/blob/master/chat.js#L1401
+ * Taken from pokemon-showdown
  * Takes a number of milliseconds and turns it into a string that specifies how long it is
  * @param {number} number
  * @param {{[key: string]: any}} options
@@ -153,6 +203,7 @@ Tools.toDurationString = function (number, options = {}) {
 };
 
 /**
+ * Taken from pokemon-showdown
  * @param {string} s - string 1
  * @param {string} t - string 2
  * @param {number} l - limit
@@ -206,7 +257,7 @@ Tools.levenshtein = function (s, t, l = 0) {
 	return d[n][m];
 };
 
-/* PS colours */
+/* PS colours, taken from pokemon-showdown */
 /** @type {{[k: string]: string}} */
 let CustomColors = {};
 try {

@@ -27,6 +27,9 @@ exports.reconnectTime = 5;
 exports.nick = '';
 exports.pass = '';
 
+// Set inside the bot
+exports.nickid = '';
+
 // Avatar number for the bot
 exports.avatar = 52;
 

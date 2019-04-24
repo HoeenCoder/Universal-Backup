@@ -205,6 +205,7 @@ class KuncTrivia extends Trivia {
 		const setup = question[~~(question.length * Math.random())];
 		this.currentQuestion = setup;
 
+		/** @type {{[k: string]: number}} */
 		let count = {};
 		let roles = [];
 		for (const role of setup.split(',').map((/** @type {string} */x) => x.trim())) {
@@ -255,7 +256,7 @@ class KuncTrivia extends Trivia {
 const commands = {
 	g: 'guess',
 	guess: function (target, room, user) {
-		if (!room || !room.game || room.game.id !== 'trivia') return;
+		if (!room || !room.game || room.game.gameid !== 'trivia') return;
 		const game = /** @type {Trivia} */ (room.game);
 		game.answer(user, target);
 	},
