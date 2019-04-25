@@ -1332,6 +1332,26 @@
 		"weight":"Light",
 		"ink":2
 	},
+	"permanentinkbrush": {
+		"id":"permanentinkbrush",
+		"name":"Permanent Inkbrush",
+		"class":"Roller",
+		"subClass":"Brush",
+		"sub":"Sprinkler",
+		"subId":"sprinkler",
+		"special":"Ink Armor",
+		"specialId":"inkarmor",
+		"points":180,
+		"unlocked":12,
+		"cost":8400,
+		"stats": {
+			"range":5,
+			"inkspeed":100,
+			"handling":100
+		},
+		"weight":"Light",
+		"ink":2
+	},
 	"octobrush":{
 		"id":"octobrush",
 		"name":"Octobrush",
