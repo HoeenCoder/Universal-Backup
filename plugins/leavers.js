@@ -64,10 +64,7 @@ Chat.events.on('chat', (/** @type {Room} */room, /** @type {string[]} */details)
 	}
 });
 
-/** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
-/** @typedef {{[k: string]: string | ChatCommand}} ChatCommands */
-
-/** @type {ChatCommands} */
+/** @type {import("../chat").ChatCommands} */
 const commands = {
 	leaver: 'unleaver',
 	unleaver: function (target, room, user, cmd) {

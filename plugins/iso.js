@@ -19,8 +19,10 @@ class ISO {
 			this.addChat(details.slice(1).join('|'), details[0]);
 		});
 		room.mafiaTracker.addMafiaListener('day', (/** @type {string[]} */details) => {
-			console.log(`DAY ${details[0]}`);
 			this.addHTML(`<span class="broadcast-blue">Day ${details[0]}</span>`, ['~']);
+		});
+		room.mafiaTracker.addMafiaListener('kill', (/** @type {string[]} */details, /** @type {string} */message) => {
+			this.addHTML(`<span class="broadcast-blue">${Tools.stripHTML(message)}</span`, [details[1]]);
 		});
 		room.mafiaTracker.addMafiaListener('lynch', (/** @type {string[]} */details, /** @type {string} */message) => {
 			const authors = [details[1]];
@@ -79,12 +81,10 @@ Mafia.events.on('gamestart', (/** @type {MafiaTracker} */tracker) => {
 	tracker.iso = new ISO(tracker.room);
 });
 
-/** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
-/** @typedef {{[k: string]: string | ChatCommand}} ChatCommands */
-
-/** @type {ChatCommands} */
+/** @type {import("../chat").ChatCommands} */
 const commands = {
 	i: function (target, room, user) {
+		if (room) return this.replyPM(`Please use this command in PMS :)`);
 		if (!Rooms.canPMInfobox(user)) return this.replyPM(`Can't PM you html, make sure you share a room in which I have the bot rank.`);
 
 		const userid = toId(user);

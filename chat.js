@@ -272,6 +272,9 @@ Chat.strong = function (room, message) {
 	return `/wall ${message}`;
 };
 
+/** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
+/** @typedef {{[k: string]: string | ChatCommand}} ChatCommands */
+
 class ChatParser {
 	/**
 	 * @param {string} message

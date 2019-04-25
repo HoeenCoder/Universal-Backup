@@ -18,7 +18,6 @@ try {
 	require('child_process').execSync('npm install --production', {stdio: 'inherit'});
 	// exit here if needed, not sure if it is.
 }
-
 // Load config
 try {
 	global.Config = require('./config/config.js');

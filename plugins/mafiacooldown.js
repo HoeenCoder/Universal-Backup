@@ -133,10 +133,7 @@ Mafia.events.on('gameend', (/** @type {MafiaTracker} */tracker, /** @type {strin
 	if (tracker.room.mafiaCooldown) tracker.room.mafiaCooldown.onEnd();
 });
 
-/** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
-/** @typedef {{[k: string]: string | ChatCommand}} ChatCommands */
-
-/** @type {ChatCommands} */
+/** @type {import("../chat").ChatCommands} */
 const commands = {
 	createcooldown: function (target, room, user) {
 		if (!this.can('roommanagement')) return;

@@ -23,13 +23,10 @@ function isValidHangman(word, hint) {
 	if (hint.length > 150) return false;
 	return true;
 }
-
+/** @type {import("../chat").ChatCommands} */
 const commands = {
-	/**
-     * @param {string} target
-     * @param {Room} room
-     */
 	hangman: function (target, room) {
+		if (!room) return;
 		if (!this.can('games')) return;
 		target = toId(target);
 		let word = '';

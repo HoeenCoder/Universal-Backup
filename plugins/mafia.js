@@ -1,10 +1,6 @@
 'use strict';
-// TODO port this into mafia-tracker.js once i reimplement iso
 
-/** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
-/** @typedef {{[k: string]: string | ChatCommand}} ChatCommands */
-
-/** @type {ChatCommands} */
+/** @type {import("../chat").ChatCommands} */
 const commands = {
 	game: function (target, room) {
 		if (!this.can('games')) return false;

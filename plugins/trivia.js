@@ -249,10 +249,7 @@ class KuncTrivia extends Trivia {
 	}
 }
 
-/** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
-/** @typedef {{[k: string]: string | ChatCommand}} ChatCommands */
-
-/** @type {ChatCommands} */
+/** @type {import("../chat").ChatCommands} */
 const commands = {
 	g: 'guess',
 	guess: function (target, room, user) {

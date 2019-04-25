@@ -397,10 +397,7 @@ class HydraController extends AnonController {
 	addSlaves() {}
 }
 
-/** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
-/** @typedef {{[k: string]: string | ChatCommand}} ChatCommands */
-
-/** @type {ChatCommands} */
+/** @type {import("../chat").ChatCommands} */
 const commands = {
 	anon: 'an',
 	an: function (target, room, user) {

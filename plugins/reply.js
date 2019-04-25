@@ -46,10 +46,7 @@ Chat.events.on('command', (/** @type {Room} */room, /** @type {string[]} */detai
 
 const CODE_STRING = '!';
 
-/** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
-/** @typedef {{[k: string]: string | ChatCommand}} ChatCommands */
-
-/** @type {ChatCommands} */
+/** @type {import("../chat").ChatCommands} */
 const commands = {
 	addcustom: function (target, room) {
 		if (!this.can('roommanagement')) return;
