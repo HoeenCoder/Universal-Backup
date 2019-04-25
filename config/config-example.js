@@ -120,6 +120,7 @@ exports.groups = {
 		name: 'Voice',
 		id: 'voice',
 		inherit: ' ',
+		broadcast: true,
 	},
 	' ': {
 		name: 'Regular User',

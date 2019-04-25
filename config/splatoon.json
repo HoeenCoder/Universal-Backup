@@ -1,0 +1,2755 @@
+{
+	"splooshomatic":{
+		"id":"splooshomatic",
+		"name":"Sploosh-o-matic",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Curling Bomb",
+		"subId":"curlingbomb",
+		"special":"Splashdown",
+		"specialId":"splashdown",
+		"points":160,
+		"unlocked":10,
+		"cost":9700,
+		"stats":{
+			"range":12,
+			"firerate":75,
+			"damage":52
+		},
+		"weight":"Light",
+		"ink":0.8
+	},
+	"neosplooshomatic":{
+		"id":"neosplooshomatic",
+		"name":"Neo Sploosh-o-matic",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Squid Beakon",
+		"subId":"squidbeakon",
+		"special":"Tenta Missiles",
+		"specialId":"tentamissiles",
+		"points":170,
+		"unlocked":18,
+		"cost":12200,
+		"stats":{
+			"range":12,
+			"firerate":75,
+			"damage":52
+		},
+		"weight":"Light",
+		"ink":0.8
+	},
+	"freshsquiffer":{
+		"id":"freshsquiffer",
+		"name":"Fresh Squiffer",
+		"class":"Charger",
+		"subClass":"Charger",
+		"sub":"Suction Bomb",
+		"subId":"suctionbomb",
+		"special":"Inkjet",
+		"specialId":"inkjet",
+		"points":190,
+		"unlocked":24,
+		"cost":14100,
+		"stats":{
+			"range":75,
+			"chargespeed":70,
+			"mobility":60
+		},
+		"weight":"Medium",
+		"ink":10.5
+	},
+	"splattershotjr":{
+		"id":"splattershotjr",
+		"name":"Splattershot Jr.",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Splat Bomb",
+		"subId":"splatbomb",
+		"special":"Ink Armor",
+		"specialId":"inkarmor",
+		"points":180,
+		"unlocked":1,
+		"cost":0,
+		"stats":{
+			"range":35,
+			"firerate":75,
+			"damage":22
+		},
+		"weight":"Light",
+		"ink":0.43
+	},
+	"customsplattershotjr":{
+		"id":"customsplattershotjr",
+		"name":"Custom Splattershot Jr.",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Autobomb",
+		"subId":"autobomb",
+		"special":"Ink Storm",
+		"specialId":"inkstorm",
+		"points":160,
+		"unlocked":4,
+		"cost":1900,
+		"stats":{
+			"range":35,
+			"firerate":75,
+			"damage":22
+		},
+		"weight":"Light",
+		"ink":0.43
+	},
+	"kensasplattershotjr":{
+		"id":"kensasplattershotjr",
+		"name":"Kensa Splattershot Jr.",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Torpedo",
+		"subId":"torpedo",
+		"special":"Bubble Blower",
+		"specialId":"bubbleblower",
+		"points":190,
+		"unlocked":9,
+		"cost":8700,
+		"stats":{
+			"range":35,
+			"firerate":75,
+			"damage":22
+		},
+		"weight":"Light",
+		"ink":0.43
+	},
+	"splashomatic":{
+		"id":"splashomatic",
+		"name":"Splash-o-matic",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Toxic Mist",
+		"subId":"toxicmist",
+		"special":"Inkjet",
+		"specialId":"inkjet",
+		"points":170,
+		"unlocked":25,
+		"cost":11200,
+		"stats":{
+			"range":35,
+			"firerate":75,
+			"damage":22
+		},
+		"weight":"Medium",
+		"ink":0.8
+	},
+	"neosplashomatic":{
+		"id":"neosplashomatic",
+		"name":"Neo Splash-o-matic",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Burst Bomb",
+		"subId":"burstbomb",
+		"special":"Sution Bomb Launcher",
+		"specialId":"sutionbomblauncher",
+		"points":210,
+		"unlocked":27,
+		"cost":16800,
+		"stats":{
+			"range":35,
+			"firerate":75,
+			"damage":22
+		},
+		"weight":"Medium",
+		"ink":0.8
+	},
+	"aerospraymg":{
+		"id":"aerospraymg",
+		"name":"Aerospray MG",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Suction Bomb",
+		"subId":"suctionbomb",
+		"special":"Splashdown",
+		"specialId":"splashdown",
+		"points":160,
+		"unlocked":6,
+		"cost":4900,
+		"stats":{
+			"range":35,
+			"firerate":90,
+			"damage":10
+		},
+		"weight":"Light",
+		"ink":0.55
+	},
+	"aerosprayrg":{
+		"id":"aerosprayrg",
+		"name":"Aerospray RG",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Sprinkler",
+		"subId":"sprinkler",
+		"special":"Baller",
+		"specialId":"baller",
+		"points":170,
+		"unlocked":28,
+		"cost":16900,
+		"stats":{
+			"range":35,
+			"firerate":90,
+			"damage":10
+		},
+		"weight":"Light",
+		"ink":0.55
+	},
+	"aerospraypg":{
+		"id":"aerospraypg",
+		"name":"Aerospray PG",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Burst Bomb",
+		"subId":"burstbomb",
+		"special":"Booyah Bomb",
+		"specialId":"booyahbomb",
+		"points":180,
+		"unlocked":29,
+		"cost":19000,
+		"stats":{
+			"range":35,
+			"firerate":90,
+			"damage":10
+		},
+		"weight":"Light",
+		"ink":0.55
+	},
+	"splattershot":{
+		"id":"splattershot",
+		"name":"Splattershot",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Burst Bomb",
+		"subId":"burstbomb",
+		"special":"Splashdown",
+		"specialId":"splashdown",
+		"points":190,
+		"unlocked":2,
+		"cost":900,
+		"stats":{
+			"range":50,
+			"firerate":60,
+			"damage":45
+		},
+		"weight":"Medium",
+		"ink":1
+	},
+	"tentateksplattershot":{
+		"id":"tentateksplattershot",
+		"name":"Tentatek Splattershot",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Splat Bomb",
+		"subId":"splatbomb",
+		"special":"Inkjet",
+		"specialId":"inkjet",
+		"points":210,
+		"unlocked":4,
+		"cost":2100,
+		"stats":{
+			"range":50,
+			"firerate":60,
+			"damage":45
+		},
+		"weight":"Medium",
+		"ink":1
+	},
+	"kensasplattershot":{
+		"id":"kensasplattershot",
+		"name":"Kensa Splattershot",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Suction Bomb",
+		"subId":"suctionbomb",
+		"special":"Tenta Missiles",
+		"specialId":"tentamissiles",
+		"points":180,
+		"unlocked":6,
+		"cost":5300,
+		"stats":{
+			"range":50,
+			"firerate":60,
+			"damage":45
+		},
+		"weight":"Medium",
+		"ink":1
+	},
+	"heroshotreplica":{
+		"id":"heroshotreplica",
+		"name":"Hero Shot Replica",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Burst Bomb",
+		"subId":"burstbomb",
+		"special":"Splashdown",
+		"specialId":"splashdown",
+		"points":190,
+		"unlocked":2,
+		"cost":1500,
+		"stats":{
+			"range":50,
+			"firerate":60,
+			"damage":45
+		},
+		"weight":"Medium",
+		"ink":1
+	},
+	"octoshotreplica":{
+		"id":"octoshotreplica",
+		"name":"Octo Shot Replica",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Splat Bomb",
+		"subId":"splatbomb",
+		"special":"Inkjet",
+		"specialId":"inkjet",
+		"points":210,
+		"unlocked":4,
+		"cost":0,
+		"stats":{
+			"range":50,
+			"firerate":60,
+			"damage":45
+		},
+		"weight":"Medium",
+		"ink":1
+	},
+	"52gal":{
+		"id":"52gal",
+		"name":".52 Gal",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Point Sensor",
+		"subId":"pointsensor",
+		"special":"Baller",
+		"specialId":"baller",
+		"points":170,
+		"unlocked":14,
+		"cost":9500,
+		"stats":{
+			"range":55,
+			"firerate":25,
+			"damage":75
+		},
+		"weight":"Medium",
+		"ink":1.3
+	},
+	"52galdeco":{
+		"id":"52galdeco",
+		"name":".52 Gal Deco",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Curling Bomb",
+		"subId":"curlingbomb",
+		"special":"Sting Ray",
+		"specialId":"stingray",
+		"points":190,
+		"unlocked":22,
+		"cost":12700,
+		"stats":{
+			"range":55,
+			"firerate":25,
+			"damage":75
+		},
+		"weight":"Medium",
+		"ink":1.3
+	},
+	"kensa52gal":{
+		"id":"kensa52gal",
+		"name":"Kensa .52 Gal",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Splash Wall",
+		"subId":"splashwall",
+		"special":"Booyah Bomb",
+		"specialId":"booyahbomb",
+		"points":180,
+		"unlocked":25,
+		"cost":15600,
+		"stats":{
+			"range":55,
+			"firerate":25,
+			"damage":75
+		},
+		"weight":"Medium",
+		"ink":1.3
+	},
+	"nzap85":{
+		"id":"nzap85",
+		"name":"N-ZAP '85",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Suction Bomb",
+		"subId":"suctionbomb",
+		"special":"Ink Armor",
+		"specialId":"inkarmor",
+		"points":210,
+		"unlocked":9,
+		"cost":7100,
+		"stats":{
+			"range":50,
+			"firerate":75,
+			"damage":22
+		},
+		"weight":"Light",
+		"ink":0.8
+	},
+	"nzap89":{
+		"id":"nzap89",
+		"name":"N-ZAP '89",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Autobomb",
+		"subId":"autobomb",
+		"special":"Tenta Missiles",
+		"specialId":"tentamissiles",
+		"points":190,
+		"unlocked":11,
+		"cost":8800,
+		"stats":{
+			"range":50,
+			"firerate":75,
+			"damage":22
+		},
+		"weight":"Medium",
+		"ink":0.8
+	},
+	"nzap83":{
+		"id":"nzap83",
+		"name":"N-ZAP '83",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Sprinkler",
+		"subId":"sprinkler",
+		"special":"Ink Storm",
+		"specialId":"inkstorm",
+		"points":180,
+		"unlocked":19,
+		"cost":11100,
+		"stats":{
+			"range":50,
+			"firerate":75,
+			"damage":22
+		},
+		"weight":"Medium",
+		"ink":0.8
+	},
+	"splattershotpro":{
+		"id":"splattershotpro",
+		"name":"Splattershot Pro",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Point Sensor",
+		"subId":"pointsensor",
+		"special":"Ink Storm",
+		"specialId":"inkstorm",
+		"points":170,
+		"unlocked":10,
+		"cost":13800,
+		"stats":{
+			"range":70,
+			"firerate":30,
+			"damage":60
+		},
+		"weight":"Medium",
+		"ink":2
+	},
+	"forgesplattershotpro":{
+		"id":"forgesplattershotpro",
+		"name":"Forge Splattershot Pro",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Suction Bomb",
+		"subId":"suctionbomb",
+		"special":"Bubble Blower",
+		"specialId":"bubbleblower",
+		"points":200,
+		"unlocked":20,
+		"cost":20800,
+		"stats":{
+			"range":70,
+			"firerate":30,
+			"damage":60
+		},
+		"weight":"Medium",
+		"ink":2
+	},
+	"kensasplattershotpro":{
+		"id":"kensasplattershotpro",
+		"name":"Kensa Splattershot Pro",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Splat Bomb",
+		"subId":"splatbomb",
+		"special":"Booyah Bomb",
+		"specialId":"booyahbomb",
+		"points":200,
+		"unlocked":23,
+		"cost":21900,
+		"stats":{
+			"range":70,
+			"firerate":30,
+			"damage":60
+		},
+		"weight":"Medium",
+		"ink":2
+	},
+	"96gal":{
+		"id":"96gal",
+		"name":".96 Gal",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Sprinkler",
+		"subId":"sprinkler",
+		"special":"Ink Armor",
+		"specialId":"inkarmor",
+		"points":180,
+		"unlocked":21,
+		"cost":12600,
+		"stats":{
+			"range":74,
+			"firerate":10,
+			"damage":80
+		},
+		"weight":"Medium",
+		"ink":2.5
+	},
+	"96galdeco":{
+		"id":"96galdeco",
+		"name":".96 Gal Deco",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Splash Wall",
+		"subId":"splashwall",
+		"special":"Splashdown",
+		"specialId":"splashdown",
+		"points":170,
+		"unlocked":26,
+		"cost":16200,
+		"stats":{
+			"range":74,
+			"firerate":10,
+			"damage":80
+		},
+		"weight":"Medium",
+		"ink":2.5
+	},
+	"jetsquelcher":{
+		"id":"jetsquelcher",
+		"name":"Jet Squelcher",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Toxic Mist",
+		"subId":"toxicmist",
+		"special":"Tenta Missiles",
+		"specialId":"tentamissiles",
+		"points":180,
+		"unlocked":17,
+		"cost":11300,
+		"stats":{
+			"range":82,
+			"firerate":30,
+			"damage":35
+		},
+		"weight":"Medium",
+		"ink":1.6
+	},
+	"customjetsquelcher":{
+		"id":"customjetsquelcher",
+		"name":"Custom Jet Squelcher",
+		"class":"Shooter",
+		"subClass":"Shooter",
+		"sub":"Burst Bomb",
+		"subId":"burstbomb",
+		"special":"Sting Ray",
+		"specialId":"stingray",
+		"points":180,
+		"unlocked":27,
+		"cost":15900,
+		"stats":{
+			"range":82,
+			"firerate":30,
+			"damage":35
+		},
+		"weight":"Medium",
+		"ink":1.6
+	},
+	"lunablaster":{
+		"id":"lunablaster",
+		"name":"Luna Blaster",
+		"class":"Shooter",
+		"subClass":"Blaster",
+		"sub":"Splat Bomb",
+		"subId":"splatbomb",
+		"special":"Baller",
+		"specialId":"baller",
+		"points":180,
+		"unlocked":19,
+		"cost":12100,
+		"stats":{
+			"range":9,
+			"firerate":30,
+			"impact":70
+		},
+		"weight":"Medium",
+		"ink":9
+	},
+	"lunablasterneo":{
+		"id":"lunablasterneo",
+		"name":"Luna Blaster Neo",
+		"class":"Shooter",
+		"subClass":"Blaster",
+		"sub":"Ink Mine",
+		"subId":"inkmine",
+		"special":"Sution Bomb Launcher",
+		"specialId":"sutionbomblauncher",
+		"points":170,
+		"unlocked":24,
+		"cost":14000,
+		"stats":{
+			"range":9,
+			"firerate":30,
+			"impact":70
+		},
+		"weight":"Medium",
+		"ink":9
+	},
+	"kensalunablaster":{
+		"id":"kensalunablaster",
+		"name":"Kensa Luna Blaster",
+		"class":"Shooter",
+		"subClass":"Blaster",
+		"sub":"Fizzy Bomb",
+		"subId":"fizzybomb",
+		"special":"Ink Storm",
+		"specialId":"inkstorm",
+		"points":170,
+		"unlocked":26,
+		"cost":16600,
+		"stats":{
+			"range":9,
+			"firerate":30,
+			"impact":70
+		},
+		"weight":"Medium",
+		"ink":9
+	},
+	"blaster":{
+		"id":"blaster",
+		"name":"Blaster",
+		"class":"Shooter",
+		"subClass":"Blaster",
+		"sub":"Toxic Mist",
+		"subId":"toxicmist",
+		"special":"Splashdown",
+		"specialId":"splashdown",
+		"points":190,
+		"unlocked":5,
+		"cost":3000,
+		"stats":{
+			"range":27,
+			"firerate":20,
+			"impact":70
+		},
+		"weight":"Medium",
+		"ink":10
+	},
+	"customblaster":{
+		"id":"customblaster",
+		"name":"Custom Blaster",
+		"class":"Shooter",
+		"subClass":"Blaster",
+		"sub":"Autobomb",
+		"subId":"autobomb",
+		"special":"Inkjet",
+		"specialId":"inkjet",
+		"points":190,
+		"unlocked":27,
+		"cost":15300,
+		"stats":{
+			"range":27,
+			"firerate":20,
+			"impact":70
+		},
+		"weight":"Medium",
+		"ink":10
+	},
+	"heroblasterreplica":{
+		"id":"heroblasterreplica",
+		"name":"Hero Blaster Replica",
+		"class":"Shooter",
+		"subClass":"Blaster",
+		"sub":"Toxic Mist",
+		"subId":"toxicmist",
+		"special":"Splashdown",
+		"specialId":"splashdown",
+		"points":190,
+		"unlocked":5,
+		"cost":3800,
+		"stats":{
+			"range":27,
+			"firerate":20,
+			"impact":70
+		},
+		"weight":"Medium",
+		"ink":10
+	},
+	"rangeblaster":{
+		"id":"rangeblaster",
+		"name":"Range Blaster",
+		"class":"Shooter",
+		"subClass":"Blaster",
+		"sub":"Suction Bomb",
+		"subId":"suctionbomb",
+		"special":"Ink Storm",
+		"specialId":"inkstorm",
+		"points":200,
+		"unlocked":14,
+		"cost":9300,
+		"stats":{
+			"range":56,
+			"firerate":10,
+			"impact":70
+		},
+		"weight":"Medium",
+		"ink":11
+	},
+	"customrangeblaster":{
+		"id":"customrangeblaster",
+		"name":"Custom Range Blaster",
+		"class":"Shooter",
+		"subClass":"Blaster",
+		"sub":"Curling Bomb",
+		"subId":"curlingbomb",
+		"special":"Bubble Blower",
+		"specialId":"bubbleblower",
+		"points":180,
+		"unlocked":18,
+		"cost":11400,
+		"stats":{
+			"range":56,
+			"firerate":10,
+			"impact":70
+		},
+		"weight":"Medium",
+		"ink":11
+	},
+	"grimrangeblaster":{
+		"id":"grimrangeblaster",
+		"name":"Grim Range Blaster",
+		"class":"Shooter",
+		"subClass":"Blaster",
+		"sub":"Burst Bomb",
+		"subId":"burstbomb",
+		"special":"Tenta Missiles",
+		"specialId":"tentamissiles",
+		"points":190,
+		"unlocked":18,
+		"cost":14900,
+		"stats":{
+			"range":56,
+			"firerate":10,
+			"impact":70
+		},
+		"weight":"Medium",
+		"ink":11
+	},
+	"clashblaster":{
+		"id":"clashblaster",
+		"name":"Clash Blaster",
+		"class":"Shooter",
+		"subClass":"Blaster",
+		"sub":"Splat Bomb",
+		"subId":"splatbomb",
+		"special":"Sting Ray",
+		"specialId":"stingray",
+		"points":180,
+		"unlocked":30,
+		"cost":18200,
+		"stats":{
+			"range":21,
+			"firerate":65,
+			"impact":20
+		},
+		"weight":"Light",
+		"ink":4
+	},
+	"clashblasterneo":{
+		"id":"clashblasterneo",
+		"name":"Clash Blaster Neo",
+		"class":"Shooter",
+		"subClass":"Blaster",
+		"sub":"Sprinkler",
+		"subId":"sprinkler",
+		"special":"Tenta Missiles",
+		"specialId":"tentamissiles",
+		"points":180,
+		"unlocked":30,
+		"cost":20500,
+		"stats":{
+			"range":21,
+			"firerate":65,
+			"impact":20
+		},
+		"weight":"Light",
+		"ink":4
+	},
+	"rapidblaster":{
+		"id":"rapidblaster",
+		"name":"Rapid Blaster",
+		"class":"Shooter",
+		"subClass":"Blaster",
+		"sub":"Ink Mine",
+		"subId":"inkmine",
+		"special":"Splat Bomb Launcher",
+		"specialId":"splatbomblauncher",
+		"points":200,
+		"unlocked":13,
+		"cost":9800,
+		"stats":{
+			"range":62,
+			"firerate":40,
+			"impact":35
+		},
+		"weight":"Medium",
+		"ink":7
+	},
+	"rapidblasterdeco":{
+		"id":"rapidblasterdeco",
+		"name":"Rapid Blaster Deco",
+		"class":"Shooter",
+		"subClass":"Blaster",
+		"sub":"Suction Bomb",
+		"subId":"suctionbomb",
+		"special":"Inkjet",
+		"specialId":"inkjet",
+		"points":190,
+		"unlocked":16,
+		"cost":11500,
+		"stats":{
+			"range":62,
+			"firerate":40,
+			"impact":35
+		},
+		"weight":"Medium",
+		"ink":7
+	},
+	"kensarapidblaster":{
+		"id":"kensarapidblaster",
+		"name":"Kensa Rapid Blaster",
+		"class":"Shooter",
+		"subClass":"Blaster",
+		"sub":"Torpedo",
+		"subId":"torpedo",
+		"special":"Baller",
+		"specialId":"baller",
+		"points":200,
+		"unlocked":21,
+		"cost":13500,
+		"stats":{
+			"range":62,
+			"firerate":40,
+			"impact":35
+		},
+		"weight":"Medium",
+		"ink":7
+	},
+	"rapidblasterpro":{
+		"id":"rapidblasterpro",
+		"name":"Rapid Blaster Pro",
+		"class":"Shooter",
+		"subClass":"Blaster",
+		"sub":"Toxic Mist",
+		"subId":"toxicmist",
+		"special":"Ink Storm",
+		"specialId":"inkstorm",
+		"points":180,
+		"unlocked":22,
+		"cost":12800,
+		"stats":{
+			"range":72,
+			"firerate":30,
+			"impact":35
+		},
+		"weight":"Medium",
+		"ink":8
+	},
+	"rapidblasterprodeco":{
+		"id":"rapidblasterprodeco",
+		"name":"Rapid Blaster Pro Deco",
+		"class":"Shooter",
+		"subClass":"Blaster",
+		"sub":"Splash Wall",
+		"subId":"splashwall",
+		"special":"Ink Armor",
+		"specialId":"inkarmor",
+		"points":180,
+		"unlocked":24,
+		"cost":14000,
+		"stats":{
+			"range":72,
+			"firerate":30,
+			"impact":35
+		},
+		"weight":"Medium",
+		"ink":8
+	},
+	"l3nozzlenose":{
+		"id":"l3nozzlenose",
+		"name":"L-3 Nozzlenose",
+		"class":"Shooter",
+		"subClass":"Nozzlenose",
+		"sub":"Curling Bomb",
+		"subId":"curlingbomb",
+		"special":"Baller",
+		"specialId":"baller",
+		"points":170,
+		"unlocked":18,
+		"cost":10400,
+		"stats":{
+			"range":62,
+			"firerate":65,
+			"damage":25
+		},
+		"weight":"Medium",
+		"ink":1
+	},
+	"l3nozzlenosed":{
+		"id":"l3nozzlenosed",
+		"name":"L-3 Nozzlenose D",
+		"class":"Shooter",
+		"subClass":"Nozzlenose",
+		"sub":"Burst Bomb",
+		"subId":"burstbomb",
+		"special":"Inkjet",
+		"specialId":"inkjet",
+		"points":180,
+		"unlocked":23,
+		"cost":12500,
+		"stats":{
+			"range":62,
+			"firerate":65,
+			"damage":25
+		},
+		"weight":"Medium",
+		"ink":1
+	},
+	"kensal3nozzlenose":{
+		"id":"kensal3nozzlenose",
+		"name":"Kensa L-3 Nozzlenose",
+		"class":"Shooter",
+		"subClass":"Nozzlenose",
+		"sub":"Splash Wall",
+		"subId":"splashwall",
+		"special":"Ultra Stamp",
+		"specialId":"ultrastamp",
+		"points":190,
+		"unlocked":27,
+		"cost":17700,
+		"stats":{
+			"range":62,
+			"firerate":65,
+			"damage":25
+		},
+		"weight":"Medium",
+		"ink":1
+	},
+	"h3nozzlenose":{
+		"id":"h3nozzlenose",
+		"name":"H-3 Nozzlenose",
+		"class":"Shooter",
+		"subClass":"Nozzlenose",
+		"sub":"Point Sensor",
+		"subId":"pointsensor",
+		"special":"Tenta Missiles",
+		"specialId":"tentamissiles",
+		"points":180,
+		"unlocked":29,
+		"cost":17200,
+		"stats":{
+			"range":70,
+			"firerate":30,
+			"damage":58
+		},
+		"weight":"Medium",
+		"ink":1.8
+	},
+	"h3nozzlenosed":{
+		"id":"h3nozzlenosed",
+		"name":"H-3 Nozzlenose D",
+		"class":"Shooter",
+		"subClass":"Nozzlenose",
+		"sub":"Sprinkler",
+		"subId":"sprinkler",
+		"special":"Ink Armor",
+		"specialId":"inkarmor",
+		"points":220,
+		"unlocked":30,
+		"cost":18400,
+		"stats":{
+			"range":70,
+			"firerate":30,
+			"damage":58
+		},
+		"weight":"Medium",
+		"ink":1.8
+	},
+	"cherryh3nozzlenose":{
+		"id":"cherryh3nozzlenose",
+		"name":"Cherry H-3 Nozzlenose",
+		"class":"Shooter",
+		"subClass":"Nozzlenose",
+		"sub":"Splash Wall",
+		"subId":"splashwall",
+		"special":"Bubble Blower",
+		"specialId":"bubbleblower",
+		"points":190,
+		"unlocked":30,
+		"cost":26600,
+		"stats":{
+			"range":70,
+			"firerate":30,
+			"damage":58
+		},
+		"weight":"Medium",
+		"ink":1.8
+	},
+	"squeezer":{
+		"id":"squeezer",
+		"name":"Squeezer",
+		"class":"Shooter",
+		"subClass":"Nozzlenose",
+		"sub":"Splash Wall",
+		"subId":"splashwall",
+		"special":"Sting Ray",
+		"specialId":"stingray",
+		"points":180,
+		"unlocked":16,
+		"cost":11500,
+		"stats":{
+			"range":70,
+			"firerate":45,
+			"damage":52
+		},
+		"weight":"Medium",
+		"ink":1,
+		"first":2.5
+	},
+	"foilsqueezer":{
+		"id":"foilsqueezer",
+		"name":"Foil Squeezer",
+		"class":"Shooter",
+		"subClass":"Nozzlenose",
+		"sub":"Splat Bomb",
+		"subId":"splatbomb",
+		"special":"Bubble Blower",
+		"specialId":"bubbleblower",
+		"points":180,
+		"unlocked":25,
+		"cost":10900,
+		"stats":{
+			"range":70,
+			"firerate":45,
+			"damage":52
+		},
+		"weight":"Medium",
+		"ink":1,
+		"first":2.5
+	},
+	"carbonroller":{
+		"id":"carbonroller",
+		"name":"Carbon Roller",
+		"class":"Roller",
+		"subClass":"Roller",
+		"sub":"Autobomb",
+		"subId":"autobomb",
+		"special":"Ink Storm",
+		"specialId":"inkstorm",
+		"points":160,
+		"unlocked":7,
+		"cost":6200,
+		"stats":{
+			"range":20,
+			"inkspeed":63,
+			"handling":65
+		},
+		"weight":"Light",
+		"ink":4.5,
+		"flick":4.5
+	},
+	"carbonrollerdeco":{
+		"id":"carbonrollerdeco",
+		"name":"Carbon Roller Deco",
+		"class":"Roller",
+		"subClass":"Roller",
+		"sub":"Burst Bomb",
+		"subId":"burstbomb",
+		"special":"Autobomb Launcher",
+		"specialId":"autobomblauncher",
+		"points":190,
+		"unlocked":10,
+		"cost":8500,
+		"stats":{
+			"range":20,
+			"inkspeed":63,
+			"handling":65
+		},
+		"weight":"Light",
+		"ink":4.5,
+		"flick":4.5
+	},
+	"splatroller":{
+		"id":"splatroller",
+		"name":"Splat Roller",
+		"class":"Roller",
+		"subClass":"Roller",
+		"sub":"Curling Bomb",
+		"subId":"curlingbomb",
+		"special":"Splashdown",
+		"specialId":"splashdown",
+		"points":180,
+		"unlocked":3,
+		"cost":1800,
+		"stats":{
+			"range":48,
+			"inkspeed":45,
+			"handling":55
+		},
+		"weight":"Medium",
+		"ink":9,
+		"flick":9
+	},
+	"krakonsplatroller":{
+		"id":"krakonsplatroller",
+		"name":"Krak-On Splat Roller",
+		"class":"Roller",
+		"subClass":"Roller",
+		"sub":"Squid Beakon",
+		"subId":"squidbeakon",
+		"special":"Baller",
+		"specialId":"baller",
+		"points":170,
+		"unlocked":12,
+		"cost":9200,
+		"stats":{
+			"range":48,
+			"inkspeed":45,
+			"handling":55
+		},
+		"weight":"Medium",
+		"ink":9,
+		"flick":9
+	},
+	"kensasplatroller":{
+		"id":"kensasplatroller",
+		"name":"Kensa Splat Roller",
+		"class":"Roller",
+		"subClass":"Roller",
+		"sub":"Splat Bomb",
+		"subId":"splatbomb",
+		"special":"Bubble Blower",
+		"specialId":"bubbleblower",
+		"points":180,
+		"unlocked":14,
+		"cost":12300,
+		"stats":{
+			"range":48,
+			"inkspeed":45,
+			"handling":55
+		},
+		"weight":"Medium",
+		"ink":9,
+		"flick":9
+	},
+	"herorollerreplica":{
+		"id":"herorollerreplica",
+		"name":"Hero Roller Replica",
+		"class":"Roller",
+		"subClass":"Roller",
+		"sub":"Curling Bomb",
+		"subId":"curlingbomb",
+		"special":"Splashdown",
+		"specialId":"splashdown",
+		"points":180,
+		"unlocked":3,
+		"cost":2300,
+		"stats":{
+			"range":48,
+			"inkspeed":45,
+			"handling":55
+		},
+		"weight":"Medium",
+		"ink":9,
+		"flick":9
+	},
+	"dynamoroller":{
+		"id":"dynamoroller",
+		"name":"Dynamo Roller",
+		"class":"Roller",
+		"subClass":"Roller",
+		"sub":"Ink Mine",
+		"subId":"inkmine",
+		"special":"Sting Ray",
+		"specialId":"stingray",
+		"points":180,
+		"unlocked":20,
+		"cost":24500,
+		"stats":{
+			"range":76,
+			"inkspeed":25,
+			"handling":20
+		},
+		"weight":"Heavy",
+		"ink":18,
+		"flick":18
+	},
+	"golddynamoroller":{
+		"id":"golddynamoroller",
+		"name":"Gold Dynamo Roller",
+		"class":"Roller",
+		"subClass":"Roller",
+		"sub":"Splat Bomb",
+		"subId":"splatbomb",
+		"special":"Ink Armor",
+		"specialId":"inkarmor",
+		"points":190,
+		"unlocked":25,
+		"cost":29000,
+		"stats":{
+			"range":76,
+			"inkspeed":25,
+			"handling":20
+		},
+		"weight":"Heavy",
+		"ink":18,
+		"flick":18
+	},
+	"kensadynamoroller":{
+		"id":"kensadynamoroller",
+		"name":"Kensa Dynamo Roller",
+		"class":"Roller",
+		"subClass":"Roller",
+		"sub":"Sprinkler",
+		"subId":"sprinkler",
+		"special":"Booyah Bomb",
+		"specialId":"booyahbomb",
+		"points":180,
+		"unlocked":29,
+		"cost":32300,
+		"stats":{
+			"range":76,
+			"inkspeed":25,
+			"handling":20
+		},
+		"weight":"Heavy",
+		"ink":18,
+		"flick":18
+	},
+	"flingzaroller":{
+		"id":"flingzaroller",
+		"name":"Flingza Roller",
+		"class":"Roller",
+		"subClass":"Roller",
+		"sub":"Splash Wall",
+		"subId":"splashwall",
+		"special":"Splat Bomb Launcher",
+		"specialId":"splatbomblauncher",
+		"points":180,
+		"unlocked":24,
+		"cost":15700,
+		"stats":{
+			"range":55,
+			"inkspeed":45,
+			"handling":45
+		},
+		"weight":"Medium",
+		"ink":8,
+		"flick":12
+	},
+	"foilflingzaroller":{
+		"id":"foilflingzaroller",
+		"name":"Foil Flingza Roller",
+		"class":"Roller",
+		"subClass":"Roller",
+		"sub":"Suction Bomb",
+		"subId":"suctionbomb",
+		"special":"Tenta Missiles",
+		"specialId":"tentamissiles",
+		"points":180,
+		"unlocked":28,
+		"cost":21300,
+		"stats":{
+			"range":55,
+			"inkspeed":45,
+			"handling":45
+		},
+		"weight":"Medium",
+		"ink":8,
+		"flick":12
+	},
+	"inkbrush":{
+		"id":"inkbrush",
+		"name":"Inkbrush",
+		"class":"Roller",
+		"subClass":"Brush",
+		"sub":"Splat Bomb",
+		"subId":"splatbomb",
+		"special":"Splashdown",
+		"specialId":"splashdown",
+		"points":150,
+		"unlocked":5,
+		"cost":2600,
+		"stats":{
+			"range":5,
+			"inkspeed":100,
+			"handling":100
+		},
+		"weight":"Light",
+		"ink":2
+	},
+	"inkbrushnouveau":{
+		"id":"inkbrushnouveau",
+		"name":"Inkbrush Nouveau",
+		"class":"Roller",
+		"subClass":"Brush",
+		"sub":"Ink Mine",
+		"subId":"inkmine",
+		"special":"Baller",
+		"specialId":"baller",
+		"points":160,
+		"unlocked":7,
+		"cost":7000,
+		"stats":{
+			"range":5,
+			"inkspeed":100,
+			"handling":100
+		},
+		"weight":"Light",
+		"ink":2
+	},
+	"octobrush":{
+		"id":"octobrush",
+		"name":"Octobrush",
+		"class":"Roller",
+		"subClass":"Brush",
+		"sub":"Autobomb",
+		"subId":"autobomb",
+		"special":"Inkjet",
+		"specialId":"inkjet",
+		"points":180,
+		"unlocked":10,
+		"cost":8200,
+		"stats":{
+			"range":23,
+			"inkspeed":80,
+			"handling":85
+		},
+		"weight":"Medium",
+		"ink":3.2
+	},
+	"octobrushnouveau":{
+		"id":"octobrushnouveau",
+		"name":"Octobrush Nouveau",
+		"class":"Roller",
+		"subClass":"Brush",
+		"sub":"Squid Beakon",
+		"subId":"squidbeakon",
+		"special":"Tenta Missiles",
+		"specialId":"tentamissiles",
+		"points":170,
+		"unlocked":15,
+		"cost":9900,
+		"stats":{
+			"range":23,
+			"inkspeed":80,
+			"handling":85
+		},
+		"weight":"Medium",
+		"ink":3.2
+	},
+	"kensaoctobrush":{
+		"id":"kensaoctobrush",
+		"name":"Kensa Octobrush",
+		"class":"Roller",
+		"subClass":"Brush",
+		"sub":"Suction Bomb",
+		"subId":"suctionbomb",
+		"special":"Ultra Stamp",
+		"specialId":"ultrastamp",
+		"points":190,
+		"unlocked":20,
+		"cost":13200,
+		"stats":{
+			"range":23,
+			"inkspeed":80,
+			"handling":85
+		},
+		"weight":"Medium",
+		"ink":3.2
+	},
+	"herobrushreplica":{
+		"id":"herobrushreplica",
+		"name":"Herobrush Replica",
+		"class":"Roller",
+		"subClass":"Brush",
+		"sub":"Autobomb",
+		"subId":"autobomb",
+		"special":"Inkjet",
+		"specialId":"inkjet",
+		"points":180,
+		"unlocked":10,
+		"cost":9400,
+		"stats":{
+			"range":23,
+			"inkspeed":80,
+			"handling":85
+		},
+		"weight":"Medium",
+		"ink":3.2
+	},
+	"classicsquiffer":{
+		"id":"classicsquiffer",
+		"name":"Classic Squiffer",
+		"class":"Charger",
+		"subClass":"Charger",
+		"sub":"Point Sensor",
+		"subId":"pointsensor",
+		"special":"Ink Armor",
+		"specialId":"inkarmor",
+		"points":170,
+		"unlocked":12,
+		"cost":8900,
+		"stats":{
+			"range":75,
+			"chargespeed":70,
+			"mobility":60
+		},
+		"weight":"Medium",
+		"ink":10.5
+	},
+	"newsquiffer":{
+		"id":"newsquiffer",
+		"name":"New Squiffer",
+		"class":"Charger",
+		"subClass":"Charger",
+		"sub":"Autobomb",
+		"subId":"autobomb",
+		"special":"Baller",
+		"specialId":"baller",
+		"points":180,
+		"unlocked":17,
+		"cost":11000,
+		"stats":{
+			"range":75,
+			"chargespeed":70,
+			"mobility":60
+		},
+		"weight":"Medium",
+		"ink":10.5
+	},
+	"splatcharger":{
+		"id":"splatcharger",
+		"name":"Splat Charger",
+		"class":"Charger",
+		"subClass":"Charger",
+		"sub":"Splat Bomb",
+		"subId":"splatbomb",
+		"special":"Sting Ray",
+		"specialId":"stingray",
+		"points":210,
+		"unlocked":3,
+		"cost":2200,
+		"stats":{
+			"range":88,
+			"chargespeed":50,
+			"mobility":40
+		},
+		"weight":"Medium",
+		"ink":18
+	},
+	"firefinsplatcharger":{
+		"id":"firefinsplatcharger",
+		"name":"Firefin Splat Charger",
+		"class":"Charger",
+		"subClass":"Charger",
+		"sub":"Splash Wall",
+		"subId":"splashwall",
+		"special":"Sution Bomb Launcher",
+		"specialId":"sutionbomblauncher",
+		"points":210,
+		"unlocked":16,
+		"cost":10600,
+		"stats":{
+			"range":88,
+			"chargespeed":50,
+			"mobility":40
+		},
+		"weight":"Medium",
+		"ink":18
+	},
+	"kensacharger":{
+		"id":"kensacharger",
+		"name":"Kensa Charger",
+		"class":"Charger",
+		"subClass":"Charger",
+		"sub":"Sprinkler",
+		"subId":"sprinkler",
+		"special":"Baller",
+		"specialId":"baller",
+		"points":190,
+		"unlocked":19,
+		"cost":14500,
+		"stats":{
+			"range":88,
+			"chargespeed":50,
+			"mobility":40
+		},
+		"weight":"Medium",
+		"ink":18
+	},
+	"herochargerreplica":{
+		"id":"herochargerreplica",
+		"name":"Hero Charger Replica",
+		"class":"Charger",
+		"subClass":"Charger",
+		"sub":"Splat Bomb",
+		"subId":"splatbomb",
+		"special":"Sting Ray",
+		"specialId":"stingray",
+		"points":210,
+		"unlocked":3,
+		"cost":2700,
+		"stats":{
+			"range":88,
+			"chargespeed":50,
+			"mobility":40
+		},
+		"weight":"Medium",
+		"ink":18
+	},
+	"splatterscope":{
+		"id":"splatterscope",
+		"name":"Splatterscope",
+		"class":"Charger",
+		"subClass":"Charger",
+		"sub":"Splat Bomb",
+		"subId":"splatbomb",
+		"special":"Sting Ray",
+		"specialId":"stingray",
+		"points":210,
+		"unlocked":15,
+		"cost":11400,
+		"stats":{
+			"range":91,
+			"chargespeed":50,
+			"mobility":30
+		},
+		"weight":"Medium",
+		"ink":18
+	},
+	"firefinsplatterscope":{
+		"id":"firefinsplatterscope",
+		"name":"Firefin Splatterscope",
+		"class":"Charger",
+		"subClass":"Charger",
+		"sub":"Splash Wall",
+		"subId":"splashwall",
+		"special":"Sution Bomb Launcher",
+		"specialId":"sutionbomblauncher",
+		"points":210,
+		"unlocked":25,
+		"cost":13900,
+		"stats":{
+			"range":91,
+			"chargespeed":50,
+			"mobility":30
+		},
+		"weight":"Medium",
+		"ink":18
+	},
+	"kensasplatterscope":{
+		"id":"kensasplatterscope",
+		"name":"Kensa Splatterscope",
+		"class":"Charger",
+		"subClass":"Charger",
+		"sub":"Sprinkler",
+		"subId":"sprinkler",
+		"special":"Baller",
+		"specialId":"baller",
+		"points":190,
+		"unlocked":28,
+		"cost":20400,
+		"stats":{
+			"range":91,
+			"chargespeed":50,
+			"mobility":30
+		},
+		"weight":"Medium",
+		"ink":18
+	},
+	"eliter4k":{
+		"id":"eliter4k",
+		"name":"E-liter 4K",
+		"class":"Charger",
+		"subClass":"Charger",
+		"sub":"Ink Mine",
+		"subId":"inkmine",
+		"special":"Ink Storm",
+		"specialId":"inkstorm",
+		"points":170,
+		"unlocked":20,
+		"cost":13900,
+		"stats":{
+			"range":96,
+			"chargespeed":20,
+			"mobility":15
+		},
+		"weight":"Heavy",
+		"ink":25
+	},
+	"customeliter4k":{
+		"id":"customeliter4k",
+		"name":"Custom E-liter 4K",
+		"class":"Charger",
+		"subClass":"Charger",
+		"sub":"Squid Beakon",
+		"subId":"squidbeakon",
+		"special":"Bubble Blower",
+		"specialId":"bubbleblower",
+		"points":170,
+		"unlocked":26,
+		"cost":14700,
+		"stats":{
+			"range":96,
+			"chargespeed":20,
+			"mobility":15
+		},
+		"weight":"Heavy",
+		"ink":25
+	},
+	"eliter4kscope":{
+		"id":"eliter4kscope",
+		"name":"E-liter 4K Scope",
+		"class":"Charger",
+		"subClass":"Charger",
+		"sub":"Ink Mine",
+		"subId":"inkmine",
+		"special":"Ink Storm",
+		"specialId":"inkstorm",
+		"points":170,
+		"unlocked":30,
+		"cost":23200,
+		"stats":{
+			"range":100,
+			"chargespeed":20,
+			"mobility":5
+		},
+		"weight":"Heavy",
+		"ink":25
+	},
+	"customeliter4kscope":{
+		"id":"customeliter4kscope",
+		"name":"Custom E-liter 4K Scope",
+		"class":"Charger",
+		"subClass":"Charger",
+		"sub":"Squid Beakon",
+		"subId":"squidbeakon",
+		"special":"Bubble Blower",
+		"specialId":"bubbleblower",
+		"points":170,
+		"unlocked":30,
+		"cost":29900,
+		"stats":{
+			"range":100,
+			"chargespeed":20,
+			"mobility":5
+		},
+		"weight":"Heavy",
+		"ink":25
+	},
+	"bamboozler14mki":{
+		"id":"bamboozler14mki",
+		"name":"Bamboozler 14 Mk I",
+		"class":"Charger",
+		"subClass":"Charger",
+		"sub":"Curling Bomb",
+		"subId":"curlingbomb",
+		"special":"Tenta Missiles",
+		"specialId":"tentamissiles",
+		"points":180,
+		"unlocked":18,
+		"cost":9500,
+		"stats":{
+			"range":78,
+			"chargespeed":90,
+			"mobility":80
+		},
+		"weight":"Light",
+		"ink":7
+	},
+	"bamboozler14mkii":{
+		"id":"bamboozler14mkii",
+		"name":"Bamboozler 14 Mk II",
+		"class":"Charger",
+		"subClass":"Charger",
+		"sub":"Toxic Mist",
+		"subId":"toxicmist",
+		"special":"Curling Bomb Launcher",
+		"specialId":"curlingbomblauncher",
+		"points":160,
+		"unlocked":21,
+		"cost":10500,
+		"stats":{
+			"range":78,
+			"chargespeed":90,
+			"mobility":80
+		},
+		"weight":"Light",
+		"ink":7
+	},
+	"bamboozler14mkiii":{
+		"id":"bamboozler14mkiii",
+		"name":"Bamboozler 14 Mk III",
+		"class":"Charger",
+		"subClass":"Charger",
+		"sub":"Fizzy Bomb",
+		"subId":"fizzybomb",
+		"special":"Bubble Blower",
+		"specialId":"bubbleblower",
+		"points":190,
+		"unlocked":21,
+		"cost":14400,
+		"stats":{
+			"range":78,
+			"chargespeed":90,
+			"mobility":80
+		},
+		"weight":"Light",
+		"ink":7
+	},
+	"gootuber":{
+		"id":"gootuber",
+		"name":"Goo Tuber",
+		"class":"Charger",
+		"subClass":"Charger",
+		"sub":"Suction Bomb",
+		"subId":"suctionbomb",
+		"special":"Splashdown",
+		"specialId":"splashdown",
+		"points":160,
+		"unlocked":22,
+		"cost":13400,
+		"stats":{
+			"range":78,
+			"chargespeed":30,
+			"mobility":70
+		},
+		"weight":"Medium",
+		"ink":15
+	},
+	"customgootuber":{
+		"id":"customgootuber",
+		"name":"Custom Goo Tuber",
+		"class":"Charger",
+		"subClass":"Charger",
+		"sub":"Curling Bomb",
+		"subId":"curlingbomb",
+		"special":"Inkjet",
+		"specialId":"inkjet",
+		"points":170,
+		"unlocked":28,
+		"cost":19300,
+		"stats":{
+			"range":78,
+			"chargespeed":30,
+			"mobility":70
+		},
+		"weight":"Medium",
+		"ink":15
+	},
+	"slosher":{
+		"id":"slosher",
+		"name":"Slosher",
+		"class":"Slosher",
+		"subClass":"Slosher",
+		"sub":"Suction Bomb",
+		"subId":"suctionbomb",
+		"special":"Tenta Missiles",
+		"specialId":"tentamissiles",
+		"points":190,
+		"unlocked":5,
+		"cost":2500,
+		"stats":{
+			"range":58,
+			"damage":85,
+			"handling":50
+		},
+		"weight":"Medium",
+		"ink":7
+	},
+	"slosherdeco":{
+		"id":"slosherdeco",
+		"name":"Slosher Deco",
+		"class":"Slosher",
+		"subClass":"Slosher",
+		"sub":"Sprinkler",
+		"subId":"sprinkler",
+		"special":"Baller",
+		"specialId":"baller",
+		"points":220,
+		"unlocked":8,
+		"cost":8000,
+		"stats":{
+			"range":58,
+			"damage":85,
+			"handling":50
+		},
+		"weight":"Medium",
+		"ink":7
+	},
+	"sodaslosher":{
+		"id":"sodaslosher",
+		"name":"Soda Slosher",
+		"class":"Slosher",
+		"subClass":"Slosher",
+		"sub":"Splat Bomb",
+		"subId":"splatbomb",
+		"special":"Curling Bomb Launcher",
+		"specialId":"curlingbomblauncher",
+		"points":200,
+		"unlocked":16,
+		"cost":13100,
+		"stats":{
+			"range":58,
+			"damage":85,
+			"handling":50
+		},
+		"weight":"Medium",
+		"ink":7
+	},
+	"heroslosherreplica":{
+		"id":"heroslosherreplica",
+		"name":"Hero Slosher Replica",
+		"class":"Slosher",
+		"subClass":"Slosher",
+		"sub":"Suction Bomb",
+		"subId":"suctionbomb",
+		"special":"Tenta Missiles",
+		"specialId":"tentamissiles",
+		"points":190,
+		"unlocked":5,
+		"cost":3100,
+		"stats":{
+			"range":58,
+			"damage":85,
+			"handling":50
+		},
+		"weight":"Medium",
+		"ink":7
+	},
+	"trislosher":{
+		"id":"trislosher",
+		"name":"Tri-Slosher",
+		"class":"Slosher",
+		"subClass":"Slosher",
+		"sub":"Burst Bomb",
+		"subId":"burstbomb",
+		"special":"Ink Armor",
+		"specialId":"inkarmor",
+		"points":190,
+		"unlocked":15,
+		"cost":10200,
+		"stats":{
+			"range":39,
+			"damage":80,
+			"handling":70
+		},
+		"weight":"Medium",
+		"ink":6
+	},
+	"trisloshernouveau":{
+		"id":"trisloshernouveau",
+		"name":"Tri-Slosher Nouveau",
+		"class":"Slosher",
+		"subClass":"Slosher",
+		"sub":"Splat Bomb",
+		"subId":"splatbomb",
+		"special":"Ink Storm",
+		"specialId":"inkstorm",
+		"points":170,
+		"unlocked":17,
+		"cost":11700,
+		"stats":{
+			"range":39,
+			"damage":80,
+			"handling":70
+		},
+		"weight":"Medium",
+		"ink":6
+	},
+	"sloshingmachine":{
+		"id":"sloshingmachine",
+		"name":"Sloshing Machine",
+		"class":"Slosher",
+		"subClass":"Slosher",
+		"sub":"Autobomb",
+		"subId":"autobomb",
+		"special":"Sting Ray",
+		"specialId":"stingray",
+		"points":190,
+		"unlocked":13,
+		"cost":12600,
+		"stats":{
+			"range":60,
+			"damage":90,
+			"handling":40
+		},
+		"weight":"Medium",
+		"ink":8.4
+	},
+	"sloshingmachineneo":{
+		"id":"sloshingmachineneo",
+		"name":"Sloshing Machine Neo",
+		"class":"Slosher",
+		"subClass":"Slosher",
+		"sub":"Point Sensor",
+		"subId":"pointsensor",
+		"special":"Splat Bomb Launcher",
+		"specialId":"splatbomblauncher",
+		"points":180,
+		"unlocked":19,
+		"cost":19800,
+		"stats":{
+			"range":60,
+			"damage":90,
+			"handling":40
+		},
+		"weight":"Medium",
+		"ink":8.4
+	},
+	"kensasloshingmachine":{
+		"id":"kensasloshingmachine",
+		"name":"Kensa Sloshing Machine",
+		"class":"Slosher",
+		"subClass":"Slosher",
+		"sub":"Fizzy Bomb",
+		"subId":"fizzybomb",
+		"special":"Splashdown",
+		"specialId":"splashdown",
+		"points":190,
+		"unlocked":21,
+		"cost":20700,
+		"stats":{
+			"range":60,
+			"damage":90,
+			"handling":40
+		},
+		"weight":"Medium",
+		"ink":8.4
+	},
+	"bloblobber":{
+		"id":"bloblobber",
+		"name":"Bloblobber",
+		"class":"Splatling",
+		"subClass":"Splatling",
+		"sub":"Splash Wall",
+		"subId":"splashwall",
+		"special":"Ink Storm",
+		"specialId":"inkstorm",
+		"points":180,
+		"unlocked":11,
+		"cost":10000,
+		"stats":{
+			"range":85,
+			"damage":29,
+			"handling":50
+		},
+		"weight":"Medium",
+		"ink":9
+	},
+	"bloblobberdeco":{
+		"id":"bloblobberdeco",
+		"name":"Bloblobber Deco",
+		"class":"Splatling",
+		"subClass":"Splatling",
+		"sub":"Sprinkler",
+		"subId":"sprinkler",
+		"special":"Sution Bomb Launcher",
+		"specialId":"sutionbomblauncher",
+		"points":190,
+		"unlocked":20,
+		"cost":17600,
+		"stats":{
+			"range":85,
+			"damage":29,
+			"handling":50
+		},
+		"weight":"Medium",
+		"ink":9
+	},
+	"explosher":{
+		"id":"explosher",
+		"name":"Explosher",
+		"class":"Splatling",
+		"subClass":"Splatling",
+		"sub":"Sprinkler",
+		"subId":"sprinkler",
+		"special":"Bubble Blower",
+		"specialId":"bubbleblower",
+		"points":210,
+		"unlocked":18,
+		"cost":10800,
+		"stats":{
+			"range":77,
+			"damage":65,
+			"handling":20
+		},
+		"weight":"Heavy",
+		"ink":11.7
+	},
+	"customexplosher":{
+		"id":"customexplosher",
+		"name":"Custom Explosher",
+		"class":"Splatling",
+		"subClass":"Splatling",
+		"sub":"Point Sensor",
+		"subId":"pointsensor",
+		"special":"Baller",
+		"specialId":"baller",
+		"points":210,
+		"unlocked":22,
+		"cost":12400,
+		"stats":{
+			"range":77,
+			"damage":65,
+			"handling":20
+		},
+		"weight":"Heavy",
+		"ink":11.7
+	},
+	"minisplatling":{
+		"id":"minisplatling",
+		"name":"Mini Splatling",
+		"class":"Splatling",
+		"subClass":"Splatling",
+		"sub":"Burst Bomb",
+		"subId":"burstbomb",
+		"special":"Tenta Missiles",
+		"specialId":"tentamissiles",
+		"points":190,
+		"unlocked":23,
+		"cost":12300,
+		"stats":{
+			"range":62,
+			"chargespeed":80,
+			"mobility":90
+		},
+		"weight":"Medium",
+		"ink":15
+	},
+	"zinkminisplatling":{
+		"id":"zinkminisplatling",
+		"name":"Zink Mini Splatling",
+		"class":"Splatling",
+		"subClass":"Splatling",
+		"sub":"Curling Bomb",
+		"subId":"curlingbomb",
+		"special":"Ink Storm",
+		"specialId":"inkstorm",
+		"points":180,
+		"unlocked":26,
+		"cost":15400,
+		"stats":{
+			"range":62,
+			"chargespeed":80,
+			"mobility":90
+		},
+		"weight":"Medium",
+		"ink":15
+	},
+	"kensaminisplatling":{
+		"id":"kensaminisplatling",
+		"name":"Kensa Mini Splatling",
+		"class":"Splatling",
+		"subClass":"Splatling",
+		"sub":"Toxic Mist",
+		"subId":"toxicmist",
+		"special":"Ultra Stamp",
+		"specialId":"ultrastamp",
+		"points":180,
+		"unlocked":29,
+		"cost":18800,
+		"stats":{
+			"range":62,
+			"chargespeed":80,
+			"mobility":90
+		},
+		"weight":"Medium",
+		"ink":15
+	},
+	"heavysplatling":{
+		"id":"heavysplatling",
+		"name":"Heavy Splatling",
+		"class":"Splatling",
+		"subClass":"Splatling",
+		"sub":"Sprinkler",
+		"subId":"sprinkler",
+		"special":"Sting Ray",
+		"specialId":"stingray",
+		"points":200,
+		"unlocked":8,
+		"cost":7800,
+		"stats":{
+			"range":78,
+			"chargespeed":38,
+			"mobility":50
+		},
+		"weight":"Medium",
+		"ink":22.5
+	},
+	"heavysplatlingdeco":{
+		"id":"heavysplatlingdeco",
+		"name":"Heavy Splatling Deco",
+		"class":"Splatling",
+		"subClass":"Splatling",
+		"sub":"Splash Wall",
+		"subId":"splashwall",
+		"special":"Bubble Blower",
+		"specialId":"bubbleblower",
+		"points":180,
+		"unlocked":12,
+		"cost":9600,
+		"stats":{
+			"range":78,
+			"chargespeed":38,
+			"mobility":50
+		},
+		"weight":"Medium",
+		"ink":22.5
+	},
+	"heavysplatlingremix":{
+		"id":"heavysplatlingremix",
+		"name":"Heavy Splatling Remix",
+		"class":"Splatling",
+		"subClass":"Splatling",
+		"sub":"Point Sensor",
+		"subId":"pointsensor",
+		"special":"Booyah Bomb",
+		"specialId":"booyahbomb",
+		"points":180,
+		"unlocked":19,
+		"cost":18300,
+		"stats":{
+			"range":78,
+			"chargespeed":38,
+			"mobility":50
+		},
+		"weight":"Medium",
+		"ink":22.5
+	},
+	"herosplatlingreplica":{
+		"id":"herosplatlingreplica",
+		"name":"Hero Splatling Replica",
+		"class":"Splatling",
+		"subClass":"Splatling",
+		"sub":"Sprinkler",
+		"subId":"sprinkler",
+		"special":"Sting Ray",
+		"specialId":"stingray",
+		"points":200,
+		"unlocked":8,
+		"cost":8600,
+		"stats":{
+			"range":78,
+			"chargespeed":38,
+			"mobility":50
+		},
+		"weight":"Medium",
+		"ink":22.5
+	},
+	"hydrasplatling":{
+		"id":"hydrasplatling",
+		"name":"Hydra Splatling",
+		"class":"Splatling",
+		"subClass":"Splatling",
+		"sub":"Autobomb",
+		"subId":"autobomb",
+		"special":"Splashdown",
+		"specialId":"splashdown",
+		"points":170,
+		"unlocked":27,
+		"cost":18500,
+		"stats":{
+			"range":85,
+			"chargespeed":10,
+			"mobility":20
+		},
+		"weight":"Heavy",
+		"ink":35
+	},
+	"customhydrasplatling":{
+		"id":"customhydrasplatling",
+		"name":"Custom Hydra Splatling",
+		"class":"Splatling",
+		"subClass":"Splatling",
+		"sub":"Ink Mine",
+		"subId":"inkmine",
+		"special":"Ink Armor",
+		"specialId":"inkarmor",
+		"points":200,
+		"unlocked":29,
+		"cost":33300,
+		"stats":{
+			"range":85,
+			"chargespeed":10,
+			"mobility":20
+		},
+		"weight":"Heavy",
+		"ink":35
+	},
+	"ballpointsplatling":{
+		"id":"ballpointsplatling",
+		"name":"Ballpoint Splatling",
+		"class":"Splatling",
+		"subClass":"Splatling",
+		"sub":"Toxic Mist",
+		"subId":"toxicmist",
+		"special":"Inkjet",
+		"specialId":"inkjet",
+		"points":200,
+		"unlocked":25,
+		"cost":11600,
+		"stats":{
+			"range":85,
+			"chargespeed":18,
+			"mobility":60
+		},
+		"weight":"Medium",
+		"ink":25
+	},
+	"ballpointsplatlingnouveau":{
+		"id":"ballpointsplatlingnouveau",
+		"name":"Ballpoint Splatling Nouveau",
+		"class":"Splatling",
+		"subClass":"Splatling",
+		"sub":"Squid Beakon",
+		"subId":"squidbeakon",
+		"special":"Ink Storm",
+		"specialId":"inkstorm",
+		"points":220,
+		"unlocked":28,
+		"cost":15800,
+		"stats":{
+			"range":85,
+			"chargespeed":18,
+			"mobility":60
+		},
+		"weight":"Medium",
+		"ink":25
+	},
+	"nautilus47":{
+		"id":"nautilus47",
+		"name":"Nautilus 47",
+		"class":"Splatling",
+		"subClass":"Splatling",
+		"sub":"Point Sensor",
+		"subId":"pointsensor",
+		"special":"Baller",
+		"specialId":"baller",
+		"points":180,
+		"unlocked":26,
+		"cost":14700,
+		"stats":{
+			"range":74,
+			"chargespeed":37,
+			"mobility":70
+		},
+		"weight":"Medium",
+		"ink":25
+	},
+	"nautilus79":{
+		"id":"nautilus79",
+		"name":"Nautilus 79",
+		"class":"Splatling",
+		"subClass":"Splatling",
+		"sub":"Suction Bomb",
+		"subId":"suctionbomb",
+		"special":"Inkjet",
+		"specialId":"inkjet",
+		"points":180,
+		"unlocked":30,
+		"cost":27900,
+		"stats":{
+			"range":74,
+			"chargespeed":37,
+			"mobility":70
+		},
+		"weight":"Medium",
+		"ink":25
+	},
+	"dappledualies":{
+		"id":"dappledualies",
+		"name":"Dapple Dualies",
+		"class":"Dualies",
+		"subClass":"Dualies",
+		"sub":"Squid Beakon",
+		"subId":"squidbeakon",
+		"special":"Sution Bomb Launcher",
+		"specialId":"sutionbomblauncher",
+		"points":170,
+		"unlocked":26,
+		"cost":14700,
+		"stats":{
+			"range":24,
+			"mobility":80,
+			"damage":47
+		},
+		"weight":"Light",
+		"ink":0.75
+	},
+	"dappledualiesnouveau":{
+		"id":"dappledualiesnouveau",
+		"name":"Dapple Dualies Nouveau",
+		"class":"Dualies",
+		"subClass":"Dualies",
+		"sub":"Toxic Mist",
+		"subId":"toxicmist",
+		"special":"Ink Storm",
+		"specialId":"inkstorm",
+		"points":170,
+		"unlocked":29,
+		"cost":17500,
+		"stats":{
+			"range":24,
+			"mobility":80,
+			"damage":47
+		},
+		"weight":"Light",
+		"ink":0.75
+	},
+	"cleardappledualies":{
+		"id":"cleardappledualies",
+		"name":"Clear Dapple Dualies",
+		"class":"Dualies",
+		"subClass":"Dualies",
+		"sub":"Torpedo",
+		"subId":"torpedo",
+		"special":"Ultra Stamp",
+		"specialId":"ultrastamp",
+		"points":170,
+		"unlocked":29,
+		"cost":22300,
+		"stats":{
+			"range":24,
+			"mobility":80,
+			"damage":47
+		},
+		"weight":"Light",
+		"ink":0.75
+	},
+	"splatdualies":{
+		"id":"splatdualies",
+		"name":"Splat Dualies",
+		"class":"Dualies",
+		"subClass":"Dualies",
+		"sub":"Burst Bomb",
+		"subId":"burstbomb",
+		"special":"Tenta Missiles",
+		"specialId":"tentamissiles",
+		"points":190,
+		"unlocked":4,
+		"cost":2400,
+		"stats":{
+			"range":50,
+			"mobility":70,
+			"damage":22
+		},
+		"weight":"Medium",
+		"ink":0.8
+	},
+	"enperrysplatdualies":{
+		"id":"enperrysplatdualies",
+		"name":"Enperry Splat Dualies",
+		"class":"Dualies",
+		"subClass":"Dualies",
+		"sub":"Curling Bomb",
+		"subId":"curlingbomb",
+		"special":"Inkjet",
+		"specialId":"inkjet",
+		"points":220,
+		"unlocked":11,
+		"cost":9000,
+		"stats":{
+			"range":50,
+			"mobility":70,
+			"damage":22
+		},
+		"weight":"Medium",
+		"ink":0.8
+	},
+	"kensasplatdualies":{
+		"id":"kensasplatdualies",
+		"name":"Kensa Splat Dualies",
+		"class":"Dualies",
+		"subClass":"Dualies",
+		"sub":"Suction Bomb",
+		"subId":"suctionbomb",
+		"special":"Baller",
+		"specialId":"baller",
+		"points":210,
+		"unlocked":16,
+		"cost":13000,
+		"stats":{
+			"range":50,
+			"mobility":70,
+			"damage":22
+		},
+		"weight":"Medium",
+		"ink":0.8
+	},
+	"herodualiereplicas":{
+		"id":"herodualiereplicas",
+		"name":"Hero Dualie Replicas",
+		"class":"Dualies",
+		"subClass":"Dualies",
+		"sub":"Burst Bomb",
+		"subId":"burstbomb",
+		"special":"Tenta Missiles",
+		"specialId":"tentamissiles",
+		"points":190,
+		"unlocked":4,
+		"cost":3100,
+		"stats":{
+			"range":50,
+			"mobility":70,
+			"damage":22
+		},
+		"weight":"Medium",
+		"ink":0.8
+	},
+	"gloogadualies":{
+		"id":"gloogadualies",
+		"name":"Glooga Dualies",
+		"class":"Dualies",
+		"subClass":"Dualies",
+		"sub":"Ink Mine",
+		"subId":"inkmine",
+		"special":"Inkjet",
+		"specialId":"inkjet",
+		"points":180,
+		"unlocked":17,
+		"cost":11800,
+		"stats":{
+			"range":66,
+			"mobility":35,
+			"damage":76
+		},
+		"weight":"Medium",
+		"ink":1.6
+	},
+	"gloogadualiesdeco":{
+		"id":"gloogadualiesdeco",
+		"name":"Glooga Dualies Deco",
+		"class":"Dualies",
+		"subClass":"Dualies",
+		"sub":"Splash Wall",
+		"subId":"splashwall",
+		"special":"Baller",
+		"specialId":"baller",
+		"points":180,
+		"unlocked":24,
+		"cost":13700,
+		"stats":{
+			"range":66,
+			"mobility":35,
+			"damage":76
+		},
+		"weight":"Medium",
+		"ink":1.6
+	},
+	"kensagloogadualies":{
+		"id":"kensagloogadualies",
+		"name":"Kensa Glooga Dualies",
+		"class":"Dualies",
+		"subClass":"Dualies",
+		"sub":"Fizzy Bomb",
+		"subId":"fizzybomb",
+		"special":"Ink Armor",
+		"specialId":"inkarmor",
+		"points":180,
+		"unlocked":27,
+		"cost":17000,
+		"stats":{
+			"range":66,
+			"mobility":35,
+			"damage":76
+		},
+		"weight":"Medium",
+		"ink":1.6
+	},
+	"dualiesquelchers":{
+		"id":"dualiesquelchers",
+		"name":"Dualie Squelchers",
+		"class":"Dualies",
+		"subClass":"Dualies",
+		"sub":"Point Sensor",
+		"subId":"pointsensor",
+		"special":"Tenta Missiles",
+		"specialId":"tentamissiles",
+		"points":190,
+		"unlocked":12,
+		"cost":9800,
+		"stats":{
+			"range":70,
+			"mobility":60,
+			"damage":22
+		},
+		"weight":"Medium",
+		"ink":1.2
+	},
+	"customdualiesquelchers":{
+		"id":"customdualiesquelchers",
+		"name":"Custom Dualie Squelchers",
+		"class":"Dualies",
+		"subClass":"Dualies",
+		"sub":"Splat Bomb",
+		"subId":"splatbomb",
+		"special":"Ink Storm",
+		"specialId":"inkstorm",
+		"points":210,
+		"unlocked":16,
+		"cost":12900,
+		"stats":{
+			"range":70,
+			"mobility":60,
+			"damage":22
+		},
+		"weight":"Medium",
+		"ink":1.2
+	},
+	"darktetradualies":{
+		"id":"darktetradualies",
+		"name":"Dark Tetra Dualies",
+		"class":"Dualies",
+		"subClass":"Dualies",
+		"sub":"Autobomb",
+		"subId":"autobomb",
+		"special":"Splashdown",
+		"specialId":"splashdown",
+		"points":190,
+		"unlocked":14,
+		"cost":10700,
+		"stats":{
+			"range":55,
+			"mobility":90,
+			"damage":22
+		},
+		"weight":"Medium",
+		"ink":0.8
+	},
+	"lighttetradualies":{
+		"id":"lighttetradualies",
+		"name":"Light Tetra Dualies",
+		"class":"Dualies",
+		"subClass":"Dualies",
+		"sub":"Sprinkler",
+		"subId":"sprinkler",
+		"special":"Autobomb Launcher",
+		"specialId":"autobomblauncher",
+		"points":200,
+		"unlocked":21,
+		"cost":13300,
+		"stats":{
+			"range":55,
+			"mobility":90,
+			"damage":22
+		},
+		"weight":"Medium",
+		"ink":0.8
+	},
+	"splatbrella":{
+		"id":"splatbrella",
+		"name":"Splat Brella",
+		"class":"Brella",
+		"subClass":"Brella",
+		"sub":"Sprinkler",
+		"subId":"sprinkler",
+		"special":"Ink Storm",
+		"specialId":"inkstorm",
+		"points":190,
+		"unlocked":9,
+		"cost":8300,
+		"stats":{
+			"range":43,
+			"durability":60,
+			"damage":65
+		},
+		"weight":"Medium",
+		"ink":5.5
+	},
+	"sorellabrella":{
+		"id":"sorellabrella",
+		"name":"Sorella Brella",
+		"class":"Brella",
+		"subClass":"Brella",
+		"sub":"Autobomb",
+		"subId":"autobomb",
+		"special":"Splat Bomb Launcher",
+		"specialId":"splatbomblauncher",
+		"points":180,
+		"unlocked":15,
+		"cost":12000,
+		"stats":{
+			"range":43,
+			"durability":60,
+			"damage":65
+		},
+		"weight":"Medium",
+		"ink":5.5
+	},
+	"herobrellareplica":{
+		"id":"herobrellareplica",
+		"name":"Hero Brella Replica",
+		"class":"Brella",
+		"subClass":"Brella",
+		"sub":"Sprinkler",
+		"subId":"sprinkler",
+		"special":"Ink Storm",
+		"specialId":"inkstorm",
+		"points":190,
+		"unlocked":9,
+		"cost":9000,
+		"stats":{
+			"range":43,
+			"durability":60,
+			"damage":65
+		},
+		"weight":"Medium",
+		"ink":5.5
+	},
+	"tentabrella":{
+		"id":"tentabrella",
+		"name":"Tenta Brella",
+		"class":"Brella",
+		"subClass":"Brella",
+		"sub":"Squid Beakon",
+		"subId":"squidbeakon",
+		"special":"Bubble Blower",
+		"specialId":"bubbleblower",
+		"points":190,
+		"unlocked":23,
+		"cost":14200,
+		"stats":{
+			"range":62,
+			"durability":85,
+			"damage":85
+		},
+		"weight":"Heavy",
+		"ink":10
+	},
+	"tentasorellabrella":{
+		"id":"tentasorellabrella",
+		"name":"Tenta Sorella Brella",
+		"class":"Brella",
+		"subClass":"Brella",
+		"sub":"Splash Wall",
+		"subId":"splashwall",
+		"special":"Splashdown",
+		"specialId":"splashdown",
+		"points":170,
+		"unlocked":28,
+		"cost":18600,
+		"stats":{
+			"range":62,
+			"durability":85,
+			"damage":85
+		},
+		"weight":"Heavy",
+		"ink":10
+	},
+	"tentacamobrella":{
+		"id":"tentacamobrella",
+		"name":"Tenta Camo Brella",
+		"class":"Brella",
+		"subClass":"Brella",
+		"sub":"Ink Mine",
+		"subId":"inkmine",
+		"special":"Ultra Stamp",
+		"specialId":"ultrastamp",
+		"points":190,
+		"unlocked":30,
+		"cost":29800,
+		"stats":{
+			"range":62,
+			"durability":85,
+			"damage":85
+		},
+		"weight":"Heavy",
+		"ink":10
+	},
+	"undercoverbrella":{
+		"id":"undercoverbrella",
+		"name":"Undercover Brella",
+		"class":"Brella",
+		"subClass":"Brella",
+		"sub":"Ink Mine",
+		"subId":"inkmine",
+		"special":"Splashdown",
+		"specialId":"splashdown",
+		"points":150,
+		"unlocked":13,
+		"cost":9100,
+		"stats":{
+			"range":50,
+			"durability":25,
+			"damage":30
+		},
+		"weight":"Medium",
+		"ink":4
+	},
+	"undercoversorellabrella":{
+		"id":"undercoversorellabrella",
+		"name":"Undercover Sorella Brella",
+		"class":"Brella",
+		"subClass":"Brella",
+		"sub":"Splat Bomb",
+		"subId":"splatbomb",
+		"special":"Baller",
+		"specialId":"baller",
+		"points":180,
+		"unlocked":19,
+		"cost":11900,
+		"stats":{
+			"range":50,
+			"durability":25,
+			"damage":30
+		},
+		"weight":"Medium",
+		"ink":4
+	},
+	"kensaundercoverbrella":{
+		"id":"kensaundercoverbrella",
+		"name":"Kensa Undercover Brella",
+		"class":"Brella",
+		"subClass":"Brella",
+		"sub":"Torpedo",
+		"subId":"torpedo",
+		"special":"Ink Armor",
+		"specialId":"inkarmor",
+		"points":180,
+		"unlocked":24,
+		"cost":14800,
+		"stats":{
+			"range":50,
+			"durability":25,
+			"damage":30
+		},
+		"weight":"Medium",
+		"ink":4
+	}
+}
