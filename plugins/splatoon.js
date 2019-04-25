@@ -227,7 +227,6 @@ const commands = {
 		for (let i = 0; i < paramaters.length; i++) {
 			let parts = paramaters[i];
 			// @ts-ignore
-			console.log(parts);
 			let value = parts.join('');
 			let broken = false;
 			// Basic paramaters
