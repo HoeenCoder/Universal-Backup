@@ -382,7 +382,7 @@ const commands = {
 		}
 	},
 	profile(target, room, user) {
-		//if (room && toId(room.title) !== 'splatoon') return this.reply(`This command can only be used in the Splatoon room.`);
+		if (room && toId(room.title) !== 'splatoon') return this.reply(`This command can only be used in the Splatoon room.`);
 		if (room && !this.can('broadcast', null, room)) return this.replyPM(`You must be of rank Voice or higher to use that command in ${room.title}`);
 		if (!room) {
 			let isInRoom = false;
@@ -408,7 +408,7 @@ const commands = {
 		out += `<li><b>Weapon</b>: <button class="button" name="send" value="/pm ${Config.nick}, ${Config.commandTokens[0]}weapon ${toId(profile.weapon)}">${profile.weapon}</button></li>`;
 		out += `<li><b>Team</b>: ${Tools.escapeHTML(profile.team)}</li></ul>`;
 
-		Chat.sendMessage('botdevelopment', out);
+		Chat.sendMessage('splatoon', out);
 	},
 	editprofile(target, room, user) {
 		if (room) return this.reply(`This command can only be used in PMs.`);
