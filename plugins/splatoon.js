@@ -387,7 +387,7 @@ const commands = {
 		if (!room) {
 			let isInRoom = false;
 			Rooms.rooms.forEach(r => {
-				if (r.users.has(user) && r.auth.get(toId(Config.nick)) === '*') {
+				if (r.users.has(toId(user)) && r.auth.get(toId(Config.nick)) === '*') {
 					isInRoom = true;
 					return;
 				}
@@ -401,12 +401,12 @@ const commands = {
 		const profile = profiles[target];
 
 		let out = room ? `/addhtmlbox ` : `/pminfobox ${user}, `;
-		out += `<h3>${Tools.escapeHTML(user)}'s Profile</h3><ul style="list-style:none; magin: 0; padding: 0;">`;
-		out += `<li><b>Level</b>: ${profile.level}</li>`;
-		out += `<li><b>Ranks</b>: <b>SZ</b>: ${profile.ranks.sz}, <b>TC</b>: ${profile.ranks.tc}, <b>RM</b>: ${profile.ranks.rm}, <b>CB</b>: ${profile.ranks.cb}</li>`;
-		out += `<li><b>Grizzco Title</b>: ${profile.title}</li>`;
-		out += `<li><b>Weapon</b>: <button class="button" name="send" value="/pm ${Config.nick}, ${Config.commandTokens[0]}weapon ${toId(profile.weapon)}">${profile.weapon}</button></li>`;
-		out += `<li><b>Team</b>: ${Tools.escapeHTML(profile.team)}</li></ul>`;
+		out += `<table style="border: 1px solid"><tr><th style="border-bottom: 1px solid" colspan="2">${Tools.escapeHTML(user)}'s Profile</th></tr>`;
+		out += `<tr><th style="border-right: 1px solid">Level</th><td>${profile.level}</td></tr>`;
+		out += `<tr><th style="border-right: 1px solid">Ranks</th><td><b>SZ</b>: ${profile.ranks.sz} <b>TC</b>: ${profile.ranks.tc} <b>RM</b>: ${profile.ranks.rm} <b>CB</b>: ${profile.ranks.cb}</td></tr>`;
+		out += `<tr><th style="border-right: 1px solid">Grizzco Title</th><td>${profile.title}</td></tr>`;
+		out += `<tr><th style="border-right: 1px solid">Weapon</th><td><button class="button" name="send" value="/pm ${Config.nick}, ${Config.commandTokens[0]}weapon ${toId(profile.weapon)}">${profile.weapon}</button></td></tr>`;
+		out += `<tr><th style="border-right: 1px solid">Team</th><td>${Tools.escapeHTML(profile.team)}</td></tr></table>`;
 
 		Chat.sendMessage('splatoon', out);
 	},
@@ -496,6 +496,7 @@ const commands = {
 		case 'team':
 			let team = parts.shift();
 			if (!team) team = 'None';
+			if (team.length > 20) return this.reply(`Your ${key} name is too long, it cannot be longer than 20 characters.`);
 
 			profiles[userid].team = team;
 			writeProfileJson();
