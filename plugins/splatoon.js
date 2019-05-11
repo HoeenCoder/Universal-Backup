@@ -46,6 +46,22 @@ const fs = require('fs');
  * @property {number=} handling // rollers, brushes, sloshers [slot 3]
  * @property {number=} durability // brellas [slot 2]
  */
+/**
+ * @typedef Profile
+ * @property {string} userid
+ * @property {string} level
+ * @property {Ranks} ranks
+ * @property {string} weapon
+ * @property {string} title
+ * @property {string} team
+ */
+/**
+ * @typedef Ranks
+ * @property {string} sz
+ * @property {string} tc
+ * @property {string} rm
+ * @property {string} cb
+ */
 
 /** @type {Rotation} */
 let SplatoonMaps = {
@@ -53,6 +69,14 @@ let SplatoonMaps = {
 	ranked: [],
 	league: [],
 };
+
+// Load profile data
+/** @type {{[userid: string]: Profile}} */
+let profiles = JSON.parse(fs.readFileSync('./config/splatoon-profiles.json'));
+
+function writeProfileJson() {
+	fs.writeFileSync('./config/splatoon-profiles.json', JSON.stringify(profiles));
+}
 
 // Load data for weapon/weaponsearch
 /** @type {Weapons} */
@@ -181,8 +205,11 @@ const commands = {
 			this.reply(`Rotation starts in ${Tools.toDurationString((SplatoonMaps.regular[index].startTime - now), {precision: 2})}`);
 		}
 	},
-	weapon(target, room) {
+	randomweapon: 'weapon',
+	randweapon: 'weapon',
+	weapon(target, room, user, cmd) {
 		if (room && toId(room.title) !== 'splatoon') return this.reply(`This command can only be used in the Splatoon room.`);
+		if (cmd !== 'weapon') target = Object.keys(weapons)[Math.floor(Math.random() * Object.keys(weapons).length)];
 		let id = toId(target);
 		if (!weapons[id]) return this.reply(`The weapon your looking for does not exist, try checking your spelling.`);
 		let statString = ``;
@@ -352,6 +379,129 @@ const commands = {
 			this.replyHTMLPM(reply);
 		} else {
 			this.reply(`/addhtmlbox ${reply}`);
+		}
+	},
+	profile(target, room, user) {
+		//if (room && toId(room.title) !== 'splatoon') return this.reply(`This command can only be used in the Splatoon room.`);
+		if (room && !this.can('broadcast', null, room)) return this.replyPM(`You must be of rank Voice or higher to use that command in ${room.title}`);
+		if (!room) {
+			let isInRoom = false;
+			Rooms.rooms.forEach(r => {
+				if (r.users.has(user) && r.auth.get(toId(Config.nick)) === '*') {
+					isInRoom = true;
+					return;
+				}
+			});
+			if (!isInRoom) return this.reply(`This command makes use of PM HTML boxes. Because of this, you must share a room with me that I have the bot rank in. Consider joining <<splatoon>>.`);
+		}
+
+		target = toId(target);
+		if (!target) target = toId(user);
+		if (!profiles[target]) return this.reply(`${target} has not setup a profile, have them set one up with ${Config.commandTokens[0]}editprofile.`);
+		const profile = profiles[target];
+
+		let out = room ? `/addhtmlbox ` : `/pminfobox ${user}, `;
+		out += `<h3>${Tools.escapeHTML(user)}'s Profile</h3><ul style="list-style:none; magin: 0; padding: 0;">`;
+		out += `<li><b>Level</b>: ${profile.level}</li>`;
+		out += `<li><b>Ranks</b>: <b>SZ</b>: ${profile.ranks.sz}, <b>TC</b>: ${profile.ranks.tc}, <b>RM</b>: ${profile.ranks.rm}, <b>CB</b>: ${profile.ranks.cb}</li>`;
+		out += `<li><b>Grizzco Title</b>: ${profile.title}</li>`;
+		out += `<li><b>Weapon</b>: <button class="button" name="send" value="/pm ${Config.nick}, ${Config.commandTokens[0]}weapon ${toId(profile.weapon)}">${profile.weapon}</button></li>`;
+		out += `<li><b>Team</b>: ${Tools.escapeHTML(profile.team)}</li></ul>`;
+
+		Chat.sendMessage('botdevelopment', out);
+	},
+	editprofile(target, room, user) {
+		if (room) return this.reply(`This command can only be used in PMs.`);
+
+		let userid = toId(user);
+		if (!profiles[userid]) {
+			profiles[userid] = {
+				userid: userid,
+				level: '1',
+				ranks: {
+					sz: 'C-',
+					tc: 'C-',
+					rm: 'C-',
+					cb: 'C-',
+				},
+				weapon: weapons['splattershotjr'].name,
+				title: 'Intern',
+				team: 'None',
+			};
+		}
+
+		let parts = target.split(',').map(x => {
+			return x.trim();
+		});
+		let key = toId(parts.shift());
+
+		switch (key) {
+		case 'level':
+			// 34, 56*
+			let levelStr = parts.shift();
+			let stared = false;
+			if (!levelStr) {
+				return this.reply(`No level provided, use the format ${Config.commandTokens[0]}editprofile level, [level OR level*].`);
+			}
+			if (levelStr.endsWith('*')) {
+				stared = true;
+				levelStr = levelStr.substring(0, levelStr.length - 1);
+			}
+			let level = parseInt(levelStr);
+			if (isNaN(level) || level < 1 || level > 99) return this.reply(`The level needs to be between 1 and 99.`);
+
+			profiles[userid].level = level + (stared ? '*' : '');
+			writeProfileJson();
+			return this.reply(`Your level was set to ${profiles[userid].level}.`);
+		case 'rank':
+			// sz/tc/rm/cb, C/B/A/S/X(+/-)
+			let mode = toId(parts.shift());
+			if (!['sz', 'tc', 'rm', 'cb'].includes(mode)) return this.reply(`Invalid mode provided, use the format ${Config.commandTokens[0]}editprofile rank, [sz OR tc OR rm OR cb], [valid rank]. Valid ranks are C-, C, C+, B-, B, B+, A-, A, A+, S, S+, X`);
+			let rank = parts.shift();
+			if (!rank) return this.reply(`Invalid mode provided, use the format ${Config.commandTokens[0]}editprofile rank, [sz OR tc OR rm OR cb], [valid rank]. Valid ranks are C-, C, C+, B-, B, B+, A-, A, A+, S, S+, X`);
+			rank = rank.toUpperCase();
+			if (!['C-', 'C', 'C+', 'B-', 'B', 'B+', 'A-', 'A', 'A+', 'S', 'S+', 'X'].includes(rank)) return this.reply(`Invalid mode provided, use the format ${Config.commandTokens[0]}editprofile rank, [sz OR tc OR rm OR cb], [valid rank]. Valid ranks are C-, C, C+, B-, B, B+, A-, A, A+, S, S+, X`);
+
+			// @ts-ignore
+			profiles[userid].ranks[mode] = rank;
+			writeProfileJson();
+			return this.reply(`Your ${mode.toUpperCase()} rank was set to ${rank}.`);
+		case 'title':
+		case 'grizzco':
+			let title = toId(parts.shift());
+			const titles = {
+				'intern': 'Intern',
+				'apprentice': 'Apprentice',
+				'parttimer': 'Part-Timer',
+				'gogetter': 'Go-Getter',
+				'overachiever': 'Overachiever',
+				'profreshional': 'Profreshional',
+			};
+			// @ts-ignore
+			if (!titles.hasOwnProperty(title)) return this.reply(`Invalid Grizzco title provided, use the format ${Config.commandTokens[0]}editprofile title, [title]. Valid titles are: ${Object.keys(titles).map(t => { return titles[t]; }).join(', ')}`);
+
+			// @ts-ignore
+			profiles[userid].title = titles[title];
+			writeProfileJson();
+			// @ts-ignore
+			return this.reply(`Your grizzco title was set to ${titles[title]}.`);
+		case 'weapon':
+			let weapon = toId(parts.shift());
+			if (!weapons.hasOwnProperty(weapon)) return this.reply(`Invalid weapon provided, use the format ${Config.commandTokens[0]}editprofile weapon, [weapon]. Valid weapons can be found with ${Config.commandTokens[0]}weaponsearch`);
+
+			profiles[userid].weapon = weapons[weapon].name;
+			writeProfileJson();
+			return this.reply(`Your weapon was set to the ${weapons[weapon].name}`);
+		case 'clan':
+		case 'team':
+			let team = parts.shift();
+			if (!team) team = 'None';
+
+			profiles[userid].team = team;
+			writeProfileJson();
+			return this.reply(`Your team was set to ${team}`);
+		default:
+			return this.reply(`Invalid option selected, use the format ${Config.commandTokens[0]}editprofile [level OR rank OR title OR weapon OR team], [options]. Use each subcommand for more information.`);
 		}
 	},
 };

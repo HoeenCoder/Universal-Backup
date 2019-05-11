@@ -176,7 +176,7 @@ class Client extends EventEmitter {
 					'Content-Length': loginQuerystring.length,
 				};
 			}
-			debug(`Sending login to ${reqOptions.hostname}: ${loginQuerystring || reqOptions.path}`);
+			//debug(`Sending login to ${reqOptions.hostname}: ${loginQuerystring || reqOptions.path}`);
 
 			const req = https.request(reqOptions, res => {
 				res.setEncoding('utf8');

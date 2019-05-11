@@ -1,6 +1,7 @@
 /config/*
 !/config/config-example.js
 !/config/splatoon.json
+!/config/splatoon-profiles.json
 /plugins/private.js
 /node_modules
 /eslint-cache
