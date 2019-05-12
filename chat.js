@@ -101,8 +101,7 @@ function parse(roomid, messageType, parts) {
 	case 'join':
 	case 'j':
 	case 'J': {
-		const [auth, nick] = Tools.splitUser(parts[0]);
-		if (room) room.userJoin(auth, nick);
+		if (room) room.userJoin(parts[0]);
 		normalisedType = 'join';
 		break;
 	}
@@ -115,9 +114,7 @@ function parse(roomid, messageType, parts) {
 	case 'name':
 	case 'n':
 	case 'N': {
-		const [auth, newNick] = Tools.splitUser(parts[0]);
-		const oldNick = parts[1];
-		if (room) room.userRename(oldNick, auth, newNick);
+		if (room) room.userRename(parts[1], parts[0]);
 		normalisedType = 'name';
 		break;
 	}

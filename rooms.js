@@ -53,8 +53,7 @@ class Room {
 	updateUserlist(users) {
 		const userList = users.split(',').slice(1);
 		for (const user of userList) {
-			const [auth, name] = Tools.splitUser(user);
-			this.userJoin(auth, name);
+			this.userJoin(user);
 		}
 	}
 
@@ -85,11 +84,10 @@ class Room {
 	}
 
 	/**
-	 * @param {string} group
 	 * @param {string} name
 	 */
-	userJoin(group, name) {
-		const [, username] = Tools.splitUser(name);
+	userJoin(name) {
+		const [group, username] = Tools.splitUser(name);
 		const userid = toId(username);
 		this.users.set(userid, name);
 		//this.auth.set(userid, group);
@@ -97,12 +95,11 @@ class Room {
 
 	/**
 	 * @param {string} from
-	 * @param {string} newGroup
 	 * @param {string} to
 	 */
-	userRename(from, newGroup, to) {
+	userRename(from, to) {
 		const [, oldName] = Tools.splitUser(from);
-		const [, newName] = Tools.splitUser(to);
+		const [newGroup, newName] = Tools.splitUser(to);
 		const oldId = toId(oldName);
 		const newId = toId(newName);
 		if (oldId === newId) {
