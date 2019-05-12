@@ -72,8 +72,13 @@ let SplatoonMaps = {
 
 // Load profile data
 /** @type {{[userid: string]: Profile}} */
-let profiles = JSON.parse(fs.readFileSync('./config/splatoon-profiles.json'));
-
+let profiles = {};
+try {
+	profiles = JSON.parse(fs.readFileSync('./config/splatoon-profiles.json'));
+} catch (e) {
+	// file probably dosen't exist, should fix itself on first write.
+	if (e.code !== 'ENOENT') throw e;
+}
 function writeProfileJson() {
 	fs.writeFileSync('./config/splatoon-profiles.json', JSON.stringify(profiles));
 }
@@ -401,7 +406,7 @@ const commands = {
 		const profile = profiles[target];
 
 		let out = room ? `/addhtmlbox ` : `/pminfobox ${user}, `;
-		out += `<table style="border: 1px solid"><tr><th style="border-bottom: 1px solid" colspan="2">${Tools.escapeHTML(user)}'s Profile</th></tr>`;
+		out += `<table style="border: 1px solid"><tr><th style="border-bottom: 1px solid" colspan="2">${Tools.escapeHTML(target)}'s Profile</th></tr>`;
 		out += `<tr><th style="border-right: 1px solid">Level</th><td>${profile.level}</td></tr>`;
 		out += `<tr><th style="border-right: 1px solid">Ranks</th><td><b>SZ</b>: ${profile.ranks.sz} <b>TC</b>: ${profile.ranks.tc} <b>RM</b>: ${profile.ranks.rm} <b>CB</b>: ${profile.ranks.cb}</td></tr>`;
 		out += `<tr><th style="border-right: 1px solid">Grizzco Title</th><td>${profile.title}</td></tr>`;
