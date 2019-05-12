@@ -34,7 +34,7 @@ Tools.lazyShuffle = function* (arr) {
  * @return {string[]}
  */
 Tools.splitUser = function (user) {
-	return [user.charAt(0), user.slice(1)];
+	return [user.charAt(0), ...user.slice(1).split('@')];
 };
 /**
  * @param {string} message

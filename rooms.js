@@ -76,7 +76,8 @@ class Room {
 	 * @param {string} name
 	 */
 	userLeave(name) {
-		const userid = toId(name);
+		const [, username] = Tools.splitUser(name);
+		const userid = toId(username);
 		const user = this.users.get(userid);
 		if (!user) return debug(`User '${userid}' trying to leave a room '${this.roomid}' when they're not in it`);
 		//this.auth.delete(userid);
@@ -88,7 +89,8 @@ class Room {
 	 * @param {string} name
 	 */
 	userJoin(group, name) {
-		const userid = toId(name);
+		const [, username] = Tools.splitUser(name);
+		const userid = toId(username);
 		this.users.set(userid, name);
 		//this.auth.set(userid, group);
 	}
@@ -99,8 +101,10 @@ class Room {
 	 * @param {string} to
 	 */
 	userRename(from, newGroup, to) {
-		const oldId = toId(from);
-		const newId = toId(to);
+		const [, oldName] = Tools.splitUser(from);
+		const [, newName] = Tools.splitUser(to);
+		const oldId = toId(oldName);
+		const newId = toId(newName);
 		if (oldId === newId) {
 			this.users.set(newId, to);
 			//this.auth.set(newId, newGroup);
