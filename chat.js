@@ -36,7 +36,7 @@ Chat.wait = function (duration) {
 	Chat.client.send((new Array(duration).fill(true)));
 };
 /** @type {{[k: string]: function}} */
-Chat.commands = {};
+Chat.Commands = {};
 
 Chat.loadCommands = function () {
 	Chat.Commands = require('./commands.js').commands;

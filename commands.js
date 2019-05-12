@@ -40,6 +40,22 @@ const commands = {
 		}
 		this.replyHTMLPM(result ? result.replace(/\n/g, '<br/>') : 'Error while updating');
 	},
+	hotpatch: function () {
+		if (!this.can('eval')) return;
+		Chat.uncacheDirectory('./plugins');
+		Chat.uncacheFile('./commands.js');
+		Chat.uncacheFile('./mafia.js');
+		Chat.uncacheFile('./mafia-data.js');
+		Chat.Commands = {};
+		try {
+			Chat.events = new Tools.Events();
+			global.Mafia = require('./mafia');
+			Chat.loadCommands();
+		} catch (e) {
+			this.replyPM(e);
+		}
+		this.replyPM(`Hotpatched. ${Object.keys(Chat.Commands).length} commands/aliases loaded`);
+	},
 	loadcredentials: function (target, room) {
 		if (!this.can('eval')) return false;
 		Chat.Slaves.LoadCredentials();
