@@ -36,7 +36,7 @@ const commands = {
 		try {
 			result = String(require('child_process').execSync('git fetch origin master && git merge origin master'));
 		} catch (e) {
-			this.replyHTMLPM(e ? e.replace(/\n/g, '<br/>') : 'Crash while updating');
+			this.replyHTMLPM(e.stack ? String(e.stack).replace(/\n/g, '<br/>') : 'Crash while updating');
 		}
 		this.replyHTMLPM(result ? result.replace(/\n/g, '<br/>') : 'Error while updating');
 	},
