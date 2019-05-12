@@ -87,7 +87,7 @@ class Room {
 	 * @param {string} name
 	 */
 	userJoin(name) {
-		const [group, username] = Tools.splitUser(name);
+		const [, username] = Tools.splitUser(name);
 		const userid = toId(username);
 		this.users.set(userid, name);
 		//this.auth.set(userid, group);
@@ -99,7 +99,7 @@ class Room {
 	 */
 	userRename(from, to) {
 		const [, oldName] = Tools.splitUser(from);
-		const [newGroup, newName] = Tools.splitUser(to);
+		const [, newName] = Tools.splitUser(to);
 		const oldId = toId(oldName);
 		const newId = toId(newName);
 		if (oldId === newId) {
