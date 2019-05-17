@@ -27,8 +27,6 @@ class Trivia extends Rooms.RoomGame {
 		super(room);
 		this.sendRoom(`A new game of ${name} is starting! First to ${scoreCap} points wins!`);
 
-		this.id = 'trivia';
-
 		/** @type {any} */
 		this.currentQuestion = null;
 
@@ -253,7 +251,7 @@ class KuncTrivia extends Trivia {
 const commands = {
 	g: 'guess',
 	guess: function (target, room, user) {
-		if (!room || !room.game || room.game.gameid !== 'trivia') return;
+		if (!room || !room.game || !(room.game instanceof Trivia)) return;
 		const game = /** @type {Trivia} */ (room.game);
 		game.answer(user, target);
 	},
