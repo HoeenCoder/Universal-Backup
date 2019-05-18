@@ -108,7 +108,7 @@ class MafiaCooldown extends Rooms.RoomGame {
 }
 
 Chat.events.on('error', (/** @type {Room} */room, /** @type {string[]} */details) => {
-	if (!room.mafiaCooldown) return;
+	if (!room || !room.mafiaCooldown) return;
 	if (details[0] === 'Nobody on the host queue could be hosted.' || details[0] === 'Nobody is on the host queue.') {
 		room.mafiaCooldown.onHostFail();
 	}

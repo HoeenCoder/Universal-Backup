@@ -24,6 +24,8 @@ class Room {
 		this.iso = null;
 		/** @type {Object} */
 		this.mafiaCooldown = null;
+		/** @type {import('./plugins/scavs').ScavengerHunt?} */
+		this.scavengerHunt = null;
 	}
 
 	/**
