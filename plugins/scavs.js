@@ -66,7 +66,7 @@ function addHunt(host, questions) {
 /** @type {import("../chat").ChatCommands} */
 const commands = {
 	scavoptions: function (target) {
-		if (!this.can('roommanagement')) return;
+		if (!this.can('leader')) return;
 		let [setting, option] = target.split(',');
 		setting = toId(setting);
 		if (setting === 'room') {

@@ -402,21 +402,21 @@ const commands = {
 	anon: 'an',
 	an: function (target, room, user) {
 		if (!room) return;
-		if (!this.can('games')) return;
+		if (!this.can('staff')) return;
 		if (room.game) return this.reply(`A ${room.game.gameid} game is already running.`);
 		room.game = new AnonController(room);
 	},
 	ag: function (target, room, user) {
 		const anonRoom = [...Rooms.rooms.values()].find(r => !!(r.game && ANON_GAMES.includes(r.game.gameid)));
 		if (!anonRoom) return;
-		if (!this.can('games')) return;
+		if (!this.can('staff')) return;
 		const game = /** @type {AnonController} */ (anonRoom.game);
 		const reply = game.addScumGroup(target.split(',').map(toId));
 		if (reply) this.reply(reply);
 	},
 	hydra: function (target, room, user) {
 		if (!room) return;
-		if (!this.can('games')) return;
+		if (!this.can('staff')) return;
 		if (room.game) return this.reply(`A ${room.game.gameid} game is already running.`);
 		room.game = new HydraController(room);
 	},
@@ -424,7 +424,7 @@ const commands = {
 	head: function (target, room, user) {
 		const anonRoom = [...Rooms.rooms.values()].find(r => !!(r.game && ANON_GAMES.includes(r.game.gameid)));
 		if (!anonRoom) return;
-		if (!this.can('games')) return;
+		if (!this.can('staff')) return;
 		const game = /** @type {AnonController} */ (anonRoom.game);
 		const players = target.split(',').map(toId);
 		const res = game.addPlayer(players);
@@ -432,7 +432,7 @@ const commands = {
 		if (res !== (void 0) && res) this.reply(res);
 	},
 	killslave: function (target, room, user) {
-		if (!this.can('games')) return;
+		if (!this.can('staff')) return;
 		if (!room || !room.game || !ANON_GAMES.includes(room.game.gameid)) return;
 		const game = /** @type {AnonController | HydraController} */ (room.game);
 		const slaveid = game.findSlave(toId(target));
@@ -445,7 +445,7 @@ const commands = {
 	sub: function (target, room, user, cmd) {
 		const anonRoom = [...Rooms.rooms.values()].find(r => !!(r.game && ANON_GAMES.includes(r.game.gameid)));
 		if (!anonRoom) return;
-		if (!this.can('games')) return;
+		if (!this.can('staff')) return;
 		const game = /** @type {AnonController} */ (anonRoom.game);
 		const [slaveId, targetId, target2Id] = target.split(',').map(toId);
 		if (!targetId || !slaveId) return this.reply('Invalid syntax.');
@@ -468,7 +468,7 @@ const commands = {
 	hydrahelp: 'anonhelp',
 	anonhelp: function (target, room) {
 		if (!room) return;
-		if (!this.can('games')) return;
+		if (!this.can('staff')) return;
 		this.reply(`!htmlbox ${INFO_MESSAGE}`);
 	},
 };

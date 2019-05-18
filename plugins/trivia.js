@@ -257,14 +257,14 @@ const commands = {
 	},
 
 	trivia: function (target, room, user) {
-		if (!room || !this.can('games')) return;
+		if (!room || !this.can('staff')) return;
 		if (room.game) return this.reply(`A game is already in progress`);
 		let cap = parseInt(target);
 		if (isNaN(cap) || cap < 1 || cap > Number.MAX_SAFE_INTEGER) cap = 5;
 		room.game = new AnswerTrivia(room, cap);
 	},
 	addquestion: function (target, room, user) {
-		if (!this.can('games')) return;
+		if (!this.can('staff')) return;
 		/** @type {string[]} */
 		const question = target.split('|').map((/** @type {string} */n) => n.trim());
 		if (question.length < 2) return this.reply(`Invalid question.`);
@@ -275,7 +275,7 @@ const commands = {
 		return this.reply(`Question added successfully.`);
 	},
 	removequestion: function (target, room, user) {
-		if (!this.can('games')) return;
+		if (!this.can('staff')) return;
 		let targetIndex = parseInt(target);
 		if (isNaN(targetIndex)) {
 			target = toId(target);
@@ -289,7 +289,7 @@ const commands = {
 		return;
 	},
 	questions: function (target, room, user) {
-		if (!this.can('games')) return;
+		if (!this.can('staff')) return;
 		if (!Questions.length) return this.replyPM(`No questions`);
 		if (room && !room.roomid.startsWith('groupchat-')) return this.replyPM(`Please don't use this in a proper room`);
 		let entries = [];
@@ -304,7 +304,7 @@ const commands = {
 	},
 
 	kunc: function (target, room, user) {
-		if (!room || !this.can('games')) return;
+		if (!room || !this.can('staff')) return;
 		if (room.game) return this.reply(`A game is already in progress`);
 		let cap = parseInt(target);
 		if (isNaN(cap) || cap < 1 || cap > Number.MAX_SAFE_INTEGER) cap = 5;

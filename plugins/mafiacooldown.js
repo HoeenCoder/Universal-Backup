@@ -136,7 +136,7 @@ Mafia.events.on('gameend', (/** @type {MafiaTracker} */tracker, /** @type {strin
 /** @type {import("../chat").ChatCommands} */
 const commands = {
 	createcooldown: function (target, room, user) {
-		if (!this.can('roommanagement')) return;
+		if (!this.can('leader')) return;
 		if (!room) return;
 		if (room.mafiaCooldown) return this.reply('Already exists');
 		room.mafiaCooldown = new MafiaCooldown(room);
@@ -144,7 +144,7 @@ const commands = {
 	},
 	enablecd: 'disablecd',
 	disablecd: function (target, room, user, cmd) {
-		if (!this.can('games')) return;
+		if (!this.can('staff')) return;
 		if (!room || !room.mafiaCooldown) return;
 		if (cmd === 'enablecd') {
 			room.mafiaCooldown.enable();
@@ -162,7 +162,7 @@ const commands = {
 		if (!room || !room.mafiaCooldown) return;
 		/** @type {MafiaCooldown} */
 		const cd = room.mafiaCooldown;
-		if (!this.can('games') && toId(cd.curHost) !== toId(user)) return;
+		if (!this.can('host')) return;
 		const safeTarget = Tools.sanitize(target);
 		if (!safeTarget) return;
 		cd.themeHistory.unshift(safeTarget);

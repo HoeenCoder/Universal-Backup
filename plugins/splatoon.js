@@ -234,7 +234,7 @@ const commands = {
 	ws: 'weaponsearch',
 	weaponsearch(target, room, user) {
 		if (room && toId(room.title) !== 'splatoon') return this.reply(`This command can only be used in the Splatoon room.`);
-		if (room && !this.can('broadcast', null, room)) return this.replyPM(`You must be of rank Voice or higher to use that command in ${room.title}`);
+		if (room && !this.can('auth')) return this.replyPM(`You must be of rank Voice or higher to use that command in ${room.title}`);
 		const helpInfo = `**Splatoon 2 Weapon Search Help**: https://pastebin.com/xB3L2epz`;
 		let paramaters = target.split(',').map(part => {
 			let parts = part.trim().split(' ');
@@ -388,7 +388,7 @@ const commands = {
 	},
 	profile(target, room, user) {
 		if (room && toId(room.title) !== 'splatoon') return this.reply(`This command can only be used in the Splatoon room.`);
-		if (room && !this.can('broadcast', null, room)) return this.replyPM(`You must be of rank Voice or higher to use that command in ${room.title}`);
+		if (room && !this.can('auth')) return this.replyPM(`You must be of rank Voice or higher to use that command in ${room.title}`);
 		if (!room) {
 			let isInRoom = false;
 			Rooms.rooms.forEach(r => {

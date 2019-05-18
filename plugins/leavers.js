@@ -68,7 +68,7 @@ Chat.events.on('chat', (/** @type {Room} */room, /** @type {string[]} */details)
 const commands = {
 	leaver: 'unleaver',
 	unleaver: function (target, room, user, cmd) {
-		if (!this.can('games')) return;
+		if (!this.can('staff')) return;
 		target = toId(target);
 		const apply = !cmd.startsWith('un');
 		if (!!pendingLeavers[target] === apply) return this.replyPM(`${target} is ${apply ? 'already' : 'not'} marked as a pending leaver.`);
@@ -77,7 +77,7 @@ const commands = {
 	},
 
 	clearleaver: function (target) {
-		if (!this.can('games')) return;
+		if (!this.can('staff')) return;
 		target = toId(target);
 		if (Leavers[target] !== (new Date().getMonth())) return this.replyPM(`${target} has not left any games this month.`);
 		delete Leavers[target];

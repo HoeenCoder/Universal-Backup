@@ -132,19 +132,19 @@ class Lighthouse extends Rooms.RoomGame {
 const commands = {
 	lighthouse: function (target, room, user) {
 		if (!room) return;
-		if (!this.can('games')) return false;
+		if (!this.can('staff')) return false;
 		if (room.game) return;
 		room.game = new Lighthouse(room);
 	},
 	lhstop: function (target, room, user) {
 		if (!room) return;
-		if (!this.can('games')) return false;
+		if (!this.can('staff')) return false;
 		if (!room.game || !(room.game instanceof Lighthouse)) return;
 		room.game.stop();
 	},
 	lhresume: function (target, room, user) {
 		if (!room) return;
-		if (!this.can('games')) return false;
+		if (!this.can('staff')) return false;
 		if (!room.game || !(room.game instanceof Lighthouse)) return;
 		room.game.resume();
 	},
@@ -163,7 +163,7 @@ const commands = {
 	modlynches: 'lynches',
 	lynches: function (target, room, user, cmd) {
 		if (!room || !room.game || !(room.game instanceof Lighthouse)) return;
-		if (!this.can('games')) return;
+		if (!this.can('staff')) return;
 
 		const m = cmd === 'modlynches';
 		const auth = room.auth.get(toId(Config.nick));
@@ -182,7 +182,7 @@ const commands = {
 	logs: function (target, room, user) {
 		const lighthouseRoom = [...Rooms.rooms.values()].find(r => !!(r.game && r.game instanceof Lighthouse));
 		if (!lighthouseRoom || !(lighthouseRoom.game instanceof Lighthouse)) return;
-		if (!this.can('games', null, lighthouseRoom)) return;
+		if (!this.can('staff', lighthouseRoom)) return;
 		this.replyHTMLPM(lighthouseRoom.game.log.join('<br/>') + '<br/>Blocked Messages<br/>' + lighthouseRoom.game.sketchyLog.join('<br/>'));
 		lighthouseRoom.game.log.push(`${user} is looking at logs!`);
 	},

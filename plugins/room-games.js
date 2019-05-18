@@ -11,7 +11,7 @@ const commands = {
 		room.game.leave(user, target);
 	},
 	end: function (target, room, user) {
-		if (!this.can('games') || !room || !room.game || !room.game.end) return;
+		if (!this.can('staff') || !room || !room.game || !room.game.end) return;
 		room.game.end(user, target);
 	},
 };

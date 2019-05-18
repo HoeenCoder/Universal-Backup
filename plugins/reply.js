@@ -49,14 +49,14 @@ const CODE_STRING = '!';
 /** @type {import("../chat").ChatCommands} */
 const commands = {
 	addcustom: function (target, room) {
-		if (!this.can('roommanagement')) return;
+		if (!this.can('leader')) return;
 		let [name, rank, ...text] = target.split(',');
 		if (!name || !rank || !text) return this.replyPM('Invalid syntax.');
 		const reply = text.join(',').trim();
 		name = toId(name);
 		rank = rank.trim();
 		if (!rank || rank.length !== 1) return this.replyPM('Invalid rank.');
-		if (Replies[name] || Chat.commands[name]) return this.replyPM('A command with this name already exists');
+		if (Replies[name] || Chat.Commands[name]) return this.replyPM('A command with this name already exists');
 		if (text.join(',') === CODE_STRING) {
 			if (!room) return this.replyPM(`You need to be in a room for this...`);
 
@@ -84,7 +84,7 @@ const commands = {
 		}
 	},
 	deletecustom: function (target) {
-		if (!this.can('roommanagement')) return;
+		if (!this.can('leader')) return;
 		const name = toId(target);
 		if (!Replies[name]) return this.reply(`${name} is not a command.`);
 		delete Replies[name];
@@ -92,7 +92,7 @@ const commands = {
 		return this.reply(`Done`);
 	},
 	viewcustoms: function () {
-		if (!this.can('games')) return;
+		if (!this.can('staff')) return;
 		this.replyPM(Object.keys(Replies).join(', '));
 	},
 };

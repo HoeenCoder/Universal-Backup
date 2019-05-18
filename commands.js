@@ -7,7 +7,7 @@
 const commands = {
 	js: 'eval',
 	eval: function (target, room, user) {
-		if (!this.can('eval') || !target) return;
+		if (!this.can('dev') || !target) return;
 		try {
 			let result = Tools.stringify(eval(target));
 			result = result.replace(/\n/g, '');
@@ -21,7 +21,7 @@ const commands = {
 		}
 	},
 	c: function (target, room, user) {
-		if (!this.can('eval') || !target) return;
+		if (!this.can('dev') || !target) return;
 		this.reply(target);
 	},
 	git: function () {
@@ -31,7 +31,7 @@ const commands = {
 		this.replyPM(`https://github.com/HoeenCoder/Universal-Backup/blob/master/docs.md`);
 	},
 	update: function (target) {
-		if (!this.can('eval')) return;
+		if (!this.can('dev')) return;
 		let result = '';
 		try {
 			result = String(require('child_process').execSync('git fetch origin master && git merge origin master'));
@@ -41,7 +41,7 @@ const commands = {
 		this.replyHTMLPM(result ? result.replace(/\n/g, '<br/>') : 'Error while updating');
 	},
 	hotpatch: function () {
-		if (!this.can('eval')) return;
+		if (!this.can('dev')) return;
 		Chat.uncacheDirectory('./plugins');
 		Chat.uncacheFile('./commands.js');
 		Chat.uncacheFile('./mafia.js');
@@ -57,7 +57,7 @@ const commands = {
 		this.replyPM(`Hotpatched. ${Object.keys(Chat.Commands).length} commands/aliases loaded`);
 	},
 	loadcredentials: function (target, room) {
-		if (!this.can('eval')) return false;
+		if (!this.can('dev')) return false;
 		Chat.Slaves.LoadCredentials();
 		this.reply(`Reloaded credentials. ${Chat.Slaves.CountCredentials()} accounts are available.`);
 	},

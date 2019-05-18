@@ -237,7 +237,7 @@ function parseChat(roomid, userstr, message) {
 
 	if (!user[1] && user[0] === '~') user = ['', '~'];
 	if (user[1] === Config.nick) return;
-	new ChatParser(message, user[1], room).parse();
+	new ChatParser(message, user, room).parse();
 }
 
 /**
@@ -247,7 +247,7 @@ function parseChat(roomid, userstr, message) {
 function parsePM(from, message) {
 	if (toId(from) === toId(Config.nick)) return;
 	const user = Tools.splitUser(from);
-	new ChatParser(message, user[1], null).parse();
+	new ChatParser(message, user, null).parse();
 }
 
 /**
@@ -275,19 +275,14 @@ Chat.strong = function (room, message) {
 class ChatParser {
 	/**
 	 * @param {string} message
-	 * @param {string} user
+	 * @param {string[]} user
 	 * @param {Room | null} [room]
 	 */
 	constructor(message, user, room = null) {
 		this.room = room;
-		this.user = user;
-		this.userid = toId(user);
-		if (this.room) {
-			this.group = this.room.getAuth(toId(this.user));
-		} else {
-			const primaryRoom = Rooms(Config.primaryRoom);
-			this.group = primaryRoom && primaryRoom.getAuth(toId(this.user));
-		}
+		this.auth = user[0] || ' ';
+		this.user = user[1] || '';
+		this.userid = toId(this.user);
 		this.message = message;
 	}
 
@@ -358,40 +353,27 @@ class ChatParser {
 		return this.room && this.room.users.get(toId(userid)) || null;
 	}
 	/**
-	 * @param {string} permission
-	 * @param {[string, string]?} targetUser
+	 * @param {'host' | 'auth' | 'staff' | 'leader' | 'dev'} permission
 	 * @param {Room?} room
 	 * @return {boolean}
 	 */
-	can(permission, targetUser = null, room = null) {
-		if (Config.developers && Config.developers.includes(toId(this.user))) return true;
-		if (permission === 'eval') return false;
+	can(permission, room = null) {
+		if (Config.developers && Config.developers.includes(this.userid)) return true;
+		if (permission === 'dev') return false;
 
-		const groupsIndex = Object.keys(Config.groups);
-		let group = this.group;
-		//if (room && groupsIndex.indexOf(room.getAuth(this.userid)) > groupsIndex.indexOf(this.group)) group = room.getAuth(this.userid);
-		if (!group) group = ' '; // should never happen
-		let permissions = Config.groups[group];
-		if (!permissions) return false; // ??!
-		if (permissions.root) return true;
-		let auth = permissions[permission];
-		if (auth === undefined && permissions.inherit) {
-			let depth = 0;
-			while (auth === undefined && permissions.inherit && depth < 10) {
-				permissions = Config.groups[permissions.inherit];
-				if (!permissions) break;
-				auth = permissions[permission];
-				depth++;
-			}
+		let group = this.auth;
+		// todo - rewrite this when the new |groups| protocol arrives
+		switch (permission) {
+		case 'host':
+			if (room && room.mafiaTracker && room.mafiaTracker.hostid === this.userid) return true;
+		case 'auth':
+			if (group === '+') return true;
+		case 'staff':
+			if (['%', '@', '*'].includes(group)) return true;
+		case 'leader':
+			if (['#', '&', '~'].includes(group)) return true;
 		}
-		switch (auth) {
-		case 'u':
-			return !!(targetUser && groupsIndex.indexOf(group) > groupsIndex.indexOf(targetUser[0]));
-		case 's':
-			return !!(targetUser && targetUser[1] === this.userid);
-		default:
-			return !!auth;
-		}
+		return false;
 	}
 }
 

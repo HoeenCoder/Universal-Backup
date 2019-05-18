@@ -3,7 +3,7 @@
 /** @type {import("../chat").ChatCommands} */
 const commands = {
 	game: function (target, room) {
-		if (!this.can('games')) return false;
+		if (!this.can('staff')) return false;
 		if (!room || !room.mafiaTracker) return this.reply(`No mafia game running...`);
 		if (room.mafiaTracker.hostid !== toId(Config.nick)) return this.reply(`I'm not the host...`);
 		const game = Mafia.games[toId(target)];
@@ -11,7 +11,7 @@ const commands = {
 		room.mafiaTracker.addGame(game);
 	},
 	start: function (target, room) {
-		if (!this.can('games')) return false;
+		if (!this.can('staff')) return false;
 		if (!room || !room.mafiaTracker || !room.mafiaTracker.game) return this.reply(`No mafia game running...`);
 		if (!room.mafiaTracker.game.triggers.start) return this.reply(`Unsupported`);
 		room.mafiaTracker.game.triggers.start.call(room.mafiaTracker);
