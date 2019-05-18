@@ -80,6 +80,8 @@ Tools.lazyShuffle = function* (arr) {
  * @return {string[]}
  */
 Tools.splitUser = function (user) {
+	// happens when logging out
+	if (user.charAt(0).match(/[a-z0-9]/i)) return [' ', ...user.split('@')];
 	return [user.charAt(0), ...user.slice(1).split('@')];
 };
 /**
