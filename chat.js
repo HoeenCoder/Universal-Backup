@@ -366,10 +366,13 @@ class ChatParser {
 		switch (permission) {
 		case 'host':
 			if (room && room.mafiaTracker && room.mafiaTracker.hostid === this.userid) return true;
+			// falls through
 		case 'auth':
 			if (group === '+') return true;
+			// falls through
 		case 'staff':
 			if (['%', '@', '*'].includes(group)) return true;
+			// falls through
 		case 'leader':
 			if (['#', '&', '~'].includes(group)) return true;
 		}
