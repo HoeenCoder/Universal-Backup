@@ -162,7 +162,7 @@ const commands = {
 		if (!room || !room.mafiaCooldown) return;
 		/** @type {MafiaCooldown} */
 		const cd = room.mafiaCooldown;
-		if (!this.can('host')) return;
+		if (!this.can('host') && toId(cd.curHost) !== toId(user)) return;
 		const safeTarget = Tools.sanitize(target);
 		if (!safeTarget) return;
 		cd.themeHistory.unshift(safeTarget);
