@@ -91,7 +91,7 @@ class Room {
 	userJoin(name) {
 		const [, username] = Tools.splitUser(name);
 		const userid = toId(username);
-		this.users.set(userid, name);
+		this.users.set(userid, username);
 		//this.auth.set(userid, group);
 	}
 
@@ -105,16 +105,16 @@ class Room {
 		const oldId = toId(oldName);
 		const newId = toId(newName);
 		if (oldId === newId) {
-			this.users.set(newId, to);
+			this.users.set(newId, newName);
 			//this.auth.set(newId, newGroup);
 			return;
 		}
 		this.users.delete(oldId);
 		//this.auth.delete(oldId);
-		this.users.set(newId, to);
+		this.users.set(newId, newName);
 		//this.auth.set(newId, newGroup);
 		debug(`User rename in '${this.roomid}': '${from}' => '${to}'`);
-		if (this.game && this.game.onRename) this.game.onRename(oldId, to);
+		if (this.game && this.game.onRename) this.game.onRename(oldId, newName);
 	}
 
 	/**

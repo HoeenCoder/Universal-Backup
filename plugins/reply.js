@@ -65,9 +65,9 @@ const commands = {
 				const message = details.join('|');
 				let res;
 				if ((res = message.match(CODE_REGEX))) {
-					Replies[name] = {rank, reply: res[1].replace(/<br \/>/g, '\n').trim()};
+					Replies[name] = {rank, reply: Tools.unescapeHTML(res[1].replace(/<br \/>/g, '\n').trim())};
 				} else if ((res = message.match(CODE_ML_REGEX))) {
-					Replies[name] = {rank, reply: `${res[1].replace(/<br \/>/g, '\n')}\n${res[2].replace(/<br \/>/g, '\n')}`};
+					Replies[name] = {rank, reply: Tools.unescapeHTML(`${res[1].replace(/<br \/>/g, '\n')}\n${res[2].replace(/<br \/>/g, '\n')}`)};
 				} else {
 					return false;
 				}
