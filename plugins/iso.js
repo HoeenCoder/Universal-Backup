@@ -96,7 +96,7 @@ const commands = {
 		} else {
 			isoRoom = [...Rooms.rooms.values()].find(room => room.mafiaTracker && room.mafiaTracker.players[userid]) || Rooms(Config.primaryRoom);
 		}
-		if (!isoRoom || !isoRoom.mafiaTracker.iso) return this.replyPM(`No iso for room ${isoRoom ? isoRoom.roomid : 'undefined'}, if this isnt your room, give it as your first argument.`);
+		if (!isoRoom || !isoRoom.mafiaTracker || !isoRoom.mafiaTracker.iso) return this.replyPM(`No iso for room ${isoRoom ? isoRoom.roomid : 'undefined'}, if this isnt your room, give it as your first argument.`);
 
 		const searchAuthors = ['~', ...args.map(toId)];
 		const authors = isoRoom.mafiaTracker.iso.authors;

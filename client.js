@@ -234,7 +234,7 @@ class Client extends EventEmitter {
 			// '0' (guest user) or '1' (actually logged in). We only want the latter so we can actually
 			// do stuff.
 			const [serverName, loginStatus] = parts;
-			if (serverName !== this.options.nick) {
+			if (serverName.slice(1) !== this.options.nick) {
 				if (toId(serverName) === toId(this.options.nick)) {
 					this.send(`|/trn ${this.options.nick}`);
 				}
@@ -243,9 +243,9 @@ class Client extends EventEmitter {
 			if (loginStatus !== '1') {
 				console.log("UPDATEUSER - failed to log in, still a guest");
 				this.emit('loginfailed');
+				return;
 			}
 			if (this.options.avatar) this.send(`|/avatar ${this.options.avatar}`);
-
 			// Since autojoining happened before sending /trn, now we can join any extra rooms.
 			if (this.extraJoin) this.send(this.extraJoin.map(roomid => `|/join ${roomid}`));
 			this.emit('login');

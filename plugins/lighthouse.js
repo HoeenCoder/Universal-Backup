@@ -80,7 +80,7 @@ class Lighthouse extends Rooms.RoomGame {
 		if (!this.lynches[targetid]) this.lynches[targetid] = [];
 		this.lynches[targetid].push(userid);
 		if (this.lynches[targetid].length >= Math.floor(this.room.mafiaTracker.aliveCount / 2) + 1) {
-			this.sendRoom(Chat.strong(this.room, `**${targetid} was hammered!**`));
+			this.sendRoom(Chat.strong(this.room, `${targetid} was hammered!`));
 			this.stop();
 			return;
 		}
@@ -100,7 +100,7 @@ class Lighthouse extends Rooms.RoomGame {
 		if (!this.lynching[userid]) return sendPM(userid, `You are not lynching anyone`);
 
 		this.lynches[this.lynching[userid]].splice(this.lynches[this.lynching[userid]].indexOf(userid), 1);
-		this.sendRoom(`**Someone unlynched ${this.lynching[userid]}**`);
+		this.sendRoom(Chat.strong(this.room, `Someone unlynched ${this.lynching[userid]}`));
 		delete this.lynching[userid];
 		this.log.push(`UNLYNCH: ${userid}`);
 		return;
