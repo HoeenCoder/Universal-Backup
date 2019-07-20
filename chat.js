@@ -361,7 +361,7 @@ class ChatParser {
 		if (Config.developers && Config.developers.includes(this.userid)) return true;
 		if (permission === 'dev') return false;
 
-		let group = this.auth;
+		let group = (room && room.auth.get(this.userid)) || this.auth;
 		// todo - rewrite this when the new |groups| protocol arrives
 		switch (permission) {
 		case 'host':

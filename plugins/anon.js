@@ -409,7 +409,7 @@ const commands = {
 	ag: function (target, room, user) {
 		const anonRoom = [...Rooms.rooms.values()].find(r => !!(r.game && ANON_GAMES.includes(r.game.gameid)));
 		if (!anonRoom) return;
-		if (!this.can('staff')) return;
+		if (!this.can('staff', anonRoom)) return;
 		const game = /** @type {AnonController} */ (anonRoom.game);
 		const reply = game.addScumGroup(target.split(',').map(toId));
 		if (reply) this.reply(reply);
@@ -424,7 +424,7 @@ const commands = {
 	head: function (target, room, user) {
 		const anonRoom = [...Rooms.rooms.values()].find(r => !!(r.game && ANON_GAMES.includes(r.game.gameid)));
 		if (!anonRoom) return;
-		if (!this.can('staff')) return;
+		if (!this.can('staff', anonRoom)) return;
 		const game = /** @type {AnonController} */ (anonRoom.game);
 		const players = target.split(',').map(toId);
 		const res = game.addPlayer(players);
@@ -445,7 +445,7 @@ const commands = {
 	sub: function (target, room, user, cmd) {
 		const anonRoom = [...Rooms.rooms.values()].find(r => !!(r.game && ANON_GAMES.includes(r.game.gameid)));
 		if (!anonRoom) return;
-		if (!this.can('staff')) return;
+		if (!this.can('staff', anonRoom)) return;
 		const game = /** @type {AnonController} */ (anonRoom.game);
 		const [slaveId, targetId, target2Id] = target.split(',').map(toId);
 		if (!targetId || !slaveId) return this.reply('Invalid syntax.');
