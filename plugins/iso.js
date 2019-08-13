@@ -46,7 +46,8 @@ class ISO {
 			this.dayStats[author][1]++;
 		});
 
-		room.mafiaTracker.addMafiaListener('night', () => {
+		room.mafiaTracker.addMafiaListener('night', (/** @type {string[]} */details) => {
+			this.nightCount = details[0];
 			this.sendActivity();
 		});
 	}
@@ -98,7 +99,7 @@ class ISO {
 	}
 
 	/**
-	 * @param {string?} target
+	 * @param {string} [target]
 	 */
 	sendActivity(target) {
 		/** @type {string} */
@@ -111,7 +112,7 @@ class ISO {
 		if (buf) {
 			const pmRoom = Rooms.canPMInfobox(user);
 			if (!pmRoom) return Chat.sendPM(user, `Can't send you HTML, make sure that I have the bot rank in a room you're in.`);
-			Chat.sendMessage(pmRoom, `/pminfobox ${user}, ${buf}`);
+			Chat.sendMessage(pmRoom, `/pminfobox ${user}, <div>Linecounts for day ${this.nightCount}</div>${buf}`);
 		}
 	}
 }
