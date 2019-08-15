@@ -210,8 +210,8 @@ class MafiaTracker extends Rooms.RoomGame {
 		/** @type {object[]} */
 		this.mafiaListeners = [];
 
-		/** @type {{log: string[], authors: string[][]}} */
-		this.iso = {log: [], authors: []};
+		/** @type {import('./plugins/iso').ISO?} */
+		this.iso = null;
 
 		this.log(`init ${this.host}`);
 
