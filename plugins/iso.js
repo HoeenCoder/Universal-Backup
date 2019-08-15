@@ -27,7 +27,7 @@ class ISO {
 			this.addHTML(`<span class="broadcast-blue">Day ${details[0]}</span>`, ['~']);
 			this.dayStats = {};
 			for (const player in this.mafiaTracker.players) {
-				this.dayStats[player] = [0, 0];
+				if (!this.mafiaTracker.players[player].dead) this.dayStats[player] = [0, 0];
 			}
 		});
 		room.mafiaTracker.addMafiaListener('kill', (/** @type {string[]} */details, /** @type {string} */message) => {
@@ -112,7 +112,7 @@ class ISO {
 		if (buf) {
 			const pmRoom = Rooms.canPMInfobox(user);
 			if (!pmRoom) return Chat.sendPM(user, `Can't send you HTML, make sure that I have the bot rank in a room you're in.`);
-			Chat.sendMessage(pmRoom, `/pminfobox ${user}, <div>Linecounts for day ${this.nightCount}</div>${buf}`);
+			Chat.sendMessage(pmRoom, `/pminfobox ${user}, <div>Linecounts for day ${this.nightCount || 1}</div>${buf}`);
 		}
 	}
 }
