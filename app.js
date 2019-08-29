@@ -66,4 +66,34 @@ global.sendMessage = Chat.sendMessage;
 global.sendPM = Chat.sendPM;
 
 
+if (Config.webhookCrashURL) {
+	const https = require('https');
+	function reportError(/** @type {Error}} */e) {
+		const data = {
+			content: e.stack,
+		};
+		const reqOptions = {
+			hostname: "discordapp.com",
+			path: `/api/webhooks/${Config.webhookCrashURL}`,
+			agent: false,
+			method: 'POST',
+			headers: {
+				'Content-Type': 'multipart/form-data',
+			},
+		};
+
+		const req = https.request(reqOptions, res => {});
+		req.on('error', e => {
+			console.error(`Error while making request: ${e.stack}`);
+			return;
+		});
+		req.write(JSON.stringify(data));
+		req.end();
+	}
+
+	process.on('uncaughtException', (e) => {
+		reportError(e);
+	});
+}
+
 Chat.client.connect();
