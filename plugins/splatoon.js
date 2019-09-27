@@ -378,7 +378,7 @@ const commands = {
 				reply += `<br/> and ${matches.length - 15} more. Add the "all" paramater to show all matches.`;
 				break;
 			}
-			reply += `<button class="button" name="send" value="${!room ? `/pm ${Config.nick}, ` : ''}${Config.commandTokens[0]}weapon ${matches[i]}">${matches[i]}</button> `;
+			reply += `<button class="button" name="send" value="/pm ${Config.nick}, ${Config.commandTokens[0]}weapon ${matches[i]}">${matches[i]}</button> `;
 		}
 		if (!room) {
 			this.replyHTMLPM(reply);
