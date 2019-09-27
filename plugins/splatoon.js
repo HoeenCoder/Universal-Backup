@@ -194,7 +194,7 @@ const commands = {
 	later: 'maps',
 	next: 'maps',
 	async maps(target, room, user, cmd) {
-		if (room && toId(room.title) !== 'splatoon') return this.reply(`This command can only be used in the Splatoon room.`);
+		if (room && toId(room.title) !== 'videogames') return this.reply(`This command can only be used in the Video Games room.`);
 		await pruneMaps();
 		const now = Date.now();
 		let index = 0;
@@ -213,7 +213,7 @@ const commands = {
 	randomweapon: 'weapon',
 	randweapon: 'weapon',
 	weapon(target, room, user, cmd) {
-		if (room && toId(room.title) !== 'splatoon') return this.reply(`This command can only be used in the Splatoon room.`);
+		if (room && toId(room.title) !== 'videogames') return this.reply(`This command can only be used in the Video Games room.`);
 		if (cmd !== 'weapon') target = Object.keys(weapons)[Math.floor(Math.random() * Object.keys(weapons).length)];
 		let id = toId(target);
 		if (!weapons[id]) return this.reply(`The weapon your looking for does not exist, try checking your spelling.`);
@@ -233,8 +233,8 @@ const commands = {
 	},
 	ws: 'weaponsearch',
 	weaponsearch(target, room, user) {
-		if (room && toId(room.title) !== 'splatoon') return this.reply(`This command can only be used in the Splatoon room.`);
-		if (room && !this.can('auth')) return this.replyPM(`You must be of rank Voice or higher to use that command in ${room.title}`);
+		if (room && toId(room.title) !== 'videogames') return this.reply(`This command can only be used in the Video Games room.`);
+		//if (room && !this.can('auth')) return this.replyPM(`You must be of rank Voice or higher to use that command in ${room.title}`);
 		const helpInfo = `**Splatoon 2 Weapon Search Help**: https://pastebin.com/xB3L2epz`;
 		let paramaters = target.split(',').map(part => {
 			let parts = part.trim().split(' ');
@@ -387,8 +387,8 @@ const commands = {
 		}
 	},
 	profile(target, room, user) {
-		if (room && toId(room.title) !== 'splatoon') return this.reply(`This command can only be used in the Splatoon room.`);
-		if (room && !this.can('auth')) return this.replyPM(`You must be of rank Voice or higher to use that command in ${room.title}`);
+		if (room && toId(room.title) !== 'videogames') return this.reply(`This command can only be used in the Video Games room.`);
+		//if (room && !this.can('auth')) return this.replyPM(`You must be of rank Voice or higher to use that command in ${room.title}`);
 		if (!room) {
 			let isInRoom = false;
 			Rooms.rooms.forEach(r => {
@@ -397,7 +397,7 @@ const commands = {
 					return;
 				}
 			});
-			if (!isInRoom) return this.reply(`This command makes use of PM HTML boxes. Because of this, you must share a room with me that I have the bot rank in. Consider joining <<splatoon>>.`);
+			if (!isInRoom) return this.reply(`This command makes use of PM HTML boxes. Because of this, you must share a room with me that I have the bot rank in. Consider joining <<videogames>>.`);
 		}
 
 		target = toId(target);
@@ -413,7 +413,7 @@ const commands = {
 		out += `<tr><th style="border-right: 1px solid">Weapon</th><td><button class="button" name="send" value="/pm ${Config.nick}, ${Config.commandTokens[0]}weapon ${toId(profile.weapon)}">${profile.weapon}</button></td></tr>`;
 		out += `<tr><th style="border-right: 1px solid">Team</th><td>${Tools.escapeHTML(profile.team)}</td></tr></table>`;
 
-		Chat.sendMessage('splatoon', out);
+		Chat.sendMessage(room ? room.roomid : null, out);
 	},
 	editprofile(target, room, user) {
 		if (room) return this.reply(`This command can only be used in PMs.`);
