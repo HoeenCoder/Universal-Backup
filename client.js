@@ -108,7 +108,7 @@ class Client extends EventEmitter {
 			this.sendTimeout = null;
 			const toSend = this.sendQueue.shift();
 			if (toSend !== undefined) this.send(toSend);
-		}, 600);
+		}, 100);
 	}
 
 	/**
