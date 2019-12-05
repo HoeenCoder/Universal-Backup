@@ -399,12 +399,15 @@ class HydraController extends AnonController {
 
 /** @type {import("../chat").ChatCommands} */
 const commands = {
-	anon: 'an',
-	an: function (target, room, user) {
+	anon: function (target, room, user) {
 		if (!room) return;
 		if (!this.can('staff')) return;
+		if (target.trim()) return this.replyPM(`(If you meant to start an anon game, use \`\`@anon\`\` by itself)`);
 		if (room.game) return this.reply(`A ${room.game.gameid} game is already running.`);
 		room.game = new AnonController(room);
+	},
+	an: function (target, room, user) {
+		return this.replyPM(`did you mean .anon?`);
 	},
 	ag: function (target, room, user) {
 		const anonRoom = [...Rooms.rooms.values()].find(r => !!(r.game && ANON_GAMES.includes(r.game.gameid)));

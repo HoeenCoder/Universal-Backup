@@ -134,6 +134,7 @@ const commands = {
 		if (!room) return;
 		if (!this.can('staff')) return false;
 		if (room.game) return;
+		if (target.trim()) return this.replyPM(`(If you meant to start a lighthouse game, use \`\`@lighthouse\`\` by itself)`);
 		room.game = new Lighthouse(room);
 	},
 	lhstop: function (target, room, user) {
