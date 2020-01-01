@@ -27,45 +27,60 @@ Chat.events.on('chat', (/** @type {Room} */room, /** @type {string[]} */details)
 	if (room.roomid !== 'mafia') return;
 	const message = details[1].toLowerCase();
 	if (message.startsWith('/announce fish') || message.startsWith('/announce official')) {
-		if (!room.mafiaTracker) return Chat.sendPM(details[0], "No game running, announce again once you've hosted yourself.");
-		Chat.sendPM(details[0], 'Marked the current game as official.');
-
-		room.mafiaTracker.addMafiaListener('gamestart', () => {
-			room.mafiaTracker.sendRoom(REMINDER_MESSAGE);
-		});
-
-		room.mafiaTracker.addMafiaListener('gameend', () => {
-			/** @type {string[]} */
-			let given = [];
-			let didSomething;
-			const now = new Date().getMonth();
-			for (const [leaver, applyPoints] of Object.entries(pendingLeavers)) {
-				if (!applyPoints) continue;
-				if (Leavers[leaver] !== now) {
-					// free leave
-					Chat.sendPM(leaver, `You have left a game. Leaving another game this month will incur a leaderboard penalty.`);
-					Leavers[leaver] = now;
-					didSomething = true;
-				} else {
-					room.mafiaTracker.sendRoom(`/mafia win -${LEAVER_POINTS}, ${leaver}`);
-					given.push(leaver);
-				}
-			}
-			if (given.length) room.mafiaTracker.sendRoom(`Gave leaver points to ${given.length} user${given.length !== 1 ? 's' : ''}.`);
-			if (didSomething) writeLeavers();
-			pendingLeavers = {};
-		});
-
-		room.mafiaTracker.addMafiaListener('sub', (/** @type {string[]} */details) => {
-			if (!['night', 'day'].includes(room.mafiaTracker.phase)) return;
-			pendingLeavers[toId(details[0])] = !pendingLeavers[toId(details[1])];
-			pendingLeavers[toId(details[1])] = false;
-		});
+		return markOfficial(room, details[0]);
 	}
 });
 
+/**
+ * @param {Room} room
+ * @param {string} user
+ */
+function markOfficial(room, user) {
+	if (!room.mafiaTracker) return Chat.sendPM(user, "No game running, announce again once you've hosted yourself.");
+	Chat.sendPM(user, 'Marked the current game as official.');
+
+	room.mafiaTracker.addMafiaListener('gamestart', () => {
+		room.mafiaTracker.sendRoom(REMINDER_MESSAGE);
+	});
+
+	room.mafiaTracker.addMafiaListener('gameend', () => {
+		/** @type {string[]} */
+		let given = [];
+		let didSomething;
+		const now = new Date().getMonth();
+		for (const [leaver, applyPoints] of Object.entries(pendingLeavers)) {
+			if (!applyPoints) continue;
+			if (Leavers[leaver] !== now) {
+				// free leave
+				Chat.sendPM(leaver, `You have left a game. Leaving another game this month will incur a leaderboard penalty.`);
+				Leavers[leaver] = now;
+				didSomething = true;
+			} else {
+				room.mafiaTracker.sendRoom(`/mafia win -${LEAVER_POINTS}, ${leaver}`);
+				given.push(leaver);
+			}
+		}
+		if (given.length) room.mafiaTracker.sendRoom(`Gave leaver points to ${given.length} user${given.length !== 1 ? 's' : ''}.`);
+		if (didSomething) writeLeavers();
+		pendingLeavers = {};
+	});
+
+	room.mafiaTracker.addMafiaListener('sub', (/** @type {string[]} */details) => {
+		if (!['night', 'day'].includes(room.mafiaTracker.phase)) return;
+		pendingLeavers[toId(details[0])] = !pendingLeavers[toId(details[1])];
+		pendingLeavers[toId(details[1])] = false;
+	});
+}
+
 /** @type {import("../chat").ChatCommands} */
 const commands = {
+	official: function (target, room, user) {
+		if (!this.can('staff')) return;
+		if (!room || room.roomid !== 'mafia') return this.replyPM(`This command is only usable in the Mafia room.`);
+
+		return markOfficial(room, user);
+	},
+
 	leaver: 'unleaver',
 	unleaver: function (target, room, user, cmd) {
 		if (!this.can('staff', Rooms('mafia'))) return;
