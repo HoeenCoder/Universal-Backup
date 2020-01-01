@@ -75,10 +75,10 @@ function markOfficial(room, user) {
 /** @type {import("../chat").ChatCommands} */
 const commands = {
 	official: function (target, room, user) {
-		if (!this.can('staff')) return;
-		if (!room || room.roomid !== 'mafia') return this.replyPM(`This command is only usable in the Mafia room.`);
+		const mafiaRoom = Rooms('mafia');
+		if (!mafiaRoom || !this.can('staff', mafiaRoom)) return;
 
-		return markOfficial(room, user);
+		return markOfficial(mafiaRoom, user);
 	},
 
 	leaver: 'unleaver',
