@@ -58,7 +58,7 @@ class ISO {
 	addChat(text, author) {
 		if (author === '~') return;
 		text = Tools.escapeHTML(text).replace(/>here.?</ig, 'here  ').replace(/(click) (here)/ig, '$1  $2');
-		this.addHTML(`<strong style="${Tools.colourName(author)}">${author.slice(1)}:</strong> ${text}`, [author]);
+		this.addHTML(`<strong style="${Tools.colourName(author)}">${Tools.escapeHTML(author.slice(1))}:</strong> ${text}`, [author]);
 
 		author = toId(author);
 		if (!(author in this.dayStats)) return;
