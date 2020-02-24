@@ -311,3 +311,40 @@ Tools.colourName = function (n) {
 	nameCache[n] = "color:hsl(" + Math.round(H) + "," + Math.round(S) + "%," + Math.round(L) + "%);";
 	return nameCache[n];
 };
+
+/** [timestamp?, author, message] */
+//                               [ hh : mm   : ss     ]       #peach   : message
+Tools.LINE_REGEX = /^(?:(\[\d\d:\d\d(?::\d\d)?\])[ ])?(..{1,18}):(.*)$/gm;
+
+/**
+ * Produces HTML that resembles a PS chat message
+ * Can be used like `message.replace(Tools.LINE_REGEX, Tools.formatHTMLMessage)`
+ * @param {unknown} _
+ * @param {string | null} timestamp
+ * @param {string} author
+ * @param {string} message
+ */
+Tools.formatHTMLMessage = function (_, timestamp, author, message) {
+    return `<div class="chat">` +
+        timestamp ? `<small>${timestamp}</small> ` : `` +
+        `<strong style="${Tools.colorName(author)}>"` +
+            `<small>${author.charAt(0)}</small>` +
+            `<span class="username">${Tools.escapeHTML(author.slice(1))}</span>` +
+        `</strong>` +
+        `<em>${Tools.escapeHTML(message)}</em>` +
+    `</div>`;
+}
+
+// im sorry
+Tools.LYNCHES_REGEX = /^(Lynches \(Hammer: (?:\d+|NaN|Disabled)\))(?:\n\d+\* .{1,18} \((?:.{1,18}, )+.{1,18}\)(?:\n\d+ .{1,18} \((?:.{1,18}, )*.{1,18}\))*)?$/gm;
+/**
+ * @param {unknown} _
+ * @param {string} firstLine
+ * @param {string} rest
+ */
+Tools.formatLynchBoxHTML = function (_, firstLine, rest) {
+	return `<div class="notice"><div class="infobox">` +
+		`<strong>${Tools.escapeHTML(firstLine)}</strong><br/>` +
+		Tools.escapeHTML(rest).replace(/\n+/g, '<br/>') + '<br/>' +
+	`</div></div>`;
+}
