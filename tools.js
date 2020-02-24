@@ -325,7 +325,7 @@ Tools.LINE_REGEX = /^(?:(\[\d\d:\d\d(?::\d\d)?\])[ ])?(..{1,18}):(.*)$/gm;
  * @param {string} message
  */
 Tools.formatHTMLMessage = function (_, timestamp, author, message) {
-    return `<div class="chat">` +
+	return `<div class="chat">` +
         timestamp ? `<small>${timestamp}</small> ` : `` +
         `<strong style="${Tools.colorName(author)}>"` +
             `<small>${author.charAt(0)}</small>` +
@@ -333,7 +333,7 @@ Tools.formatHTMLMessage = function (_, timestamp, author, message) {
         `</strong>` +
         `<em>${Tools.escapeHTML(message)}</em>` +
     `</div>`;
-}
+};
 
 // im sorry
 Tools.LYNCHES_REGEX = /^(Lynches \(Hammer: (?:\d+|NaN|Disabled)\))(?:\n\d+\* .{1,18} \((?:.{1,18}, )+.{1,18}\)(?:\n\d+ .{1,18} \((?:.{1,18}, )*.{1,18}\))*)?$/gm;
@@ -347,4 +347,4 @@ Tools.formatLynchBoxHTML = function (_, firstLine, rest) {
 		`<strong>${Tools.escapeHTML(firstLine)}</strong><br/>` +
 		Tools.escapeHTML(rest).replace(/\n+/g, '<br/>') + '<br/>' +
 	`</div></div>`;
-}
+};
