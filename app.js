@@ -68,7 +68,7 @@ global.sendPM = Chat.sendPM;
 
 if (Config.webhookCrashURL) {
 	const https = require('https');
-	function reportError(/** @type {Error}} */e) {
+	function reportError(/** @type {Error}} */e) { 	// eslint-disable-line no-inner-declarations
 		const data = {
 			content: e.stack,
 		};
