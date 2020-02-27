@@ -18,7 +18,7 @@ class Room {
 
 		/** @type {RoomGame | null}*/
 		this.game = null;
-		/** @type {object | null} */
+		/** @type {import('./mafia').MafiaTrackerType? | null} */
 		this.mafiaTracker = null;
 		/** @type {object | null} */
 		this.iso = null;

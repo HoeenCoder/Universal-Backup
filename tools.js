@@ -85,7 +85,6 @@ Tools.splitUser = function (user) {
 	return [user.charAt(0), ...user.slice(1).split('@')];
 };
 /**
- * Taken from pokemon-showdown
  * @param {string} message
  */
 Tools.sanitize = function (message) {
@@ -271,7 +270,7 @@ let nameCache = {};
 /**
  * @param {string} n
  */
-Tools.colourName = function (n) {
+Tools.colorName = function (n) {
 	n = toId(n);
 	if (n in CustomColors) n = CustomColors[n];
 	if (nameCache[n]) return nameCache[n];
@@ -312,39 +311,80 @@ Tools.colourName = function (n) {
 	return nameCache[n];
 };
 
-/** [timestamp?, author, message] */
-//                               [ hh : mm   : ss     ]       #peach   : message
-Tools.LINE_REGEX = /^(?:(\[\d\d:\d\d(?::\d\d)?\])[ ])?(..{1,18}):(.*)$/gm;
-
+const LINE_REGEX = /^[ ]?([ +%@#&~*].+): (.*)$/;
+/**
+ * @param {string} line
+ * @returns {[string, string, string] | [string, string] | null}
+ */
+Tools.parsePSLine = function (line) {
+	let timestamp = '';
+	if (line.startsWith('[') && line.includes(']')) {
+		const endTimestampIndex = line.indexOf(']');
+		timestamp = line.slice(0, endTimestampIndex + 1);
+		line = line.slice(endTimestampIndex + 1);
+	}
+	let match = LINE_REGEX.exec(line);
+	if (match) {
+		return [timestamp, match[1], match[2]];
+	} else if (timestamp) {
+		return [timestamp, line];
+	}
+	return null;
+};
 /**
  * Produces HTML that resembles a PS chat message
- * Can be used like `message.replace(Tools.LINE_REGEX, Tools.formatHTMLMessage)`
- * @param {unknown} _
  * @param {string | null} timestamp
  * @param {string} author
  * @param {string} message
  */
-Tools.formatHTMLMessage = function (_, timestamp, author, message) {
+Tools.formatHTMLMessage = function (timestamp, author, message) {
+	if (!' +%@#&~'.includes(author.charAt(0))) author = ' ' + author;
+
 	return `<div class="chat">` +
-        timestamp ? `<small>${timestamp}</small> ` : `` +
-        `<strong style="${Tools.colorName(author)}>"` +
+        (timestamp ? `<small>${timestamp}</small> ` : ``) +
+        `<strong style="${Tools.colorName(author)}">` +
             `<small>${author.charAt(0)}</small>` +
-            `<span class="username">${Tools.escapeHTML(author.slice(1))}</span>` +
+            `<span class="username">${Tools.escapeHTML(author.slice(1))}</span>: ` +
         `</strong>` +
         `<em>${Tools.escapeHTML(message)}</em>` +
     `</div>`;
 };
 
-// im sorry
-Tools.LYNCHES_REGEX = /^(Lynches \(Hammer: (?:\d+|NaN|Disabled)\))(?:\n\d+\* .{1,18} \((?:.{1,18}, )+.{1,18}\)(?:\n\d+ .{1,18} \((?:.{1,18}, )*.{1,18}\))*)?$/gm;
+Tools.LYNCHES_REGEX = /^(Lynches \(Hammer: (?:\d+|NaN|Disabled)\))((?:\n\d+\*? .{1,18} \(.{1,18}\))*)/gm;
 /**
- * @param {unknown} _
  * @param {string} firstLine
  * @param {string} rest
  */
-Tools.formatLynchBoxHTML = function (_, firstLine, rest) {
+Tools.formatHTMLLynchBox = function (firstLine, rest) {
 	return `<div class="notice"><div class="infobox">` +
 		`<strong>${Tools.escapeHTML(firstLine)}</strong><br/>` +
 		Tools.escapeHTML(rest).replace(/\n+/g, '<br/>') + '<br/>' +
 	`</div></div>`;
+};
+
+Tools.SINGLE_CODE_REGEX = new RegExp(
+	String.raw`^<div class="infobox"><div class="chat"><code style="white-space: pre-wrap; display: table; tab-size: 3">` +
+	String.raw`(.*)` +
+	String.raw`<\/code><\/div><\/div>$`,
+);
+Tools.MULTI_CODE_REGEX = new RegExp(
+	String.raw`^<div class="infobox"><div class="chat"><details class="readmore code" style="white-space: pre-wrap; display: table; tab-size: 3">` +
+	String.raw`<summary>(.*)<\/summary>` +
+	String.raw`(.*)` +
+	String.raw`<\/details><\/div><\/div>$`
+);
+/**
+ * Given a !code block, tries to extract the input
+ * @param {string} text
+ */
+Tools.findCode = function (text) {
+	let match;
+	if ((match = Tools.SINGLE_CODE_REGEX.exec(text))) {
+		return Tools.unescapeHTML(match[1].replace(/<br \/>/g, '\n'));
+	} else if ((match = Tools.MULTI_CODE_REGEX.exec(text))) {
+		return Tools.unescapeHTML(
+			match[1].replace(/<br \/>/g, '\n') + '\n' + match[2].replace(/<br \/>/g, '\n')
+		);
+	}
+	return false;
 };

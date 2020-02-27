@@ -210,7 +210,7 @@ class MafiaTracker extends Rooms.RoomGame {
 		/** @type {object[]} */
 		this.mafiaListeners = [];
 
-		/** @type {import('./plugins/iso').ISO?} */
+		/** @type {import('./plugins/iso').ISOType?} */
 		this.iso = null;
 
 		this.log(`init ${this.host}`);
@@ -442,3 +442,5 @@ Mafia.loadGames = function () {
 	debug(`${Object.keys(Mafia.games).length} mafia games loaded`);
 };
 Mafia.loadGames();
+
+/** @typedef {MafiaTracker} MafiaTrackerType */
