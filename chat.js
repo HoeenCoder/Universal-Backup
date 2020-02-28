@@ -353,13 +353,14 @@ class ChatParser {
 		return this.room && this.room.users.get(toId(userid)) || null;
 	}
 	/**
-	 * @param {'host' | 'auth' | 'staff' | 'leader' | 'dev'} permission
+	 * @param {'host' | 'auth' | 'authhost' | 'staff' | 'leader' | 'dev'} permission
 	 * @param {Room?} room
 	 * @return {boolean}
 	 */
 	can(permission, room = null) {
 		if (Config.developers && Config.developers.includes(this.userid)) return true;
 		if (permission === 'dev') return false;
+		if (permission === 'authhost') return this.can('auth') && this.can('host');
 
 		let group = (room && room.auth.get(this.userid)) || this.auth;
 		// todo - rewrite this when the new |groups| protocol arrives

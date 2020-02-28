@@ -132,20 +132,20 @@ class Lighthouse extends Rooms.RoomGame {
 const commands = {
 	lighthouse: function (target, room, user) {
 		if (!room) return;
-		if (!this.can('staff')) return false;
+		if (!this.can('authhost')) return false;
 		if (room.game) return;
 		if (target.trim()) return this.replyPM(`(If you meant to start a lighthouse game, use \`\`@lighthouse\`\` by itself)`);
 		room.game = new Lighthouse(room);
 	},
 	lhstop: function (target, room, user) {
 		if (!room) return;
-		if (!this.can('staff')) return false;
+		if (!this.can('authhost')) return false;
 		if (!room.game || !(room.game instanceof Lighthouse)) return;
 		room.game.stop();
 	},
 	lhresume: function (target, room, user) {
 		if (!room) return;
-		if (!this.can('staff')) return false;
+		if (!this.can('authhost')) return false;
 		if (!room.game || !(room.game instanceof Lighthouse)) return;
 		room.game.resume();
 	},
@@ -164,7 +164,7 @@ const commands = {
 	modlynches: 'lynches',
 	lynches: function (target, room, user, cmd) {
 		if (!room || !room.game || !(room.game instanceof Lighthouse)) return;
-		if (!this.can('staff')) return;
+		if (!this.can('authhost')) return;
 
 		const m = cmd === 'modlynches';
 		const auth = room.auth.get(toId(Config.nick));
