@@ -14,15 +14,11 @@ Chat.events.on('pm', (/** @type {Room} */room, /** @type {string[]} */details) =
 
 	const userid = toId(from);
 
-	/*
-    const gameRoom = [...Rooms.rooms.values()].find(room => room.mafiaTracker && room.mafiaTracker.players[userid]);
-    if (!gameRoom || !gameRoom.mafiaTracker) return Chat.sendPM(userid, `Can't see you as a player in any game.`);
-    const player = gameRoom.mafiaTracker.players[userid];
-    if (!player || (player.dead && !player.treestump)) return Chat.sendPM(userid, `You are dead and cannot talk.`);
-    if (gameRoom.mafiaTracker.phase !== "day") return Chat.sendPM(userid, `You can only send logs during the day.`);
-    */
-	const gameRoom = Rooms('botdevelopment');
-	if (!gameRoom) return;
+	const gameRoom = [...Rooms.rooms.values()].find(room => room.mafiaTracker && room.mafiaTracker.players[userid]);
+	if (!gameRoom || !gameRoom.mafiaTracker) return Chat.sendPM(userid, `Can't see you as a player in any game.`);
+	const player = gameRoom.mafiaTracker.players[userid];
+	if (!player || (player.dead && !player.treestump)) return Chat.sendPM(userid, `You are dead and cannot talk.`);
+	if (gameRoom.mafiaTracker.phase !== "day") return Chat.sendPM(userid, `You can only send logs during the day.`);
 
 	/** @param {string} text */
 	function formatChat(text) {
@@ -63,6 +59,6 @@ Chat.events.on('pm', (/** @type {Room} */room, /** @type {string[]} */details) =
 	outputBuf = `<details><summary>Logs posted by <span style="${Tools.colorName(userid)}">${Tools.escapeHTML(from)}</span></summary>${outputBuf}</details>`;
 	gameRoom.send(`/addhtmlbox ${outputBuf}`);
 	if (gameRoom.iso) {
-		gameRoom.iso.addLine(`!<logs>`, [userid]);
+		gameRoom.iso.addLine(`${from} posted logs`, [userid]);
 	}
 });

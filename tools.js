@@ -350,7 +350,7 @@ Tools.formatHTMLMessage = function (timestamp, author, message) {
     `</div>`;
 };
 
-Tools.LYNCHES_REGEX = /^(Lynches \(Hammer: (?:\d+|NaN|Disabled)\))((?:\n\d+\*? .{1,18} \(.{1,18}\))*)/gm;
+Tools.LYNCHES_REGEX = /^(Lynches \(Hammer: (?:\d+|NaN|Disabled)\))((?:\n\d+\*? .{1,18} \(.+\))*)/gm;
 /**
  * @param {string} firstLine
  * @param {string} rest
