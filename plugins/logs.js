@@ -58,7 +58,7 @@ Chat.events.on('pm', (/** @type {Room} */room, /** @type {string[]} */details) =
 
 	outputBuf = `<details><summary>Logs posted by <span style="${Tools.colorName(userid)}">${Tools.escapeHTML(from)}</span></summary>${outputBuf}</details>`;
 	gameRoom.send(`/addhtmlbox ${outputBuf}`);
-	if (gameRoom.iso) {
-		gameRoom.iso.addLine(`${from} posted logs`, [userid]);
+	if (gameRoom.mafiaTracker && gameRoom.mafiaTracker.iso) {
+		gameRoom.mafiaTracker.iso.addLine(`${from} posted logs`, [userid]);
 	}
 });
