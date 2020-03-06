@@ -297,7 +297,7 @@ class ChatParser {
 
 		const [cmd, ...target] = message.slice(commandToken.length).split(' ');
 		/** @type {string} **/
-		this.cmd = toId(cmd);
+		this.cmd = cmd.toLowerCase();
 		/** @type {string} **/
 		this.target = target.join(' ');
 
