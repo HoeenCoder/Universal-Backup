@@ -29,6 +29,7 @@ class Ladder {
 			const id = toId(user);
 			if (!(id in this.data)) this.data[id] = 0;
 			this.data[id] += points;
+			if (!this.data[id]) delete this.data[id];
 		}
 		this.writeData();
 	}
@@ -52,7 +53,7 @@ Chat.events.on('raw', (/** @type {Room} */room, /** @type {string} */parts) => {
 	const message = parts[0];
 	let match;
 
-	if ((match = /^(-?\d+) (?:point was|points were) awarded to(?: the .+ faction:)?: (.+)$/.exec(message))) {
+	if ((match = /^(-?\d+) (?:point was|points were) awarded to:(?: the .+ faction:)? (.+)$/.exec(message))) {
 		const players = match[2].split(',');
 		ladder.addPoints(parseInt(match[1]), players);
 	} else if ((match = /MVP and (\d+) points were awarded to: (.+)/.exec(message))) {
@@ -74,12 +75,14 @@ const commands = {
 		let [pointsStr, ...targets] = target.split(',');
 		const points = parseInt(pointsStr);
 		ladder.addPoints(points, targets);
+		this.reply(`gave ${points} points to ${targets.length} users`);
 	},
 	addmvp: function (target, room, user) {
 		if (!this.can('staff')) return this.reply(`access denied`);
 		let [pointsStr, ...targets] = target.split(',');
 		const points = parseInt(pointsStr);
 		mvpLadder.addPoints(points, targets);
+		this.reply(`gave ${points} mvp points to ${targets.length} users`);
 	},
 	lb: 'ladder',
 	leaderboard: 'ladder',
