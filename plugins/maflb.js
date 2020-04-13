@@ -32,6 +32,12 @@ class Ladder {
 		}
 		this.writeData();
 	}
+	visualize() {
+		return Object.entries(this.data)
+			.sort(([, pointsA], [, pointsB]) => pointsB - pointsA)
+			.map(([name, points]) => `<div><strong style="${Tools.colorName(name)}">${name}</strong>: ${points}</div>`)
+			.join('');
+	}
 	reset() {
 		this.data = {};
 		this.writeData();
@@ -46,10 +52,10 @@ Chat.events.on('raw', (/** @type {Room} */room, /** @type {string} */parts) => {
 	const message = parts[0];
 	let match;
 
-	if (match = /^(-?\d+) (?:point was|points were) awarded to(?: the .+ faction:)?: (.+)$/.exec(message)) {
+	if ((match = /^(-?\d+) (?:point was|points were) awarded to(?: the .+ faction:)?: (.+)$/.exec(message))) {
 		const players = match[2].split(',');
 		ladder.addPoints(parseInt(match[1]), players);
-	} else if (match = /MVP and (\d+) points were awarded to: (.+)/.exec(message)) {
+	} else if ((match = /MVP and (\d+) points were awarded to: (.+)/.exec(message))) {
 		mvpLadder.addPoints(1, [match[2]]);
 		ladder.addPoints(parseInt(match[1]), [match[2]]);
 	}
@@ -62,27 +68,31 @@ const commands = {
 		ladder.reset();
 		mvpLadder.reset();
 		return this.reply(`done`);
-    },
-    addpoints: function(target, room, user) {
-        if (!this.can('leader')) return this.reply(`access denied`);
-        let [pointsStr, ...targets] = target.split(',')
-        const points = parseInt(pointsStr);
-        ladder.addPoints(points, targets);
-    },
-    addmvp: function(target, room, user) {
-        if (!this.can('leader')) return this.reply(`access denied`);
-        let [pointsStr, ...targets] = target.split(',')
-        const points = parseInt(pointsStr);
-        mvpLadder.addPoints(points, targets);    
-    },
-    ladder: function(target, room, user) {
-        if (!this.can('staff') || !room) return;
-        return room.send(`!code ` + Object.entries(ladder.data).map(([user, points]) => `${user}: ${points}`).join('\n'));
-    },
-    mvpladder: function(target, room, user) {
-        if (!this.can('staff') || !room) return;
-        return room.send(`!code ` + Object.entries(mvpLadder.data).map(([user, points]) => `${user}: ${points}`).join('\n'));
-    },
+	},
+	addpoints: function (target, room, user) {
+		if (!this.can('staff')) return this.reply(`access denied`);
+		let [pointsStr, ...targets] = target.split(',');
+		const points = parseInt(pointsStr);
+		ladder.addPoints(points, targets);
+	},
+	addmvp: function (target, room, user) {
+		if (!this.can('staff')) return this.reply(`access denied`);
+		let [pointsStr, ...targets] = target.split(',');
+		const points = parseInt(pointsStr);
+		mvpLadder.addPoints(points, targets);
+	},
+	lb: 'ladder',
+	leaderboard: 'ladder',
+	ladder: function (target, room, user) {
+		if (this.can('auth') && room) return room.send(`/adduhtml thtlb,<details><summary>Leaderboard:</summary>${ladder.visualize()}</details>`);
+		this.replyHTMLPM(`<div><strong>Leaderboard:</strong>${ladder.visualize()}</div>`);
+	},
+	mvplb: 'mvpladder',
+	mvpleaderboard: 'mvpladder',
+	mvpladder: function (target, room, user) {
+		if (this.can('auth') && room) return room.send(`/adduhtml thtmvp,<details><summary>MVP Leaderboard:</summary>${mvpLadder.visualize()}</details>`);
+		this.replyHTMLPM(`<div><strong>MVP Leaderboard:</strong>${mvpLadder.visualize()}</div>`);
+	},
 };
 
 exports.commands = commands;
