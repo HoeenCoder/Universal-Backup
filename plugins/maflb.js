@@ -55,6 +55,7 @@ Chat.events.on('raw', (/** @type {Room} */room, /** @type {string} */parts) => {
 
 	if ((match = /^(-?\d+) (?:point was|points were) awarded to:(?: the .+ faction:)? (.+)$/.exec(message))) {
 		const players = match[2].split(',');
+		if (players[0].includes(':')) players[0] = players[0].split(':')[1]; // ?????
 		ladder.addPoints(parseInt(match[1]), players);
 	} else if ((match = /MVP and (\d+) points were awarded to: (.+)/.exec(message))) {
 		mvpLadder.addPoints(1, [match[2]]);
