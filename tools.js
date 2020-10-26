@@ -291,7 +291,7 @@ Tools.formatHTMLMessage = function (timestamp, author, message) {
         (timestamp ? `<small>${timestamp}</small> ` : ``) +
         `<strong>` +
             `<small>${author.charAt(0)}</small>` +
-            `<username>${Tools.escapeHTML(author.slice(1))}<username>: ` +
+            `<username>${Tools.escapeHTML(author.slice(1))}</username>: ` +
         `</strong>` +
         `<em>${Tools.escapeHTML(message)}</em>` +
     `</div>`;
