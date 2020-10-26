@@ -36,7 +36,7 @@ class Ladder {
 	visualize() {
 		return Object.entries(this.data)
 			.sort(([, pointsA], [, pointsB]) => pointsB - pointsA)
-			.map(([name, points]) => `<div><strong style="${Tools.colorName(name)}">${name}</strong>: ${points}</div>`)
+			.map(([name, points]) => `<div><username>${name}</username>: ${points}</div>`)
 			.join('');
 	}
 	reset() {

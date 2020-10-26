@@ -58,7 +58,7 @@ class ISO {
 	addChat(text, author) {
 		if (author === '~') return;
 		text = Tools.escapeHTML(text).replace(/>here.?</ig, 'here  ').replace(/(click) (here)/ig, '$1  $2');
-		this.addHTML(`<strong style="${Tools.colorName(author)}">${Tools.escapeHTML(author.slice(1))}:</strong> ${text}`, [author]);
+		this.addHTML(`<username>${Tools.escapeHTML(author.slice(1))}:</username> ${text}`, [author]);
 
 		author = toId(author);
 		if (!(author in this.dayStats)) return;
@@ -107,7 +107,7 @@ class ISO {
 		const buf = Object.entries(this.dayStats)
 			.sort((a, b) => a[1][0] - b[1][0])
 			.reduce((acc, val) => {
-				return acc + `<div><strong class="username" style="${Tools.colorName(val[0])}">${val[0]}:</strong> ${val[1][0]} lines, ${val[1][1]} lynches</div>`;
+				return acc + `<div><username>${val[0]}:</username> ${val[1][0]} lines, ${val[1][1]} lynches</div>`;
 			}, '');
 		if (buf) {
 			const pmRoom = Rooms.canPMInfobox(user);

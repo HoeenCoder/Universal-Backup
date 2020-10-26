@@ -258,59 +258,6 @@ Tools.levenshtein = function (s, t, l = 0) {
 	return d[n][m];
 };
 
-/* PS colours, taken from pokemon-showdown */
-/** @type {{[k: string]: string}} */
-let CustomColors = {};
-try {
-	CustomColors = require('./config/psconfig.js').customcolors;
-} catch (e) {}
-
-/** @type {{[n: string]: string}} */
-let nameCache = {};
-/**
- * @param {string} n
- */
-Tools.colorName = function (n) {
-	n = toId(n);
-	if (n in CustomColors) n = CustomColors[n];
-	if (nameCache[n]) return nameCache[n];
-
-	// borrowed from ps
-	const hash = crypto.createHash('md5').update(n).digest('hex');
-	let H = parseInt(hash.substr(4, 4), 16) % 360; // 0 to 360
-	let S = parseInt(hash.substr(0, 4), 16) % 50 + 40; // 40 to 89
-	let L = Math.floor(parseInt(hash.substr(8, 4), 16) % 20 + 30); // 30 to 49
-	let C = (100 - Math.abs(2 * L - 100)) * S / 100 / 100;
-	let X = C * (1 - Math.abs((H / 60) % 2 - 1));
-	let m = L / 100 - C / 2;
-
-	let R1, G1, B1;
-	switch (Math.floor(H / 60)) {
-	case 1: R1 = X; G1 = C; B1 = 0; break;
-	case 2: R1 = 0; G1 = C; B1 = X; break;
-	case 3: R1 = 0; G1 = X; B1 = C; break;
-	case 4: R1 = X; G1 = 0; B1 = C; break;
-	case 5: R1 = C; G1 = 0; B1 = X; break;
-	case 0: default: R1 = C; G1 = X; B1 = 0; break;
-	}
-	let R = R1 + m, G = G1 + m, B = B1 + m;
-	let lum = R * R * R * 0.2126 + G * G * G * 0.7152 + B * B * B * 0.0722; // 0.013 (dark blue) to 0.737 (yellow)
-	let HLmod = (lum - 0.2) * -150; // -80 (yellow) to 28 (dark blue)
-	if (HLmod > 18) HLmod = (HLmod - 18) * 2.5;
-	else if (HLmod < 0) HLmod = (HLmod - 0) / 3;
-	else HLmod = 0;
-	// let mod = ';border-right: ' + Math.abs(HLmod) + 'px solid ' + (HLmod > 0 ? 'red' : '#0088FF');
-	let Hdist = Math.min(Math.abs(180 - H), Math.abs(240 - H));
-	if (Hdist < 15) {
-		HLmod += (15 - Hdist) / 3;
-	}
-
-	L += HLmod;
-
-	nameCache[n] = "color:hsl(" + Math.round(H) + "," + Math.round(S) + "%," + Math.round(L) + "%);";
-	return nameCache[n];
-};
-
 const LINE_REGEX = /^[ ]?([ +%@#&~*].+): (.*)$/;
 /**
  * @param {string} line
@@ -342,9 +289,9 @@ Tools.formatHTMLMessage = function (timestamp, author, message) {
 
 	return `<div class="chat">` +
         (timestamp ? `<small>${timestamp}</small> ` : ``) +
-        `<strong style="${Tools.colorName(author)}">` +
+        `<strong>` +
             `<small>${author.charAt(0)}</small>` +
-            `<span class="username">${Tools.escapeHTML(author.slice(1))}</span>: ` +
+            `<username>${Tools.escapeHTML(author.slice(1))}<username>: ` +
         `</strong>` +
         `<em>${Tools.escapeHTML(message)}</em>` +
     `</div>`;
