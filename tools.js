@@ -363,15 +363,15 @@ Tools.formatHTMLLynchBox = function (firstLine, rest) {
 };
 
 Tools.SINGLE_CODE_REGEX = new RegExp(
-	String.raw`^<div class="infobox"><div class="chat"><code style="white-space: pre-wrap; display: table; tab-size: 3">` +
+	String.raw`^<div class="infobox"><code style="white-space: pre-wrap; display: table; tab-size: 3">` +
 	String.raw`(.*)` +
-	String.raw`<\/code><\/div><\/div>$`,
+	String.raw`<\/code><\/div>$`,
 );
 Tools.MULTI_CODE_REGEX = new RegExp(
-	String.raw`^<div class="infobox"><div class="chat"><details class="readmore code" style="white-space: pre-wrap; display: table; tab-size: 3">` +
+	String.raw`^<div class="infobox"><details class="readmore code" style="white-space: pre-wrap; display: table; tab-size: 3">` +
 	String.raw`<summary>(.*)<\/summary>` +
 	String.raw`(.*)` +
-	String.raw`<\/details><\/div><\/div>$`
+	String.raw`<\/details><\/div>$`
 );
 /**
  * Given a !code block, tries to extract the input
