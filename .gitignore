@@ -8,8 +8,9 @@
 npm-debug.log
 package-lock.json
 .vs
-/dist/**/*
+/dist/*
 !/dist/readme
+
 # boilerplate #
 ###############
 
@@ -30,7 +31,6 @@ tmp/**/*
 
 downloads
 build
-dist
 
 # egg related
 develop-eggs
