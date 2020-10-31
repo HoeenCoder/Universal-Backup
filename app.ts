@@ -39,23 +39,15 @@ if (!toId(Config.nick)) {
 }
 
 if (!Config.primaryRoom) console.log("No primary room set, commands requiring auth will not work in PMs.");
-/**
- * @param {string} msg
- */
 
-const debug = (msg) => {
+global.debug = (msg: string) => {
 	if (!Config.debugMode) return;
 	console.log("[DEBUG] " + msg);
 };
-/**
- * @param {string} msg
- */
-const log = (msg) => {
+global.log = (msg: string) => {
 	if (!Config.verboseMode) return;
 	console.log("[LOG] " + msg);
 };
-global.debug = debug;
-global.log = log;
 
 global.Rooms = require('./rooms.js');
 global.Chat = require('./chat.js'); // handles the connection too
@@ -68,7 +60,7 @@ global.sendPM = Chat.sendPM;
 
 if (Config.webhookCrashURL) {
 	const https = require('https');
-	function reportError(/** @type {Error}} */e) { 	// eslint-disable-line no-inner-declarations
+	function reportError(e: Error) { 	// eslint-disable-line no-inner-declarations
 		const data = {
 			content: e.stack,
 		};
@@ -82,8 +74,8 @@ if (Config.webhookCrashURL) {
 			},
 		};
 
-		const req = https.request(reqOptions, res => {});
-		req.on('error', e => {
+		const req = https.request(reqOptions, (res: any) => {});
+		req.on('error', (e: Error) => {
 			console.error(`Error while making request: ${e.stack}`);
 			return;
 		});

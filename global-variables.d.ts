@@ -6,7 +6,21 @@ import * as RoomsType from './rooms'
 import * as MafiaType from './mafia'
 
 declare global {
-    const Chat: typeof ChatType
+    namespace NodeJS {
+        interface Global {
+            Chat: any;
+            sendMessage: any;
+            sendPM: any;
+            Config: any;
+            Mafia: any;
+            Tools: any;
+            toId: any;
+            Rooms: any;
+            debug: any;
+            log: any;
+        }
+    }
+    const Chat: typeof ChatType;
     const sendMessage: typeof ChatType.sendMessage
     const sendPM: typeof ChatType.sendPM
     const Config: typeof ConfigType
@@ -14,8 +28,8 @@ declare global {
     const Tools: typeof ToolsType
     const toId: typeof ToolsType.toId
     const Rooms: typeof RoomsType
-    const debug: any
-    const log: any
+    const debug: (msg: string) => void;
+    const log: (msg: string) => void;
 
     const Room: typeof RoomsType.Room
     const CommandContext: typeof ChatType.ChatParser
