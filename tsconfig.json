@@ -17,7 +17,6 @@
 		],
 	},
 	"exclude": [
-		"config/config.js",
 		"dist/**/*"
 	]
 }

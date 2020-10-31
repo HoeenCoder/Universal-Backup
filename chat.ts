@@ -1,79 +1,63 @@
-'use strict';
-// i'm sorry, gods, but typescript doesn't allow breaking this line up
-// the type is called "MessageType", the only special thing is "chatpage"
-/** @typedef {'chatpage' | 'chat' | 'html' | 'raw' | 'join' | 'leave' | 'name' | 'pm' | 'init' | 'title' | 'pagehtml' | 'users' | 'deinit' | 'noinit' | 'popup' | 'error' | 'unlink' | 'notify' | 'formats' | 'tour' | 'updatesearch' | 'updatechallenges' | 'battle' | 'b' | 'usercount' | ':' | 'customgroups' | 'queryresponse'} MessageType */
+type MessageType =
+	  'chatpage' 
+	| 'chat' 
+	| 'html' | 'raw' 
+	| 'join' | 'leave' | 'name' 
+	| 'pm' 
+	| 'init' | 'title' | 'pagehtml' | 'users' | 'deinit' | 'noinit' 
+	| 'popup' | 'error' | 'unlink' | 'notify' 
+	| 'formats' | 'tour' | 'updatesearch' | 'updatechallenges' | 'battle' | 'b' | 'usercount' | ':' 
+	| 'customgroups' | 'queryresponse';
 
+import { readdirSync } from 'fs';
+import { resolve as resolvePath } from 'path';
 
-let Chat = module.exports;
+export const events = new Tools.Events();
 
-const fs = require('fs');
-const path = require('path');
-
-Chat.events = new Tools.Events();
-
-/**
- * @param {string | null} roomid
- * @param {string} message
- */
-Chat.sendMessage = function (roomid, message) {
+export function sendMessage(roomid: string, message: string) {
 	const room = roomid ? Rooms(roomid) : null;
 	if (!room && roomid) return debug("Sending to invalid room '" + roomid + "'");
 	if (message.length > 300 && !['/', '!'].includes(message.charAt(0))) message = message.slice(0, 296) + '...';
-	Chat.client.send(`${room ? room.roomid : ''}|${message}`);
-};
-/**
- * @param {string} target
- * @param {string} message
- */
-Chat.sendPM = function (target, message) {
+	client.send(`${room ? room.roomid : ''}|${message}`);
+}
+export function sendPM(target: string, message: string) {
 	if (message.length > 300 && !['/', '!'].includes(message.charAt(0))) message = message.slice(0, 296) + '...';
-	Chat.client.send("|/pm " + target + "," + message);
-};
+	client.send("|/pm " + target + "," + message);
+}
 /**
- * @param {number} duration
+ * Waits for the same time as it would take to send `duration` messages
  */
-Chat.wait = function (duration) {
-	Chat.client.send((new Array(duration).fill(true)));
-};
-/** @type {{[k: string]: function}} */
-Chat.Commands = {};
+export function wait(duration: number) {
+	client.send((new Array(duration).fill(true)));
+}
 
-Chat.loadCommands = function () {
-	Chat.Commands = require('./commands.js').commands;
-	const files = fs.readdirSync('plugins');
+export function loadCommands() {
+	for (const command in Commands) delete Commands[command];
+
+	Object.assign(Commands, require('./commands.js').commands)
+	const files = readdirSync('plugins');
 	for (const file of files) {
 		if (file.substr(-3) !== '.js') continue;
 		const plugin = require('./plugins/' + file);
-		Object.assign(Chat.Commands, plugin.commands);
+		Object.assign(Commands, plugin.commands);
 	}
-	debug(`${Object.keys(Chat.Commands).length} commands/aliases loaded`);
-};
+	debug(`${Object.keys(Commands).length} commands/aliases loaded`);
+}
 
-/**
- * @param {string} dir
- */
-Chat.uncacheDirectory = function (dir) {
-	const root = path.resolve(dir);
+export function uncacheDirectory(dir: string) {
+	const root = resolvePath(dir);
 	for (const key in require.cache) {
 		if (key.startsWith(root)) delete require.cache[key];
 	}
-};
-/**
- * @param {string} file
- */
-Chat.uncacheFile = function (file) {
-	const filepath = path.resolve(file);
+}
+export function uncacheFile(file: string) {
+	const filepath = resolvePath(file);
 	delete require.cache[filepath];
-};
+}
 
-/**
- * @param {string} roomid
- * @param {string} messageType
- * @param {string[]} parts
- */
-function parse(roomid, messageType, parts) {
+function parse(roomid: string, messageType: string, parts: string[]) {
 	if (roomid.startsWith('view-')) return parseChatPage(roomid, parts);
-	let normalisedType = messageType;
+	let normalisedType: MessageType;
 	const room = Rooms(roomid);
 	switch (messageType) {
 	case 'c:':
@@ -120,22 +104,28 @@ function parse(roomid, messageType, parts) {
 	}
 	case 'pm':
 		parsePM(parts[0], parts.slice(2).join('|'));
+		normalisedType = messageType;
 		break;
 	case 'init':
 		Rooms.addRoom(roomid, parts[0]);
+		normalisedType = messageType;
 		break;
 	case 'title':
 		if (room) room.setTitle(parts[0]);
+		normalisedType = messageType;
 		break;
 	case 'pagehtml':
 		// this never actually gets hit because client code gives the message to parseChatPage before this point
 		debug(`Recieved chat page html for ${roomid}`);
+		normalisedType = messageType;
 		break;
 	case 'users':
 		if (room) room.updateUserlist(parts[0]);
+		normalisedType = messageType;
 		break;
 	case 'deinit':
 		if (room) room.destroy();
+		normalisedType = messageType;
 		break;
 	case 'noinit':
 		if (parts[0] === 'joinfailed') {
@@ -145,6 +135,7 @@ function parse(roomid, messageType, parts) {
 			const room = /The room "(.*)" does not exist\./.exec(parts[1]);
 			if (room) console.log(`Join failed - The room ${room[1]} does not exist or is modjoined`);
 		}
+		normalisedType = messageType;
 		break;
 	case 'popup':
 		let popup = parts.join('|');
@@ -154,6 +145,7 @@ function parse(roomid, messageType, parts) {
 			console.log(`POPUP (ROOMBAN) - Banned from room '${message[1]}' by '${message[2]}'; please inspect the situation`);
 		}
 		debug(`POPUP: ${popup}`);
+		normalisedType = messageType;
 		break;
 	case 'error':
 	case 'unlink':
@@ -167,6 +159,7 @@ function parse(roomid, messageType, parts) {
 	case 'usercount':
 	case ':':
 	case 'customgroups': // might want to handle this
+		normalisedType = messageType;
 		break; // not needed for the bot
 	case 'queryresponse':
 		let details;
@@ -185,26 +178,25 @@ function parse(roomid, messageType, parts) {
 		} else if (parts[0] === 'roominfo') {
 			const room = Rooms(details.id);
 			if (!room) return false;
-			for (const [rank, users] of Object.entries(details.auth)) {
+			for (const [rank, users] of Object.entries(details.auth as {[k: string]: string})) {
 				for (const user of users) {
 					room.auth.set(toId(user), rank);
 				}
 			}
 		}
+		normalisedType = messageType;
 		break;
 	default:
 		debug(`[parser.js.parse] Unhandled message: [${roomid}|${messageType}|${parts.join(',')}]`);
+		normalisedType = messageType as MessageType;
 	}
 	Chat.events.emit(normalisedType, room, parts);
 }
 
 /**
  * Takes a parsed regex of [message, user, group] and updates auth
- * @param {Room} room
- * @param {string} user
- * @param {string} rank
  */
-function parseAuthChange(room, user, rank) {
+function parseAuthChange(room: Room, user: string, rank: string) {
 	if (!room) return debug(`Setting auth for invalid room.`);
 	const groupId = toId(rank);
 	const group = Object.entries(Config.groups).find((e) => e[1].id === groupId);
@@ -212,12 +204,7 @@ function parseAuthChange(room, user, rank) {
 	room.auth.set(toId(user), group[0]);
 }
 
-/**
- * @param {string} roomid
- * @param {string} userstr
- * @param {string} message
- */
-function parseChat(roomid, userstr, message) {
+function parseChat(roomid: string, userstr: string, message: string) {
 	const room = Rooms(roomid);
 	let user = Tools.splitUser(userstr);
 	if (!room && roomid !== 'global') {
@@ -240,45 +227,42 @@ function parseChat(roomid, userstr, message) {
 	new ChatParser(message, user, room).parse();
 }
 
-/**
- * @param {string} from
- * @param {string} message
- */
-function parsePM(from, message) {
+function parsePM(from: string, message: string) {
 	if (toId(from) === toId(Config.nick)) return;
 	const user = Tools.splitUser(from);
 	new ChatParser(message, user, null).parse();
 }
 
-/**
- * @param {string} pageid
- * @param {string[]} parts
- */
-function parseChatPage(pageid, parts) {
+function parseChatPage(pageid: string, parts: string[]) {
 	debug(`Viewing chat page '${pageid}'`);
 	Chat.events.emit('chatpage', pageid, parts);
 }
-/**
-* @param {Room?} room
-* @param {string} message
-*/
-Chat.strong = function (room, message) {
+export function strong(room: Room | null, message: string) {
 	if (!room) return `/wall ${message}`;
 	const auth = room.auth.get(toId(Config.nick));
 	if (auth === ' ' || auth === '+') return `**${message}**`;
 	return `/wall ${message}`;
 };
 
-/** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
-/** @typedef {{[k: string]: string | ChatCommand}} ChatCommands */
+export type ChatCommand = (
+	this: ChatParser,
+	target: string, room: Room | null,
+	user: string, cmd: string, message: string
+) => void;
+export type ChatCommands = {[cmd: string]: string | ChatCommand};
 
-class ChatParser {
-	/**
-	 * @param {string} message
-	 * @param {string[]} user
-	 * @param {Room | null} [room]
-	 */
-	constructor(message, user, room = null) {
+export const Commands: ChatCommands = {};
+
+export class ChatParser {
+	room: Room | null;
+	auth: string;
+	user: string;
+	userid: string;
+	message: string;
+
+	cmd: string = '';
+	target: string = '';
+	constructor(message: string, user: string[], room: Room | null = null) {
 		this.room = room;
 		this.auth = user[0] || ' ';
 		this.user = user[1] || '';
@@ -311,53 +295,34 @@ class ChatParser {
 			}
 			return;
 		}
-		debug(`[Commands.${this.cmd}] target = '${this.target}' | room = ${room ? room.roomid : 'PMs'} | user = ${user} | group = '${this.group}'`);
+		debug(`[Commands.${this.cmd}] target = '${this.target}' | room = ${room ? room.roomid : 'PMs'} | user = ${user} | group = '${this.auth}'`);
 		command.call(this, this.target, room, user, this.cmd, message);
 	}
 
-	/**
-	 * @param {string} message
-	 */
-	reply(message) {
+	reply(message: string) {
 		if (this.room) return sendMessage(this.room.roomid, message);
 		sendPM(this.user, message);
 	}
 
-	/**
-	 * @param {string} message
-	 */
-	replyPM(message) {
+	replyPM(message: string) {
 		sendPM(this.user, message);
 	}
 
-	/**
-	 * @param {string} message
-	 */
-	replyHTMLPM(message) {
+	replyHTMLPM(message: string) {
 		const pmRoom = Rooms.canPMInfobox(toId(this.user));
 		if (!pmRoom) return this.replyPM(`Can't send you HTML, make sure that I have the bot rank in a room you're in.`);
 		Chat.sendMessage(pmRoom, `/pminfobox ${this.user}, ${message}`);
 	}
 
-	/**
-	 * @param {string} message
-	 */
-	strong(message) {
+	strong(message: string) {
 		return Chat.strong(this.room, message);
 	}
-	/**
-	 * @param {string} userid
-	 * @returns {string?}
-	 */
-	getUser(userid) {
+
+	getUser(userid: string) {
 		return this.room && this.room.users.get(toId(userid)) || null;
 	}
-	/**
-	 * @param {'host' | 'auth' | 'authhost' | 'staff' | 'leader' | 'dev'} permission
-	 * @param {Room?} room
-	 * @return {boolean}
-	 */
-	can(permission, room = null) {
+
+	can(permission: 'host' | 'auth' | 'authhost' | 'staff' | 'leader' | 'dev', room: Room | null = null): boolean {
 		if (Config.developers && Config.developers.includes(this.userid)) return true;
 		if (permission === 'dev') return false;
 		if (permission === 'authhost') return this.can('auth') && this.can('host');
@@ -366,7 +331,7 @@ class ChatParser {
 		// todo - rewrite this when the new |groups| protocol arrives
 		switch (permission) {
 		case 'host':
-			if (room && room.mafiaTracker && room.mafiaTracker.hostid === this.userid) return true;
+			if (room?.mafiaTracker?.hostid === this.userid) return true;
 			// falls through
 		case 'auth':
 			if (group === '+') return true;
@@ -381,12 +346,10 @@ class ChatParser {
 	}
 }
 
-Chat.ChatParser = ChatParser;
-
 const Client = require('./client.js');
-Chat.client = new Client({});
-Chat.client.on('message', parse);
-Chat.client.on('page', parseChatPage);
+export const client = new Client({});
+client.on('message', parse);
+client.on('page', parseChatPage);
 
-const Slaves = require('./slaves.js');
-Chat.Slaves = Slaves;
+export const Slaves = require('./slaves.js');
+

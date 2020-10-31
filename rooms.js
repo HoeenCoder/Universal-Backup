@@ -182,3 +182,5 @@ let Rooms = Object.assign(getRoom, {
 	RoomGamePlayer,
 });
 module.exports = Rooms;
+
+/** @typedef {Room} RoomsT */
