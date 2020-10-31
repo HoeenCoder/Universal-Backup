@@ -1,4 +1,4 @@
-class Room {
+export class Room {
 	roomid: string;
 	title: string;
 	roomType: string;

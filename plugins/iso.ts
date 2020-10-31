@@ -1,39 +1,32 @@
-'use strict';
-
 // this object usually sticks on MafiaTracker#iso
-class ISO {
-	/**
-     * @param {Room} room
-     */
-	constructor(room) {
+export class ISO {
+	authors: string[][] = [];
+	log: string[] = [];
+	/** {name: [lines, lynches placed]} */
+	dayStats: {[user: string]: [number, number]} = {};
+	mafiaTracker: MafiaTracker;
+	startTime: number;
+	nightCount: string = '-1';
+	constructor(room: Room) {
 		if (!room.mafiaTracker) throw new Error(`ISO created with no mafia object`);
-		/** @type {string[][]} */
-		this.authors = [];
-		/** @type {string[]} */
-		this.log = [];
-
-		/** @type {{[k: string]: [number, number]}} */
-		// name: [lines, lynches placed]
-		this.dayStats = {};
 		this.mafiaTracker = room.mafiaTracker;
-
 		this.startTime = Date.now();
 
 		room.send('ISO started');
-		room.mafiaTracker.addChatListener('chat', (/** @type {string[]} */details) => {
+		room.mafiaTracker.addChatListener('chat', (details) => {
 			this.addChat(details.slice(1).join('|'), details[0]);
 		});
-		room.mafiaTracker.addMafiaListener('day', (/** @type {string[]} */details) => {
+		room.mafiaTracker.addMafiaListener('day', (details) => {
 			this.addHTML(`<span class="broadcast-blue">Day ${details[0]}</span>`, ['~']);
 			this.dayStats = {};
 			for (const player in this.mafiaTracker.players) {
 				if (!this.mafiaTracker.players[player].dead) this.dayStats[player] = [0, 0];
 			}
 		});
-		room.mafiaTracker.addMafiaListener('kill', (/** @type {string[]} */details, /** @type {string} */message) => {
+		room.mafiaTracker.addMafiaListener('kill', (details, message) => {
 			this.addHTML(`<span class="broadcast-blue">${Tools.stripHTML(message)}</span`, [details[1]]);
 		});
-		room.mafiaTracker.addMafiaListener('lynch', (/** @type {string[]} */details, /** @type {string} */message) => {
+		room.mafiaTracker.addMafiaListener('lynch', (details, message) => {
 			const authors = [details[1]];
 			if (details[2]) {
 				authors.push(details[2]);
@@ -51,11 +44,7 @@ class ISO {
 			this.sendActivity();
 		});
 	}
-	/**
-     * @param {string} text
-     * @param {string} author
-     */
-	addChat(text, author) {
+	addChat(text: string, author: string) {
 		if (author === '~') return;
 		text = Tools.escapeHTML(text).replace(/>here.?</ig, 'here  ').replace(/(click) (here)/ig, '$1  $2');
 		this.addHTML(`<username>${Tools.escapeHTML(author.slice(1))}:</username> ${text}`, [author]);
@@ -64,28 +53,17 @@ class ISO {
 		if (!(author in this.dayStats)) return;
 		this.dayStats[author][0]++;
 	}
-	/**
-     * @param {string} text
-     * @param {string[]} authors
-     */
-	addLine(text, authors) {
+	addLine(text: string, authors: string[]) {
 		this.addHTML(Tools.escapeHTML(text), authors);
 	}
-	/**
-     * @param {string} text
-     * @param {string[]} authors
-     */
-	addHTML(text, authors) {
+	addHTML(text: string, authors: string[]) {
 		this.log.push(`<div class="chat"><small>${this.getTimestamp()}</small> ${text}</div>`);
 		this.authors.push(authors.map(a => a === '~' ? a : toId(a)));
 	}
 	getTimestamp() {
 		if (!this.startTime) return '[]';
 
-		/**
-         * @param {number} v
-         */
-		function p02d(v) {
+		function p02d(v: number) {
 			return v < 10 ? '0' + v : v;
 		}
 		const delta = Date.now() - this.startTime;
@@ -98,11 +76,7 @@ class ISO {
 		return `[${h ? `${p02d(h)}:` : ''}${p02d(m)}:${p02d(s)}]`;
 	}
 
-	/**
-	 * @param {string} [target]
-	 */
-	sendActivity(target) {
-		/** @type {string} */
+	sendActivity(target: string | null = null) {
 		const user = toId(target) || this.mafiaTracker.hostid;
 		const buf = Object.entries(this.dayStats)
 			.sort((a, b) => a[1][0] - b[1][0])
@@ -117,13 +91,12 @@ class ISO {
 	}
 }
 
-Mafia.events.on('gamestart', (/** @type {MafiaTracker} */tracker) => {
+Mafia.events.on('gamestart', (tracker: MafiaTracker) => {
 	tracker.iso = new ISO(tracker.room);
 });
 
-/** @type {import("../chat").ChatCommands} */
-const commands = {
-	i: function (target, room, user) {
+export const commands: ChatCommands = {
+	i(target, room, user) {
 		if (room) return this.replyPM(`Please use this command in PMS :)`);
 		if (!Rooms.canPMInfobox(user)) return this.replyPM(`Can't PM you html, make sure you share a room in which I have the bot rank.`);
 
@@ -154,7 +127,7 @@ const commands = {
 		let buf = `<details><summary>ISO for ${searchAuthors.slice(1).join(', ')}</summary><div role="log">${foundLog.join('')}</div></details>`;
 		this.replyHTMLPM(buf);
 	},
-	activity: function (target, room, user) {
+	activity(target, room, user) {
 		if (room) return this.replyPM(`Please use this command in PMS :)`);
 		if (!Rooms.canPMInfobox(user)) return this.replyPM(`Can't PM you html, make sure you share a room in which I have the bot rank.`);
 
@@ -172,8 +145,3 @@ const commands = {
 	},
 };
 
-module.exports = {
-	commands,
-	ISO,
-};
-/** @typedef {ISO} ISOT */

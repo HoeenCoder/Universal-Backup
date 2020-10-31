@@ -38,7 +38,8 @@ export namespace Chat {
 		for (const command in Commands) delete Commands[command];
 
 		Object.assign(Commands, require('./commands.js').commands)
-		const files = readdirSync('plugins');
+		// FIXME
+		const files = readdirSync('dist/plugins');
 		for (const file of files) {
 			if (file.substr(-3) !== '.js') continue;
 			const plugin = require('./plugins/' + file);

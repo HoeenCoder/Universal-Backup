@@ -12,11 +12,16 @@ namespace RoomGame {
     export type RoomGamePlayer = import('./room-game').RoomGamePlayerT;
 }
 
+type ChatCommands = Chat.Commands;
+namespace Chat {
+    export type Commands = import('./chat').Chat.ChatCommands;
+}
+
 type MafiaTracker = Mafia.Tracker;
 type MafiaISO = Mafia.ISO;
 type MafiaCooldown = Mafia.Cooldown;
 namespace Mafia {
     export type Tracker = import('./mafia').MafiaTrackerType;
-    export type ISO = import('./plugins/iso').ISOT;
+    export type ISO = import('./plugins/iso').ISO;
     export type Cooldown = import('./plugins/mafiacooldown').MafiaCooldownT;
 }
