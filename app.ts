@@ -49,8 +49,10 @@ global.log = (msg: string) => {
 	console.log("[LOG] " + msg);
 };
 
-global.Rooms = require('./rooms.js');
-global.Chat = require('./chat.js'); // handles the connection too
+import { Rooms } from './rooms';
+global.Rooms = Rooms;
+import { Chat } from './chat';
+global.Chat = Chat; // handles the connection too
 global.Mafia = require('./mafia.js');
 Chat.loadCommands();
 

@@ -1,8 +1,8 @@
 
-import * as ChatType from './chat'
+import { Chat as ChatType } from './chat'
 import * as ConfigType from './config/config-example'
 import * as ToolsType from './tools'
-import * as RoomsType from './rooms'
+import { Rooms as RoomsType } from './rooms'
 import * as MafiaType from './mafia'
 
 declare global {

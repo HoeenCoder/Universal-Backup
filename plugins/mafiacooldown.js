@@ -177,3 +177,5 @@ const commands = {
 	},
 };
 exports.commands = commands;
+
+/** @typedef {MafiaCooldown} MafiaCooldownT */

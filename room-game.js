@@ -62,3 +62,6 @@ class RoomGamePlayer {
 }
 
 module.exports = {RoomGame, RoomGamePlayer};
+
+/** @typedef {RoomGame} RoomGameT */
+/** @typedef {RoomGamePlayer} RoomGamePlayerT */

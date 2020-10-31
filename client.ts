@@ -15,6 +15,7 @@ export class Client extends EventEmitter {
 	sendTimeout: NodeJS.Timer | null = null;
 	extraJoin: string[] | null = null;
 	options: Partial<Config>;
+	auth: string = ' ';
 	constructor(options: Partial<Config>) {
 		super();
 		this.options = Object.assign({}, Config, options);

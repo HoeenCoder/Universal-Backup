@@ -176,4 +176,4 @@ module.exports = {
 	commands,
 	ISO,
 };
-/** @typedef {ISO} ISOType */
+/** @typedef {ISO} ISOT */
