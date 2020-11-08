@@ -1,7 +1,7 @@
 
 import { Chat as ChatType } from './chat'
 import * as ConfigType from './config/config-example'
-import * as ToolsType from './tools'
+import { Tools as ToolsType } from './tools'
 import { Rooms as RoomsType } from './rooms'
 import * as MafiaType from './mafia'
 

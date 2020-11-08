@@ -397,7 +397,7 @@ class HydraController extends AnonController {
 	addSlaves() {}
 }
 
-/** @type {import("../chat").ChatCommands} */
+/** @type {ChatCommands} */
 const commands = {
 	anon: function (target, room, user) {
 		if (!room) return;

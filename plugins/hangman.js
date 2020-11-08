@@ -23,11 +23,11 @@ function isValidHangman(word, hint) {
 	if (hint.length > 150) return false;
 	return true;
 }
-/** @type {import("../chat").ChatCommands} */
+/** @type {ChatCommands} */
 const commands = {
 	hangman: function (target, room) {
 		if (!room) return;
-		if (!this.can('games')) return;
+		if (!this.can('auth')) return;
 		target = toId(target);
 		let word = '';
 		let hint = '';

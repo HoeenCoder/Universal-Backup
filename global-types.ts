@@ -1,3 +1,7 @@
+type ID = '' | (string & {__isID: true});
+
+type AnyObject = {[k: string]: any};
+
 type Config = typeof import('./config/config-example');
 
 type Room = Rooms.Room;
@@ -8,8 +12,8 @@ namespace Rooms {
 type RoomGame = RoomGame.RoomGame;
 type RoomGamePlayer = RoomGame.RoomGamePlayer;
 namespace RoomGame {
-    export type RoomGame = import('./room-game').RoomGameT;
-    export type RoomGamePlayer = import('./room-game').RoomGamePlayerT;
+    export type RoomGame = import('./room-game').RoomGame;
+    export type RoomGamePlayer = import('./room-game').RoomGamePlayer;
 }
 
 type ChatCommands = Chat.Commands;

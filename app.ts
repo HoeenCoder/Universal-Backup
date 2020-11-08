@@ -30,7 +30,8 @@ try {
 }
 
 // Setup globals
-global.Tools = require('./tools.js');
+import { Tools } from './tools';
+global.Tools = Tools;
 global.toId = Tools.toId;
 Config.nickid = toId(Config.nick);
 if (!toId(Config.nick)) {

@@ -3,7 +3,7 @@
 
 const fs = require('fs');
 
-const Client = require('./client.js');
+const Client = require('./client.js').Client;
 
 /** @type {{[k: string]: boolean}} */
 let NamesUsed = {};
@@ -21,7 +21,7 @@ function CountCredentials() {
 }
 class SlaveClient {
 	/**
-	 * @param {Object} credentials
+	 * @param {AnyObject} credentials
 	 * @param {string[]} rooms
 	 */
 	constructor(credentials, rooms) {
