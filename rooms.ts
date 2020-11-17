@@ -9,7 +9,9 @@ export class Room {
 	mafiaTracker: MafiaTracker | null = null;
 	iso: MafiaISO | null = null;
 	mafiaCooldown: MafiaCooldown | null = null;
-	// scavengerHunt: ScavengerHunt | null = null;
+	// fixme
+	scavengerHunt: import('./plugins/scavs').ScavengerHunt | null = null;
+	pendingScavengerHunt: import('./plugins/scavs').ScavengerHunt | null = null;
 	constructor(roomid: string, roomType: string) {
 		this.roomid = roomid;
 		this.title = roomid;
@@ -123,7 +125,7 @@ function canPMInfobox(user: string) {
 	return null;
 }
 
-const {RoomGame, RoomGamePlayer} = require('./room-game.js');
+import { RoomGame, RoomGamePlayer } from './room-game.js';
 export let Rooms = Object.assign(getRoom, {
 	Room,
 	rooms: new Map<string, Room>(),

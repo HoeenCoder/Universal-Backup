@@ -40,6 +40,7 @@ function markOfficial(room, user) {
 	Chat.sendPM(user, 'Marked the current game as official.');
 
 	room.mafiaTracker.addMafiaListener('gamestart', () => {
+		// @ts-ignore FIXME the listener CB should pass the mafiaTracker
 		room.mafiaTracker.sendRoom(REMINDER_MESSAGE);
 	});
 
@@ -56,23 +57,26 @@ function markOfficial(room, user) {
 				Leavers[leaver] = now;
 				didSomething = true;
 			} else {
+				// @ts-ignore FIXME
 				room.mafiaTracker.sendRoom(`/mafia win -${LEAVER_POINTS}, ${leaver}`);
 				given.push(leaver);
 			}
 		}
+		// @ts-ignore FIXME
 		if (given.length) room.mafiaTracker.sendRoom(`Gave leaver points to ${given.length} user${given.length !== 1 ? 's' : ''}.`);
 		if (didSomething) writeLeavers();
 		pendingLeavers = {};
 	});
 
 	room.mafiaTracker.addMafiaListener('sub', (/** @type {string[]} */details) => {
+		// @ts-ignore FIXME
 		if (!['night', 'day'].includes(room.mafiaTracker.phase)) return;
 		pendingLeavers[toId(details[0])] = !pendingLeavers[toId(details[1])];
 		pendingLeavers[toId(details[1])] = false;
 	});
 }
 
-/** @type {import("../chat").ChatCommands} */
+/** @type {ChatCommands} */
 const commands = {
 	official: function (target, room, user) {
 		const mafiaRoom = Rooms('mafia');

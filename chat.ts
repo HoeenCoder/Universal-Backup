@@ -17,7 +17,7 @@ import { Client } from './client';
 export namespace Chat {
 	export const events = new Tools.Events();
 
-	export function sendMessage(roomid: string, message: string) {
+	export function sendMessage(roomid: string | null, message: string) {
 		const room = roomid ? Rooms(roomid) : null;
 		if (!room && roomid) return debug("Sending to invalid room '" + roomid + "'");
 		if (message.length > 300 && !['/', '!'].includes(message.charAt(0))) message = message.slice(0, 296) + '...';

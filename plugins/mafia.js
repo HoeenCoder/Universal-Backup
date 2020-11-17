@@ -1,7 +1,8 @@
 'use strict';
 
-/** @type {import("../chat").ChatCommands} */
+/** @type {ChatCommands} */
 const commands = {
+/**
 	game: function (target, room) {
 		if (!this.can('staff')) return false;
 		if (!room || !room.mafiaTracker) return this.reply(`No mafia game running...`);
@@ -25,6 +26,7 @@ const commands = {
 		const res = mafiaRoom.mafiaTracker.game.triggers.action.call(mafiaRoom.mafiaTracker, user, target);
 		if (res) this.reply(res);
 	},
+*/
 };
 
 exports.commands = commands;

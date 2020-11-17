@@ -35,6 +35,8 @@ class Lighthouse extends Rooms.RoomGame {
 	 */
 	onMessage(details) {
 		if (!this.enabled) return;
+		// FIXME convert these to ! asserts
+		if (!this.room.mafiaTracker) throw new Error(`lh with no mafia game`);
 
 		const user = toId(details[0]);
 		/** @type {string | false} */
@@ -61,6 +63,7 @@ class Lighthouse extends Rooms.RoomGame {
 	 */
 	lynch(user, target) {
 		if (!this.enabled) return;
+		if (!this.room.mafiaTracker) throw new Error(`lh with no mafia game`);
 
 		const userid = toId(user);
 		let targetid = toId(target);
@@ -69,7 +72,7 @@ class Lighthouse extends Rooms.RoomGame {
 		if (!players[userid] || (players[userid].dead && !players[userid].spirit)) return;
 		if (!players[targetid] || players[targetid].dead) {
 			if (targetid === 'nolynch' || targetid === 'nl') {
-				targetid = 'No lynch';
+				targetid = /** @type {ID} */('nolynch');
 			} else {
 				return;
 			}
@@ -96,6 +99,7 @@ class Lighthouse extends Rooms.RoomGame {
 		if (!this.enabled) return;
 
 		const userid = toId(user);
+		if (!this.room.mafiaTracker) throw new Error(`lh with no mafia game`);
 		if (!this.room.mafiaTracker.players[userid]) return;
 		if (!this.lynching[userid]) return sendPM(userid, `You are not lynching anyone`);
 
@@ -128,7 +132,7 @@ class Lighthouse extends Rooms.RoomGame {
 	}
 }
 
-/** @type {import("../chat").ChatCommands} */
+/** @type {ChatCommands} */
 const commands = {
 	lighthouse: function (target, room, user) {
 		if (!room) return;

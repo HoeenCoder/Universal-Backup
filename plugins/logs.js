@@ -4,12 +4,14 @@
 const HORRIBLE_REGEX = new RegExp(`(.*)` + Tools.LYNCHES_REGEX.source + `(.*)`, 'ms');
 
 Chat.events.on('pm', (/** @type {Room} */room, /** @type {string[]} */details) => {
-	let [from, message] = [details[0], details.slice(2).join('|')];
+	let [from, originalMessage] = [details[0], details.slice(2).join('|')];
 
-	if (!message.startsWith('/raw')) return;
-	message = message.slice(5);
+	if (!originalMessage.startsWith('/raw')) return;
+	originalMessage = originalMessage.slice(5);
 
-	message = Tools.findCode(message);
+	/** @type {string} */
+	// fixme bad hack to work around ts bug
+	let message = Tools.findCode(originalMessage) || '';
 	if (!message) return;
 
 	const userid = toId(from);

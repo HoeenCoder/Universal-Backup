@@ -428,11 +428,11 @@ const commands = {
 		const anonRoom = [...Rooms.rooms.values()].find(r => !!(r.game && ANON_GAMES.includes(r.game.gameid)));
 		if (!anonRoom) return;
 		if (!this.can('staff', anonRoom)) return;
-		const game = /** @type {AnonController} */ (anonRoom.game);
+		const game = /** @type {AnonController | HydraController} */ (anonRoom.game);
 		const players = target.split(',').map(toId);
 		const res = game.addPlayer(players);
-		// typescript
-		if (res !== (void 0) && res) this.reply(res);
+		// FIXME pull the string return type out into the anoncontroller parent
+		if (res) this.reply(res);
 	},
 	killslave: function (target, room, user) {
 		if (!this.can('staff')) return;

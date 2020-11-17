@@ -247,7 +247,7 @@ class KuncTrivia extends Trivia {
 	}
 }
 
-/** @type {import("../chat").ChatCommands} */
+/** @type {ChatCommands} */
 const commands = {
 	g: 'guess',
 	guess: function (target, room, user) {
@@ -278,8 +278,8 @@ const commands = {
 		if (!this.can('staff')) return;
 		let targetIndex = parseInt(target);
 		if (isNaN(targetIndex)) {
-			target = toId(target);
-			targetIndex = Questions.map(q => toId(q[0])).indexOf(target);
+			const targetID = toId(target);
+			targetIndex = Questions.map(q => toId(q[0])).indexOf(targetID);
 		}
 		const question = Questions[targetIndex];
 		if (!question) return this.reply(`Invalid question.`);

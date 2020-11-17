@@ -5,13 +5,15 @@ type AnyObject = {[k: string]: any};
 type Config = typeof import('./config/config-example');
 
 type Room = Rooms.Room;
+type Rooms = Rooms.Rooms;
 namespace Rooms {
     export type Room = import('./rooms').Room;
+    export type Rooms = typeof import('./rooms').Rooms;
 }
 
-type RoomGame = RoomGame.RoomGame;
-type RoomGamePlayer = RoomGame.RoomGamePlayer;
-namespace RoomGame {
+type RoomGame = RoomGames.RoomGame;
+type RoomGamePlayer = RoomGames.RoomGamePlayer;
+namespace RoomGames {
     export type RoomGame = import('./room-game').RoomGame;
     export type RoomGamePlayer = import('./room-game').RoomGamePlayer;
 }

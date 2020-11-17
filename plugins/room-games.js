@@ -1,6 +1,6 @@
 'use strict';
 
-/** @type {import("../chat").ChatCommands} */
+/** @type {ChatCommands} */
 const commands = {
 	join: function (target, room, user) {
 		if (!room || !room.game || !room.game.join) return;

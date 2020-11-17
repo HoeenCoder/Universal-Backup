@@ -4,14 +4,17 @@ const CREATE_REGEX = /^<div class="broadcast-blue"><strong>A new (.+) Scavenger 
 const FINISH_REGEX = /^<div class="broadcast-blue"><strong>The .+scavenger hunt was ended (?:by .*?|automatically)\.(.+)<details style="cursor: pointer;"><summary>Solution: <\/summary>(.*)<\/details><\/strong><\/div>$/;
 const ANSWER_REGEX = /^<br \/>\d+\) (.+)<span style="color: lightgreen">\[<em>(.*)<\/em>\]$/;
 
-/**
- * @typedef {object} ScavengerHunt
- * @param {string} host
- * @param {'practice' | 'official' | 'unrated' | 'mini'} type
- * @param {string[]?} questions
- * @param {boolean} completed
- * @param {boolean} recycled
- */
+////**
+/// * @typedef {object} ScavengerHunt
+/// * @param {string} host
+/// * @param {'practice' | 'official' | 'unrated' | 'mini'} type
+/// * @param {string[]?} questions
+/// * @param {boolean} completed
+/// * @param {boolean} recycled
+/// */
+
+// FIXME
+/** @typedef {{[k: string]: any}} ScavengerHunt */
 
 const VALD_HUNT_TYPES = new Set(['regular', 'practice', 'official', 'mini', 'unrated']);
 
@@ -102,7 +105,7 @@ function startHunts() {
 	Chat.sendMessage(scavSubroom, `Hunts from ${hosts.join(' & ')}`);
 }
 
-/** @type {import("../chat").ChatCommands} */
+/** @type {ChatCommands} */
 const commands = {
 	scav: 'scavs',
 	scavs: function (target, room) {

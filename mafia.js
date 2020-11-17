@@ -215,7 +215,10 @@ class MafiaTracker extends Rooms.RoomGame {
 
 		this.log(`init ${this.host}`);
 
+		// FIXME
+		/** @type {AnyObject | null} */
 		this.game = null;
+		/** @type {AnyObject | null} */
 		this.data = null;
 	}
 
@@ -262,11 +265,14 @@ class MafiaTracker extends Rooms.RoomGame {
 	onEnd() {
 		this.phase = 'ended';
 		for (const listener of this.chatListeners) {
+			// @ts-ignore FIXME
 			Chat.events.remove(listener);
 		}
 		for (const listener of this.mafiaListeners) {
 			// slight hack to make this event fire
+			// @ts-ignore FIXME
 			if (listener.event === 'gameend') listener.callback(this);
+			// @ts-ignore FIXME
 			Mafia.events.remove(listener);
 		}
 	}
@@ -311,7 +317,7 @@ class MafiaTracker extends Rooms.RoomGame {
 		delete this.players[oldId];
 		this.players[newId].user = newName;
 
-		if (this.game && this.game.triggers.sub) this.game.triggers.sub.call(this, oldName, newName);
+		// if (this.game && this.game.triggers.sub) this.game.triggers.sub.call(this, oldName, newName);
 	}
 
 	/**
@@ -367,15 +373,15 @@ class MafiaTracker extends Rooms.RoomGame {
 			}));
 	}
 
-	/**
-	 * @param {object} game
-	 */
-	addGame(game) {
-		if (this.game) return this.sendRoom('Game already exists.');
-		this.game = game;
-		this.data = game.data || {};
-		if (this.game.triggers.create) this.game.triggers.create.call(this);
-	}
+//	/**
+//	 * @param {object} game
+//	 */
+//	addGame(game) {
+//		if (this.game) return this.sendRoom('Game already exists.');
+//		this.game = game;
+//		this.data = game.data || {};
+//		// if (this.game.triggers.create) this.game.triggers.create.call(this);
+//	}
 	removeGame() {
 		this.game = null;
 		this.data = null;

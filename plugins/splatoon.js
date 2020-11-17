@@ -74,7 +74,7 @@ let SplatoonMaps = {
 /** @type {{[userid: string]: Profile}} */
 let profiles = {};
 try {
-	profiles = JSON.parse(fs.readFileSync('./config/splatoon-profiles.json'));
+	profiles = JSON.parse(fs.readFileSync('./config/splatoon-profiles.json').toString());
 } catch (e) {
 	// file probably dosen't exist, should fix itself on first write.
 	if (e.code !== 'ENOENT') throw e;
@@ -85,7 +85,7 @@ function writeProfileJson() {
 
 // Load data for weapon/weaponsearch
 /** @type {Weapons} */
-const weapons = JSON.parse(fs.readFileSync('./config/splatoon.json'));
+const weapons = JSON.parse(fs.readFileSync('./config/splatoon.json').toString());
 const statNames = {
 	range: 'Range',
 	firerate: 'Fire Rate',
@@ -185,9 +185,6 @@ async function pruneMaps() {
 		}
 	}
 }
-
-/** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
-/** @typedef {{[k: string]: string | ChatCommand}} ChatCommands */
 
 /** @type {ChatCommands} */
 const commands = {

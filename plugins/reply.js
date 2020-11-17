@@ -46,7 +46,7 @@ Chat.events.on('command', (/** @type {Room} */room, /** @type {string[]} */detai
 
 const CODE_STRING = '!';
 
-/** @type {import("../chat").ChatCommands} */
+/** @type {ChatCommands} */
 const commands = {
 	addcustom: function (target, room) {
 		if (!this.can('leader')) return;

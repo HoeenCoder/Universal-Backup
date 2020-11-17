@@ -133,7 +133,7 @@ Mafia.events.on('gameend', (/** @type {MafiaTracker} */tracker, /** @type {strin
 	if (tracker.room.mafiaCooldown) tracker.room.mafiaCooldown.onEnd();
 });
 
-/** @type {import("../chat").ChatCommands} */
+/** @type {ChatCommands} */
 const commands = {
 	createcooldown: function (target, room, user) {
 		if (!this.can('leader')) return;

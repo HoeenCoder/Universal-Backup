@@ -63,7 +63,7 @@ Chat.events.on('raw', (/** @type {Room} */room, /** @type {string} */parts) => {
 	}
 });
 
-/** @type {import("../chat").ChatCommands} */
+/** @type {ChatCommands} */
 const commands = {
 	resetladders: function (target, room, user) {
 		if (!this.can('leader')) return this.reply(`access denied`);

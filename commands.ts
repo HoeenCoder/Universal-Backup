@@ -1,10 +1,4 @@
-'use strict';
-
-/** @typedef {((this: CommandContext, target: string, room: Room?, user: string, cmd: string, message: string) => any)} ChatCommand */
-/** @typedef {{[k: string]: string | ChatCommand}} ChatCommands */
-
-/** @type {ChatCommands} */
-const commands = {
+const commands: ChatCommands = {
 	js: 'eval',
 	eval: function (target, room, user) {
 		if (!this.can('dev') || !target) return;
@@ -46,8 +40,9 @@ const commands = {
 		Chat.uncacheFile('./commands.js');
 		Chat.uncacheFile('./mafia.js');
 		Chat.uncacheFile('./mafia-data.js');
-		Chat.Commands = {};
+		for (const c in Chat.Commands) delete Chat.Commands[c];
 		try {
+			// @ts-ignore readonly
 			Chat.events = new Tools.Events();
 			global.Mafia = require('./mafia');
 			Chat.loadCommands();
@@ -63,10 +58,10 @@ const commands = {
 	},
 };
 
-Chat.events.on('pm', (/**@type {any} */room, /** @type {string[]} */details) => {
+Chat.events.on('pm', (room, details) => {
 	if (Config.developers.includes(toId(details[0]))) {
 		if (details[2].startsWith('/invite ')) {
-			Chat.sendMessage(null, `/join ${details[2].slice(8)}`);
+			Chat.sendMessage('', `/join ${details[2].slice(8)}`);
 		}
 	}
 });
