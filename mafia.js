@@ -16,6 +16,9 @@ function parseChat(room, parts) {
 	if (!room) return;
 	const author = parts[0];
 	const message = parts.slice(1).join('|');
+
+	if (message.startsWith('/raw ')) return parseHTMLGeneric(room, message.slice(5));
+
 	/** @type {(event: string, details: string[]) => void} */
 	function emit(event, details) {
 		if (!room.mafiaTracker) return; // happens when joining a room with a mafia game running
@@ -48,9 +51,19 @@ function parseChat(room, parts) {
  * @param {string[]} parts
  */
 function parseHTML(room, parts) {
+	const message = Tools.unescapeHTML(parts.join('|'));
+	return parseHTMLGeneric(room, message);
+}
+
+/**
+ * @param {Room} room
+ * @param {string} message
+ * PS sends some HTML messages attributed to a user, and some with |html|
+ * We don't really care what the origin is, so we parse them together here
+ */
+function parseHTMLGeneric(room, message) {
 	if (!room) return;
 
-	const message = Tools.unescapeHTML(parts.join('|'));
 	/** @type {(event: string, details: string[]) => void} */
 	function emit(event, details) {
 		if (!room.mafiaTracker) return;
@@ -64,6 +77,8 @@ function parseHTML(room, parts) {
 	if (event) return emit('night', [event[1]]);
 	event = /^<div class="broadcast-blue">Day (\d+)\. The hammer count is set at (\d+)<\/div>$/.exec(message);
 	if (event) return emit('day', event.slice(1, 3));
+	event = /<div class="broadcast-blue">Day (\d+)\. Hammering is disabled\.<\/div>/.exec(message);
+	if (event) return emit('day', ['', event[2]]);
 
 	event = /^<div class="broadcast-blue">(.+) was kicked from the game!<\/div>$/.exec(message);
 	if (event) return emit('kill', ['kick', event[1]]);
@@ -104,15 +119,17 @@ function parseHTML(room, parts) {
 	event = /^<div class="broadcast-blue">The hammer count has been shifted to (\d+)\. Lynches have not been reset\.<\/div>$/.exec(message);
 	if (event) return emit('sethammer', ['shift', event[1]]);
 
+	// FIXME come up with a better way to signal disabled
+	if (message === '<div class="broadcast-blue">Hammering has been disabled, and lynches have been reset.</div>') return emit('sethammer', ['reset', '']);
+	if (message === '<div class="broadcast-blue">Hammering has been disabled. Lynches have not been reset.</div>') return emit('sethammer', ['shift', '']);
+
 	event = /^<strong>The deadline has been set for (\d+) minutes\.<\/strong>$/.exec(message);
 	if (event) return emit('deadlineset', [event[1]]);
 	event = /^<strong>Time is up!<\/strong>$/.exec(message);
 	if (event) return emit('deadline', []);
 
 	if (room.mafiaTracker && (room.mafiaTracker.hostid === Config.nickid || room.mafiaTracker.cohosts.includes(Config.nickid))) {
-		if (room.mafiaTracker.hasRoles) return;
 		const players = room.mafiaTracker.players;
-		const message = parts.join('|');
 		if (message.slice(0, 21) !== `<div class="infobox">` || message.slice(-6) !== `</div>`) return;
 		const lines = message.slice(21, -6).split('<br/>');
 		for (let line of lines) {
