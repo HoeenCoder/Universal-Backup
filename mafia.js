@@ -73,7 +73,7 @@ function parseHTMLGeneric(room, message) {
 	if (message === '<div class="broadcast-blue">The game of Mafia is starting!</div>') return emit('gamestart', []);
 	if (message === 'mafia|<div class="infobox">The game of Mafia has ended.</div>') return emit('gameend', []);
 
-	let event = /^<div class="broadcast-blue">Night (\d+). PM the host your action, or idle\.<\/div>$/.exec(message);
+	let event = /^<div class="broadcast-blue">Night (\d+). (PM the host your action, or idle|Submit whether you are using an action or idle\. If you are using an action, DM your action to the host)\.<\/div>$/.exec(message);
 	if (event) return emit('night', [event[1]]);
 	event = /^<div class="broadcast-blue">Day (\d+)\. The hammer count is set at (\d+)<\/div>$/.exec(message);
 	if (event) return emit('day', event.slice(1, 3));
