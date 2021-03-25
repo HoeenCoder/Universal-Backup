@@ -153,18 +153,21 @@ const commands = {
 		if (!room.game || !(room.game instanceof Lighthouse)) return;
 		room.game.resume();
 	},
+	v: 'l',
 	l: function (target, room, user) {
 		if (room) return;
 		const lighthouseRoom = [...Rooms.rooms.values()].find(r => !!(r.game && r.game instanceof Lighthouse));
 		if (!lighthouseRoom || !(lighthouseRoom.game instanceof Lighthouse)) return; // failsafe to make typescript happy
 		lighthouseRoom.game.lynch(user, target);
 	},
+      	uv: 'ul',
 	ul: function (target, room, user) {
 		if (room) return;
 		const lighthouseRoom = [...Rooms.rooms.values()].find(r => !!(r.game && r.game instanceof Lighthouse));
 		if (!lighthouseRoom || !(lighthouseRoom.game instanceof Lighthouse)) return;
 		lighthouseRoom.game.unlynch(user);
 	},
+	votes: 'lynches',
 	modlynches: 'lynches',
 	lynches: function (target, room, user, cmd) {
 		if (!room || !room.game || !(room.game instanceof Lighthouse)) return;
