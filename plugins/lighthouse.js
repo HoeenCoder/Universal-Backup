@@ -101,10 +101,10 @@ class Lighthouse extends Rooms.RoomGame {
 		const userid = toId(user);
 		if (!this.room.mafiaTracker) throw new Error(`lh with no mafia game`);
 		if (!this.room.mafiaTracker.players[userid]) return;
-		if (!this.lynching[userid]) return sendPM(userid, `You are not lynching anyone`);
+		if (!this.lynching[userid]) return sendPM(userid, `You are not voting anyone`);
 
 		this.lynches[this.lynching[userid]].splice(this.lynches[this.lynching[userid]].indexOf(userid), 1);
-		this.sendRoom(Chat.strong(this.room, `Someone unlynched ${this.lynching[userid]}`));
+		this.sendRoom(Chat.strong(this.room, `Someone unvoted ${this.lynching[userid]}`));
 		delete this.lynching[userid];
 		this.log.push(`UNVOTE: ${userid}`);
 		return;
