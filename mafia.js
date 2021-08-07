@@ -26,14 +26,14 @@ function parseChat(room, parts) {
 	}
 
 	if (author === '~') {
-		let lynch = /^(.*) has (vote|unvote)d (.*)\.$/.exec(message);
-		if (lynch) return emit('lynch', [lynch[2], lynch[1], lynch[3]]);
-		lynch = /^(.*) has shifted their vote from (.*) to (.*)$/.exec(message);
-		if (lynch) return emit('lynch', ['shift', ...lynch.slice(1, 4)]);
-		lynch = /^(.*) has abstained from voting\.$/.exec(message);
-		if (lynch) return emit('lynch', ['nolynch', lynch[1]]);
-		lynch = /^(.*) is no longer abstaining from voting\.$/.exec(message);
-		if (lynch) return emit('lynch', ['unnolynch', lynch[1]]);
+		let vote = /^(.*) has (vote|unvote)d (.*)\.$/.exec(message);
+		if (vote) return emit('vote', [vote[2], vote[1], vote[3]]);
+		vote = /^(.*) has shifted their vote from (.*) to (.*)$/.exec(message);
+		if (vote) return emit('vote', ['shift', ...vote.slice(1, 4)]);
+		vote = /^(.*) has abstained from voting\.$/.exec(message);
+		if (vote) return emit('vote', ['novote', vote[1]]);
+		vote = /^(.*) is no longer abstaining from voting\.$/.exec(message);
+		if (vote) return emit('vote', ['unnovote', vote[1]]);
 
 		const playerList = /^\*\*Players \(\d+\)\*\*: (.*)$/.exec(message);
 		if (playerList) return emit('players', [playerList[1]]);
