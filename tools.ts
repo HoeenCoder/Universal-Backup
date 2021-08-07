@@ -251,7 +251,7 @@ export namespace Tools {
 		`</div>`;
 	}
 
-	export const LYNCHES_REGEX = /^(Lynches \(Hammer: (?:\d+|NaN|Disabled)\))((?:\n\d+\*? .{1,18} \(.+\))*)/gm;
+	export const LYNCHES_REGEX = /^(Votes \(Hammer: (?:\d+|NaN|Disabled)\))((?:\n\d+\*? .{1,18} \(.+\))*)/gm;
 	export function formatHTMLLynchBox(firstLine: string, rest: string) {
 		return `<div class="notice"><div class="infobox">` +
 			`<strong>${escapeHTML(firstLine)}</strong><br/>` +
