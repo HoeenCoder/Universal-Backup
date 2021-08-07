@@ -61,7 +61,7 @@ class Lighthouse extends Rooms.RoomGame {
 	 * @param {string} user
 	 * @param {string} target
 	 */
-	lynch(user, target) {
+	vote(user, target) {
 		if (!this.enabled) return;
 		if (!this.room.mafiaTracker) throw new Error(`lh with no mafia game`);
 
@@ -71,13 +71,13 @@ class Lighthouse extends Rooms.RoomGame {
 		const players = this.room.mafiaTracker.players;
 		if (!players[userid] || (players[userid].dead && !players[userid].spirit)) return;
 		if (!players[targetid] || players[targetid].dead) {
-			if (targetid === 'nolynch' || targetid === 'nl') {
-				targetid = /** @type {ID} */('nolynch');
+			if (targetid === 'novote' || targetid === 'nv') {
+				targetid = /** @type {ID} */('novote');
 			} else {
 				return;
 			}
 		}
-		if (this.lynching[userid]) return Chat.sendPM(userid, `You are already lynching someone`);
+		if (this.lynching[userid]) return Chat.sendPM(userid, `You are already voting someone`);
 
 		this.lynching[userid] = targetid;
 		if (!this.lynches[targetid]) this.lynches[targetid] = [];
@@ -87,15 +87,15 @@ class Lighthouse extends Rooms.RoomGame {
 			this.stop();
 			return;
 		}
-		this.sendRoom(Chat.strong(this.room, `Someone lynched ${targetid}`));
-		this.log.push(`LYNCH: ${userid} -> ${target}`);
+		this.sendRoom(Chat.strong(this.room, `Someone voted ${targetid}`));
+		this.log.push(`VOTE: ${userid} -> ${target}`);
 		return;
 	}
 
 	/**
 	 * @param {string} user
 	 */
-	unlynch(user) {
+	unvote(user) {
 		if (!this.enabled) return;
 
 		const userid = toId(user);
@@ -106,7 +106,7 @@ class Lighthouse extends Rooms.RoomGame {
 		this.lynches[this.lynching[userid]].splice(this.lynches[this.lynching[userid]].indexOf(userid), 1);
 		this.sendRoom(Chat.strong(this.room, `Someone unlynched ${this.lynching[userid]}`));
 		delete this.lynching[userid];
-		this.log.push(`UNLYNCH: ${userid}`);
+		this.log.push(`UNVOTE: ${userid}`);
 		return;
 	}
 
