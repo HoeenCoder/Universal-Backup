@@ -148,19 +148,19 @@ Starts a lighthouse session. Players in the current mafia game will be able to s
 
 > `lhstop | lhresume`
 
-Pauses/Unpauses the current lighthouse session. When the session is paused, messages and lynches will not work. Requires %.
+Pauses/Unpauses the current lighthouse session. When the session is paused, messages and votes will not work. Requires %.
 
-> `l | ul <player>`
+> `v | uv <player>`
 
-Lynches or unlynches the player. The user must be a player in the current lighthouse game.
+Votes or unvotes the player. The user must be a player in the current lighthouse game.
 
-> `lynches`
+> `votes`
 
-Shows the current lynch counts. Requires %.
+Shows the current votes counts. Requires %.
 
-> `modlynches`
+> `modvotes`
 
-Shows the current lynch counts non anonymously. Should only be used in emergencies.
+Shows the current votes counts non anonymously. Should only be used in emergencies.
 
 > `logs`
 
