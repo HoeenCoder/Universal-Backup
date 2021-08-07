@@ -9,13 +9,13 @@ const EVAL_CHAR = '&';
 const ANON_GAMES = ['anon', 'hydra'];
 
 const MAFIA_COMMANDS = [
-	'l',
+	'v',
 	'vote',
-	'ul',
-	'unl',
+	'uv',
+	'unv',
 	'unnovote',
 	'unvote',
-	'nl',
+	'nv',
 	'novote',
 ];
 
