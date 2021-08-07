@@ -26,7 +26,7 @@ function parseChat(room, parts) {
 	}
 
 	if (author === '~') {
-		let lynch = /^(.*) has (vote|unvote)ed (.*)\.$/.exec(message);
+		let lynch = /^(.*) has (vote|unvote)d (.*)\.$/.exec(message);
 		if (lynch) return emit('lynch', [lynch[2], lynch[1], lynch[3]]);
 		lynch = /^(.*) has shifted their vote from (.*) to (.*)$/.exec(message);
 		if (lynch) return emit('lynch', ['shift', ...lynch.slice(1, 4)]);
