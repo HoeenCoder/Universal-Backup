@@ -114,14 +114,14 @@ function parseHTMLGeneric(room, message) {
 	event = /^<div class="broadcast-blue">(.*) was removed as a cohost by (.*)<\/div>$/.exec(message);
 	if (event) return emit('uncohost', [event[1], event[2]]);
 
-	event = /^<div class="broadcast-blue">The hammer count has been set at (\d+), and lynches have been reset\.<\/div>$/.exec(message);
+	event = /^<div class="broadcast-blue">The hammer count has been set at (\d+), and votes have been reset\.<\/div>$/.exec(message);
 	if (event) return emit('sethammer', ['reset', event[1]]);
-	event = /^<div class="broadcast-blue">The hammer count has been shifted to (\d+)\. Lynches have not been reset\.<\/div>$/.exec(message);
+	event = /^<div class="broadcast-blue">The hammer count has been shifted to (\d+)\. Votes have not been reset\.<\/div>$/.exec(message);
 	if (event) return emit('sethammer', ['shift', event[1]]);
 
 	// FIXME come up with a better way to signal disabled
-	if (message === '<div class="broadcast-blue">Hammering has been disabled, and lynches have been reset.</div>') return emit('sethammer', ['reset', '']);
-	if (message === '<div class="broadcast-blue">Hammering has been disabled. Lynches have not been reset.</div>') return emit('sethammer', ['shift', '']);
+	if (message === '<div class="broadcast-blue">Hammering has been disabled, and votes have been reset.</div>') return emit('sethammer', ['reset', '']);
+	if (message === '<div class="broadcast-blue">Hammering has been disabled. Votes have not been reset.</div>') return emit('sethammer', ['shift', '']);
 
 	event = /^<strong>The deadline has been set for (\d+) minutes\.<\/strong>$/.exec(message);
 	if (event) return emit('deadlineset', [event[1]]);
