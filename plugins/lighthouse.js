@@ -168,12 +168,12 @@ const commands = {
 		lighthouseRoom.game.unlynch(user);
 	},
 	votes: 'lynches',
-	modlynches: 'lynches',
+	modvotes: 'lynches',
 	lynches: function (target, room, user, cmd) {
 		if (!room || !room.game || !(room.game instanceof Lighthouse)) return;
 		if (!this.can('authhost')) return;
 
-		const m = cmd === 'modlynches';
+		const m = cmd === 'modvotes';
 		const auth = room.auth.get(toId(Config.nick));
 		if (auth === ' ') return this.reply(`Can't broadcast`);
 		const html = auth === '*' || auth === '#';
