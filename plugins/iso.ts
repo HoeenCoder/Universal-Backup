@@ -2,7 +2,7 @@
 export class ISO {
 	authors: string[][] = [];
 	log: string[] = [];
-	/** {name: [lines, lynches placed]} */
+	/** {name: [lines, votes placed]} */
 	dayStats: {[user: string]: [number, number]} = {};
 	mafiaTracker: MafiaTracker;
 	startTime: number;
@@ -81,7 +81,7 @@ export class ISO {
 		const buf = Object.entries(this.dayStats)
 			.sort((a, b) => a[1][0] - b[1][0])
 			.reduce((acc, val) => {
-				return acc + `<div><username>${val[0]}:</username> ${val[1][0]} lines, ${val[1][1]} lynches</div>`;
+				return acc + `<div><username>${val[0]}:</username> ${val[1][0]} lines, ${val[1][1]} votes</div>`;
 			}, '');
 		if (buf) {
 			const pmRoom = Rooms.canPMInfobox(user);
