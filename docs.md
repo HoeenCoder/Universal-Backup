@@ -87,7 +87,7 @@ Reloads slave credentials from `./config/credentials.json`. Requires dev. `(this
 > Message Prefixes
 
 - No prefix - message will be sent to the room normally.
-- `>message` - used for commands, eg `>lynch HoeenHero`.
+- `>message` - used for commands, eg `>vote HoeenHero`.
 - `;message` - message will be sent to scumpartners.
 - `<message` - message will be sent to other owners. For use with hydras only.
 - `&message` - message will be executed as javascript and the result returned. Requires dev.
