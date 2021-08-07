@@ -26,7 +26,7 @@ export class ISO {
 		room.mafiaTracker.addMafiaListener('kill', (details, message) => {
 			this.addHTML(`<span class="broadcast-blue">${Tools.stripHTML(message)}</span`, [details[1]]);
 		});
-		room.mafiaTracker.addMafiaListener('lynch', (details, message) => {
+		room.mafiaTracker.addMafiaListener('vote', (details, message) => {
 			const authors = [details[1]];
 			if (details[2]) {
 				authors.push(details[2]);
