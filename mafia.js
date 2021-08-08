@@ -100,7 +100,7 @@ function parseHTMLGeneric(room, message) {
 	event = /^<div class="broadcast-blue">(.+) has been added to the game by (.+)!<\/div>$/.exec(message);
 	if (event) return emit('add', event.slice(1, 3));
 
-	event = /^<div class="broadcast-blue">Hammer! (.+) was lynched!<\/div>$/.exec(message);
+	event = /^<div class="broadcast-blue">Hammer! (.+) was voted out!<\/div>$/.exec(message);
 	if (event) return emit('hammer', [event[1]]);
 
 	event = /^<div class="broadcast-blue">(.*) has been subbed out\. (.*) has joined the game\.<\/div>$/.exec(message);
