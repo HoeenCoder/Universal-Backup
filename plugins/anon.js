@@ -9,14 +9,14 @@ const EVAL_CHAR = '&';
 const ANON_GAMES = ['anon', 'hydra'];
 
 const MAFIA_COMMANDS = [
-	'l',
-	'lynch',
-	'ul',
-	'unl',
-	'unnolynch',
-	'unlynch',
-	'nl',
-	'nolynch',
+	'v',
+	'vote',
+	'uv',
+	'unv',
+	'unnovote',
+	'unvote',
+	'nv',
+	'novote',
 ];
 
 const INFO_MESSAGE = `
@@ -28,7 +28,7 @@ PM your bot to send messages to the room anonymously
 	<dt>#</dt>
 	<dd> - message the host. Messages from the host will be <span class="message-announce">walled</span></dd>
 	<dt>&gt;</dt>
-	<dd> - use mafia commands. For example, <code>&gt;lynch hoeenhero</code></dd>
+	<dd> - use mafia commands. For example, <code>&gt;vote hoeenhero</code></dd>
 	<dt>&semi;</dt>
 	<dd> - message your scumpartners. Messages from your scumpartners will just have the message.</dd>
 	<dt>&lt;</dt>
