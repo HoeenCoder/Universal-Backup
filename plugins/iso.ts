@@ -47,7 +47,7 @@ export class ISO {
 	addChat(text: string, author: string) {
 		if (author === '~') return;
 		text = Tools.escapeHTML(text).replace(/>here.?</ig, 'here  ').replace(/(click) (here)/ig, '$1  $2');
-		if(text.includes("&#x2f;log") && text.includes("notes:") && (author.includes("%") || author.includes("@") || author.includes("#"))) return;
+		if(text.startsWith("&#x2f;log") && (author.includes("%") || author.includes("@") || author.includes("#"))) return;
 		this.addHTML(`<username>${Tools.escapeHTML(author.slice(1))}:</username> ${text}`, [author]);
 		author = toId(author);
 		if (!(author in this.dayStats)) return;
