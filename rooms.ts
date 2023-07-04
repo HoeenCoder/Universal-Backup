@@ -9,6 +9,7 @@ export class Room {
 	mafiaTracker: MafiaTracker | null = null;
 	iso: MafiaISO | null = null;
 	mafiaCooldown: MafiaCooldown | null = null;
+	mafiaUGO: MafiaUGO | null = null;
 	// fixme
 	scavengerHunt: import('./plugins/scavs').ScavengerHunt | null = null;
 	pendingScavengerHunt: import('./plugins/scavs').ScavengerHunt | null = null;
