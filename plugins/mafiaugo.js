@@ -36,12 +36,12 @@ class MafiaUGO extends Rooms.RoomGame {
 	disable() {
 		if (!this.enabled) return this.sendRoom(`UGO mode already disabled`);
 		this.enabled = false;
-		this.sendRoom(`The mafia cooldown was disabled`);
+		this.sendRoom(`UGO mode was disabled`);
 	}
 	enable() {
 		if (this.enabled) return this.sendRoom(`UGO mode already enabled`);
 		this.enabled = true;
-		this.sendRoom(`The mafia cooldown was enabled`);
+		this.sendRoom(`UGO mode was enabled`);
 	}
 	hostGame() {
 		this.sendRoom(`/mafia host dewbott`);
