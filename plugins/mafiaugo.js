@@ -68,7 +68,6 @@ Mafia.events.on('gamestart', (/** @type {mafiaTracker} */tracker, /** @type {str
 	if (tracker.room.mafiaUGO) tracker.room.mafiaUGO.onStart();
 });
 Mafia.events.on('gameend', (/** @type {mafiaTracker} */tracker, /** @type {string[]} */details) => {
-
 	if (tracker.room.mafiaUGO) tracker.room.mafiaUGO.onEnd();
 });
 
