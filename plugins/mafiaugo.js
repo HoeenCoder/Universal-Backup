@@ -17,13 +17,13 @@ class MafiaUGO extends Rooms.RoomGame {
 		// Calculate gametime
 		if (!this.game) return;
 
-		var gameLength = Date.now() - this.gameStart;
-		var gameHours = Math.floor(gameLength / 3600000);
-		var gameMinutes = Math.floor((gameLength % 3600000) / 60000);
-		var gameSeconds = Math.round(((gameLength % 3600000) % 60000) / 1000);
+		const gameLength = Date.now() - this.gameStart;
+		const gameHours = Math.floor(gameLength / 3600000);
+		const gameMinutes = Math.floor((gameLength % 3600000) / 60000);
+		const gameSeconds = Math.round(((gameLength % 3600000) % 60000) / 1000);
 		this.sendRoom(`${gameHours} hours, ${gameMinutes} minutes, ${gameSeconds} seconds.`);
-		this.sendRoom(`Hosts (${Object.keys(this.room.mafiaTracker?.cohosts).length + 1}): ${[this.room.mafiaTracker?.host].concat(this.room.mafiaTracker?.cohosts).map(obj => obj.toString()).join()}`);
-		this.sendRoom(`Players (${Object.keys(this.room.mafiaTracker?.players).length}): ${Object.keys(this.room.mafiaTracker?.players).map(obj => ' ' + obj + ' (' + this.room.mafiaTracker?.players[obj].role.trim() + ')').join()}`);
+		this.sendRoom(`Hosts (${Object.keys(this.room.mafiaTracker.cohosts).length + 1}): ${[this.room.mafiaTracker.host].concat(this.room.mafiaTracker.cohosts).map(obj => obj.toString()).join()}`);
+		this.sendRoom(`Players (${Object.keys(this.room.mafiaTracker.players).length}): ${Object.keys(this.room.mafiaTracker.players).map(obj => ' ' + obj + ' (' + this.room.mafiaTracker.players[obj].role.trim() + ')').join()}`);
 		this.game = false;
 	}
 
@@ -58,16 +58,16 @@ class MafiaUGO extends Rooms.RoomGame {
 		this.sendRoom(`/mafia kill alexander489`);
 		this.sendRoom(`gg snaquaza`);
 		this.sendRoom(`/mafia end`);
-    }
+	}
 }
 
-Mafia.events.on('host', (/** @type {mafiaTracker?} */tracker, /** @type {string[]} */details) => {
+Mafia.events.on('host', (/** @type {mafiaTracker} */tracker, /** @type {string[]} */details) => {
 	if (tracker.room.mafiaUGO) tracker.room.mafiaUGO.onHost();
 });
-Mafia.events.on('gamestart', (/** @type {mafiaTracker?} */tracker, /** @type {string[]} */details) => {
+Mafia.events.on('gamestart', (/** @type {mafiaTracker} */tracker, /** @type {string[]} */details) => {
 	if (tracker.room.mafiaUGO) tracker.room.mafiaUGO.onStart();
 });
-Mafia.events.on('gameend', (/** @type {mafiaTracker?} */tracker, /** @type {string[]} */details) => {
+Mafia.events.on('gameend', (/** @type {mafiaTracker} */tracker, /** @type {string[]} */details) => {
 	if (tracker.room.mafiaUGO) tracker.room.mafiaUGO.onEnd();
 });
 
