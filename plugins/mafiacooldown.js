@@ -33,7 +33,7 @@ class MafiaCooldown extends Rooms.RoomGame {
 		if (remaining < 1) {
 			reply = `The cooldown timer is not running.`;
 		} else {
-			reply = `There is ${Tools.toDurationString(remaining, {precision: 2})} left on the cooldown timer.`;
+			reply = `There is ${Tools.toDurationString(remaining, { precision: 2 })} left on the cooldown timer.`;
 		}
 		if (Date.now() > (this.lastBroadcast + BROADCAST_COOLDOWN)) {
 			this.sendRoom(Chat.strong(this.room, reply));
@@ -66,7 +66,7 @@ class MafiaCooldown extends Rooms.RoomGame {
 			if (this.enabled) {
 				this.cooldownStart = Date.now();
 				this.timer = setTimeout(() => this.nextHost(), this.cooldown * 1000);
-				this.sendRoom(`Cooldown time - The next mafia game can start in ${Tools.toDurationString(this.cooldown * 1000, {precision: 2})}.`);
+				this.sendRoom(`Cooldown time - The next mafia game can start in ${Tools.toDurationString(this.cooldown * 1000, { precision: 2 })}.`);
 			}
 		} else {
 			this.state = 'pregame';
@@ -136,6 +136,7 @@ Mafia.events.on('gameend', (/** @type {MafiaTracker} */tracker, /** @type {strin
 /** @type {ChatCommands} */
 const commands = {
 	createcooldown: function (target, room, user) {
+
 		if (!this.can('leader')) return;
 		if (!room) return;
 		if (room.mafiaCooldown) return this.reply('Already exists');
@@ -177,5 +178,4 @@ const commands = {
 	},
 };
 
-exports.commands = commands;
 /** @typedef {MafiaCooldown} MafiaCooldownT */
