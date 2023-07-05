@@ -160,7 +160,7 @@ const commands = {
 		if (!lighthouseRoom || !(lighthouseRoom.game instanceof Lighthouse)) return; // failsafe to make typescript happy
 		lighthouseRoom.game.lynch(user, target);
 	},
-      	uv: 'ul',
+	uv: 'ul',
 	ul: function (target, room, user) {
 		if (room) return;
 		const lighthouseRoom = [...Rooms.rooms.values()].find(r => !!(r.game && r.game instanceof Lighthouse));
