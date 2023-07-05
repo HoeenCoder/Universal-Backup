@@ -177,5 +177,6 @@ const commands = {
 		this.reply(this.strong(`Themes on cooldown: ${cd.themeHistory.join(', ')}`));
 	},
 };
+exports.commands = commands;
 
 /** @typedef {MafiaCooldown} MafiaCooldownT */
