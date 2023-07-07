@@ -390,15 +390,15 @@ class MafiaTracker extends Rooms.RoomGame {
 			}));
 	}
 
-//	/**
-//	 * @param {object} game
-//	 */
-//	addGame(game) {
-//		if (this.game) return this.sendRoom('Game already exists.');
-//		this.game = game;
-//		this.data = game.data || {};
-//		// if (this.game.triggers.create) this.game.triggers.create.call(this);
-//	}
+	//	/**
+	//	 * @param {object} game
+	//	 */
+	//	addGame(game) {
+	//		if (this.game) return this.sendRoom('Game already exists.');
+	//		this.game = game;
+	//		this.data = game.data || {};
+	//		// if (this.game.triggers.create) this.game.triggers.create.call(this);
+	//	}
 	removeGame() {
 		this.game = null;
 		this.data = null;
