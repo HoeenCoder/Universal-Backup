@@ -21,9 +21,9 @@ class MafiaUGO extends Rooms.RoomGame {
 		const gameHours = Math.floor(gameLength / 3600000);
 		const gameMinutes = Math.floor((gameLength % 3600000) / 60000);
 		const gameSeconds = Math.round(((gameLength % 3600000) % 60000) / 1000);
-		this.sendRoom(`!code ${gameHours} hours, ${gameMinutes} minutes, ${gameSeconds} seconds.\n
-  		Hosts (${Object.keys(this.room.mafiaTracker.cohosts).length + 1}): ${[this.room.mafiaTracker.host].concat(this.room.mafiaTracker.cohosts).map(obj => obj.toString()).join()}\n
-		Players (${Object.keys(this.room.mafiaTracker.players).length}): ${Object.keys(this.room.mafiaTracker.players).map(obj => ' ' + obj + ' (' + this.room.mafiaTracker.players[obj].role.trim() + ')').join()}`);
+		this.sendRoom(`!code ${gameHours} hours, ${gameMinutes} minutes, ${gameSeconds} seconds.
+Hosts (${Object.keys(this.room.mafiaTracker.cohosts).length + 1}): ${[this.room.mafiaTracker.host].concat(this.room.mafiaTracker.cohosts).map(obj => obj.toString()).join()}
+Players (${Object.keys(this.room.mafiaTracker.players).length}): ${Object.keys(this.room.mafiaTracker.players).map(obj => ' ' + obj + ' (' + this.room.mafiaTracker.players[obj].role.trim() + ')').join()}`);
 		this.game = false;
 	}
 
