@@ -15,7 +15,7 @@ class MafiaUGO extends Rooms.RoomGame {
 
 	onEnd() {
 		// Calculate gametime
-		if (!this.game) return;
+		if (!this.game || !this.enabled) return;
 
 		const gameLength = Date.now() - this.gameStart;
 		const gameHours = Math.floor(gameLength / 3600000);
@@ -28,12 +28,14 @@ Players (${Object.keys(this.room.mafiaTracker.players).length}): ${Object.keys(t
 	}
 
 	onStart() {
+		if (!this.enabled) return;
 		// Set starting time
 		this.gameStart = Date.now();
 		this.game = true;
 	}
 
 	onHost() {
+		if (!this.enabled) return;
 		this.sendRoom(`/mafia cohost ${Config.nick}`);
 	}
 

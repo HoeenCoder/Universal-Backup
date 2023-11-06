@@ -31,13 +31,24 @@ Chat.events.on('chat', (/** @type {Room} */room, /** @type {string[]} */details)
 	}
 });
 
+Chat.events.on('join', (/** @type {Room} */room, /** @type {string[]} */details) => {
+	if (room.roomid !== 'mafia') return;
+	if (details.some(user => user.toLowerCase().replace(/[^a-z]/g, "") == 'snaquaza') && Math.random() < 0.01)
+		room.send("Hi Snaq!");
+	if (details.some(user => user.toLowerCase().replace(/[^a-z0-9]/g, "") == 'alexander489') && Math.random() < 0.01)
+		room.send("Hi Alex!");
+	}
+});
+
 /**
  * @param {Room} room
  * @param {string} user
  */
 function markOfficial(room, user) {
 	if (!room.mafiaTracker) return Chat.sendPM(user, "No game running, announce again once you've hosted yourself.");
+	if (room.mafiaTracker.official) return Chat.sendPM(user, "This game is already marked as official.");
 	Chat.sendPM(user, 'Marked the current game as official.');
+	room.mafiaTracker.official = true;
 
 	room.mafiaTracker.addMafiaListener('gamestart', () => {
 		// @ts-ignore FIXME the listener CB should pass the mafiaTracker
@@ -48,7 +59,7 @@ function markOfficial(room, user) {
 		/** @type {string[]} */
 		let given = [];
 		let didSomething;
-		const now = new Date().getMonth();
+		const now = (new Date().getFullYear()).toString() + (new Date().getMonth()).toString();
 		for (const [leaver, applyPoints] of Object.entries(pendingLeavers)) {
 			if (!applyPoints) continue;
 			if (Leavers[leaver] !== now) {
